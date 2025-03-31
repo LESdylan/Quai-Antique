@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tableau de Bord Admin - Le Quai Antique</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="stylesheet" href="../../css/animations.css">
+    <link rel="stylesheet" href="../../css/components.css">
+    <link rel="stylesheet" href="../../css/admin.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Cormorant+Infant:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500;600&family=Pinyon+Script&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="page-loader">
+        <div class="loader-animation">
+            <i class="fas fa-utensils"></i>
+        </div>
+    </div>
+
+    <header>
+        <div class="logo">
+            <h1>Le Quai Antique</h1>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="../../index.html">Accueil</a></li>
+                <li><a href="../menu.html">Carte</a></li>
+                <li><a href="../reservation.html">Réservation</a></li>
+                <li><a href="#" class="active">Admin</a></li>
+                <li><a href="#" id="logoutBtn">Déconnexion</a></li>
+            </ul>
+        </nav>
+        <div class="burger-menu">
+            <i class="fas fa-bars"></i>
+        </div>
+    </header>
+
+    <main class="admin-container">
+        <div class="admin-sidebar">
+            <div class="admin-profile">
+                <div class="profile-avatar">
+                    <i class="fas fa-user-circle"></i>
+                </div>
+                <div class="profile-info">
+                    <h3>Administrateur</h3>
+                    <p>Quai Antique</p>
+                </div>
+            </div>
+            
+            <nav class="admin-nav">
+                <ul>
+                    <li class="active">
+                        <a href="#" data-target="dashboard-panel"><i class="fas fa-tachometer-alt"></i> Tableau de bord</a>
+                    </li>
+                    <li>
+                        <a href="#" data-target="reservations-panel"><i class="fas fa-calendar-alt"></i> Réservations</a>
+                    </li>
+                    <li>
+                        <a href="#" data-target="tables-panel"><i class="fas fa-chair"></i> Tables</a>
+                    </li>
+                    <li>
+                        <a href="#" data-target="settings-panel"><i class="fas fa-cog"></i> Paramètres</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+        
+        <div class="admin-content">
+            <!-- Dashboard Panel -->
+            <div class="admin-panel active" id="dashboard-panel">
+                <h2 class="panel-title">Tableau de bord</h2>
+                
+                <div class="dashboard-summary">
+                    <div class="summary-card">
+                        <div class="card-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="card-info">
+                            <h3>Réservations aujourd'hui</h3>
+                            <p class="card-value" id="todayReservations">0</p>
+                        </div>
+                    </div>
+                    
+                    <div class="summary-card">
+                        <div class="card-icon">
+                            <i class="fas fa-utensils"></i>
+                        </div>
+                        <div class="card-info">
+                            <h3>Couverts ce soir</h3>
+                            <p class="card-value" id="tonightCovers">0</p>
+                        </div>
+                    </div>
+                    
+                    <div class="summary-card">
+                        <div class="card-icon">
+                            <i class="fas fa-calendar-week"></i>
+                        </div>
+                        <div class="card-info">
+                            <h3>Réservations cette semaine</h3>
+                            <p class="card-value" id="weekReservations">0</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="upcoming-reservations">
+                    <h3>Réservations à venir (aujourd'hui)</h3>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Heure</th>
+                                    <th>Nom</th>
+                                    <th>Personnes</th>
+                                    <th>Table</th>
+                                    <th>Contact</th>
+                                    <th>Statut</th>
+                                </tr>
+                            </thead>
+                            <tbody id="upcomingReservationsTable">
+                                <!-- Reservations will be loaded dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Reservations Panel -->
+            <div class="admin-panel" id="reservations-panel">
+                <h2 class="panel-title">Gestion des réservations</h2>
+                
+                <div class="reservations-filter">
+                    <div class="filter-group">
+                        <label for="filterDate">Date</label>
+                        <input type="date" id="filterDate">
+                    </div>
+                    <div class="filter-group">
+                        <label for="filterService">Service</label>
+                        <select id="filterService">
+                            <option value="">Tous</option>
+                            <option value="lunch">Déjeuner</option>
+                            <option value="dinner">Dîner</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="filterStatus">Statut</label>
+                        <select id="filterStatus">
+                            <option value="">Tous</option>
+                            <option value="confirmed">Confirmé</option>
+                            <option value="pending">En attente</option>
+                            <option value="cancelled">Annulé</option>
+                        </select>
+                    </div>
+                    <button id="applyFilter" class="btn-primary">Filtrer</button>
+                </div>
+                
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Heure</th>
+                                <th>Nom</th>
+                                <th>Personnes</th>
+                                <th>Table</th>
+                                <th>Contact</th>
+                                <th>Statut</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="reservationsTable">
+                            <!-- Reservations will be loaded dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- Tables Panel -->
+            <div class="admin-panel" id="tables-panel">
+                <h2 class="panel-title">Gestion des tables</h2>
+                
+                <div class="tables-layout">
+                    <h3>Organisation des tables du restaurant</h3>
+                    <p>Visualisez l'organisation actuelle des tables. Vous pouvez aussi simuler différentes configurations pour optimiser l'espace.</p>
+                    
+                    <div class="seating-map-container">
+                        <div class="seating-map" id="adminSeatingMap">
+                            <div class="restaurant-layout" id="adminRestaurantLayout"></div>
+                        </div>
+                        
+                        <div class="map-controls">
+                            <button type="button" id="adminZoomIn" class="map-control-btn">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                            <button type="button" id="adminZoomOut" class="map-control-btn">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                            <button type="button" id="adminResetView" class="map-control-btn">
+                                <i class="fas fa-sync-alt"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="tables-optimization">
+                        <h3>Optimisation des placements</h3>
+                        <p>Notre IA peut vous suggérer des arrangements optimaux pour les réservations à venir.</p>
+                        <button id="optimizeAllTables" class="btn-primary">
+                            <i class="fas fa-magic"></i> Optimiser les placements
+                        </button>
+                        <div id="optimizationResults" class="optimization-results"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Settings Panel -->
+            <div class="admin-panel" id="settings-panel">
+                <h2 class="panel-title">Paramètres du restaurant</h2>
+                
+                <div class="settings-section">
+                    <h3>Capacité du restaurant</h3>
+                    <div class="form-group">
+                        <label for="maxCapacity">Nombre maximum de couverts</label>
+                        <input type="number" id="maxCapacity" min="10" max="100">
+                    </div>
+                    <p class="settings-note">Cette valeur détermine le nombre total de personnes pouvant être accueillies simultanément.</p>
+                </div>
+                
+                <div class="settings-section">
+                    <h3>Horaires d'ouverture</h3>
+                    <div class="hours-settings">
+                        <div class="day-settings">
+                            <h4>Lundi</h4>
+                            <div class="service-hours">
+                                <div class="form-group">
+                                    <label>Déjeuner</label>
+                                    <select id="mondayLunch">
+                                        <option value="closed">Fermé</option>
+                                        <option value="12:00 - 14:00">12:00 - 14:00</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Dîner</label>
+                                    <select id="mondayDinner">
+                                        <option value="closed">Fermé</option>
+                                        <option value="19:00 - 21:00">19:00 - 21:00</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="day-settings">
+                            <h4>Mardi</h4>
+                            <div class="service-hours">
+                                <div class="form-group">
+                                    <label>Déjeuner</label>
+                                    <select id="tuesdayLunch">
+                                        <option value="closed">Fermé</option>
+                                        <option value="12:00 - 14:00" selected>12:00 - 14:00</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Dîner</label>
+                                    <select id="tuesdayDinner">
+                                        <option value="closed">Fermé</option>
+                                        <option value="19:00 - 21:00" selected>19:00 - 21:00</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <button id="saveSettings" class="btn-primary">Enregistrer les modifications</button>
+            </div>
+        </div>
+    </main>
+
+    <script src="../../js/main.js"></script>
+    <script src="../../js/animations.js"></script>
+    <script src="../../js/table-optimizer.js"></script>
+    <script src="../../js/admin.js"></script>
+    <script src="../../js/seat-map.js"></script>
+</body>
+</html>

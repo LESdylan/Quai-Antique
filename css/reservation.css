@@ -1,0 +1,384 @@
+/* Custom Input Styling */
+.input-wrapper i {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--secondary-color);
+    font-size: 1.1rem;
+}
+
+.input-wrapper input,
+.input-wrapper select,
+.input-wrapper textarea {
+    width: 100%;
+    padding: 15px 15px 15px 45px;
+    border: 1px solid #e5e0d9;
+    border-radius: 0;
+    font-size: 1rem;
+    background-color: rgba(255, 255, 255, 0.9);
+    color: var(--text-color);
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    font-family: var(--font-body);
+}
+
+.input-wrapper textarea {
+    padding-top: 10px;
+    resize: none;
+    min-height: 100px;
+}
+
+.input-wrapper input:focus,
+.input-wrapper select:focus,
+.input-wrapper textarea:focus {
+    outline: none;
+    border-color: var(--secondary-color);
+    box-shadow: 0 0 0 1px var(--secondary-color);
+}
+
+.date-input input[type="date"] {
+    cursor: pointer;
+}
+
+.guests-input {
+    display: flex;
+    align-items: center;
+    background-color: rgba(255, 255, 255, 0.9);
+    border: 1px solid #e5e0d9;
+    transition: border-color 0.3s ease;
+}
+
+.guests-input:focus-within {
+    border-color: var(--secondary-color);
+}
+
+.guests-input input {
+    border: none;
+    text-align: center;
+    width: 100%;
+    padding: 15px 0;
+    background: transparent;
+    -moz-appearance: textfield;
+}
+
+.guests-input input::-webkit-outer-spin-button,
+.guests-input input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.guest-btn {
+    background: none;
+    border: none;
+    color: var(--primary-color);
+    font-size: 1rem;
+    width: 40px;
+    height: 40px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.guest-btn:hover {
+    background-color: rgba(200, 169, 126, 0.1);
+}
+
+.guest-btn:active {
+    background-color: rgba(200, 169, 126, 0.2);
+}
+
+.seats-availability {
+    margin-top: 10px;
+    font-size: 0.9rem;
+    color: #4caf50;
+    display: flex;
+    align-items: center;
+}
+
+.seats-availability i {
+    margin-right: 5px;
+}
+
+.seats-availability.not-available {
+    color: #f44336;
+}
+
+/* Custom Checkbox */
+.checkbox-container {
+    display: flex;
+    align-items: flex-start;
+    position: relative;
+    padding-left: 35px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    user-select: none;
+}
+
+.checkbox-container input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+}
+
+.checkmark {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 20px;
+    width: 20px;
+    background-color: #f8f5f1;
+    border: 1px solid #e5e0d9;
+    transition: all 0.3s ease;
+}
+
+.checkbox-container:hover input ~ .checkmark {
+    background-color: #f0e9df;
+}
+
+.checkbox-container input:checked ~ .checkmark {
+    background-color: var(--secondary-color);
+    border-color: var(--secondary-color);
+}
+
+.checkmark:after {
+    content: "";
+    position: absolute;
+    display: none;
+}
+
+.checkbox-container input:checked ~ .checkmark:after {
+    display: block;
+}
+
+.checkbox-container .checkmark:after {
+    left: 7px;
+    top: 3px;
+    width: 5px;
+    height: 10px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+}
+
+.checkbox-container span {
+    line-height: 1.4;
+}
+
+.checkbox-container a {
+    color: var(--secondary-color);
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.checkbox-container a:hover {
+    color: var(--accent-color);
+    text-decoration: underline;
+}
+
+/* Login Prompt */
+.login-prompt {
+    text-align: center;
+    margin: 20px 0;
+    padding: 15px;
+    background-color: rgba(200, 169, 126, 0.1);
+    border-radius: 5px;
+}
+
+.login-prompt p {
+    font-size: 0.95rem;
+    color: var(--primary-color);
+}
+
+.login-prompt a {
+    color: var(--secondary-color);
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.login-prompt a:hover {
+    text-decoration: underline;
+}
+
+/* Testimonials Section */
+.reservation-testimonials {
+    padding: 6rem 0;
+    background-color: var(--cream-color);
+    position: relative;
+}
+
+.reservation-testimonials::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url('../assets/images/textures/vintage-paper.jpg');
+    background-size: cover;
+    opacity: 0.2;
+    z-index: 0;
+}
+
+.testimonials-slider {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 30px;
+    justify-content: center;
+    margin-top: 3rem;
+    position: relative;
+    z-index: 1;
+}
+
+.testimonial {
+    background-color: white;
+    border-radius: 5px;
+    padding: 30px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+    max-width: 450px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    position: relative;
+}
+
+.testimonial::before {
+    content: '';
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    right: 15px;
+    bottom: 15px;
+    border: 1px solid rgba(200, 169, 126, 0.2);
+    pointer-events: none;
+    z-index: 0;
+}
+
+.testimonial:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+}
+
+.testimonial-content {
+    position: relative;
+    margin-bottom: 20px;
+    z-index: 1;
+}
+
+.testimonial-content i {
+    color: var(--secondary-color);
+    font-size: 1.8rem;
+    margin-bottom: 15px;
+    display: block;
+    opacity: 0.5;
+}
+
+.testimonial-content p {
+    font-style: italic;
+    line-height: 1.7;
+    color: var(--text-color);
+    font-size: 1rem;
+}
+
+.testimonial-rating {
+    margin-top: 15px;
+}
+
+.testimonial-rating i {
+    color: #ffc107;
+    font-size: 1rem;
+    margin-right: 3px;
+    display: inline-block;
+    opacity: 1;
+}
+
+.testimonial-author {
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    z-index: 1;
+}
+
+.testimonial-author h4 {
+    font-family: var(--font-subtitle);
+    font-size: 1.1rem;
+    color: var(--primary-color);
+    margin-bottom: 5px;
+}
+
+.testimonial-author p {
+    font-size: 0.85rem;
+    color: #777;
+}
+
+/* Form Validation Styles */
+.form-group.error input,
+.form-group.error select,
+.form-group.error textarea,
+.form-group.error .guests-input {
+    border-color: #f44336;
+}
+
+.error-message {
+    display: none;
+    color: #f44336;
+    font-size: 0.85rem;
+    margin-top: 5px;
+}
+
+.form-group.error .error-message {
+    display: block;
+}
+
+/* Responsive Styles */
+@media (max-width: 991px) {
+    .reservation-wrapper {
+        flex-direction: column;
+    }
+    
+    .reservation-info,
+    .reservation-form-container {
+        max-width: 100%;
+    }
+}
+
+@media (max-width: 768px) {
+    .form-row {
+        flex-direction: column;
+        gap: 0;
+    }
+    
+    .form-group.half {
+        width: 100%;
+    }
+    
+    .reservation-hero h1 {
+        font-size: 2.5rem;
+    }
+    
+    .reservation-hero p {
+        font-size: 1.1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .reservation-form {
+        padding: 20px 15px;
+    }
+    
+    .info-item {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+    
+    .info-item i {
+        margin-right: 0;
+        margin-bottom: 10px;
+    }
+    
+    .testimonial {
+        padding: 20px 15px;
+    }
+}

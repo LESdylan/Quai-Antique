@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Download Textures</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1 {
+            color: #333;
+        }
+        .instruction {
+            background-color: #f9f7f4;
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .texture-links {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        .texture-card {
+            border: 1px solid #ddd;
+            padding: 15px;
+            border-radius: 5px;
+        }
+        button {
+            background-color: #c8a97e;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: #a68b5b;
+        }
+    </style>
+</head>
+<body>
+    <h1>Download Missing Textures</h1>
+    
+    <div class="instruction">
+        <h2>Instructions:</h2>
+        <p>The following textures are missing from your website. Click the buttons below to download each texture, then save them to the <code>/assets/images/textures/</code> directory.</p>
+    </div>
+    
+    <div class="texture-links">
+        <div class="texture-card">
+            <h3>dark-wood-texture.jpg</h3>
+            <p>Dark wood texture for gallery backgrounds</p>
+            <a href="https://source.unsplash.com/random/800x800/?dark,wood,texture" download="dark-wood-texture.jpg">
+                <button>Download dark-wood-texture.jpg</button>
+            </a>
+        </div>
+        
+        <div class="texture-card">
+            <h3>vintage-paper.jpg</h3>
+            <p>Vintage paper texture for section backgrounds</p>
+            <a href="https://source.unsplash.com/random/800x800/?vintage,paper,texture" download="vintage-paper.jpg">
+                <button>Download vintage-paper.jpg</button>
+            </a>
+        </div>
+        
+        <div class="texture-card">
+            <h3>paper-texture.png</h3>
+            <p>Subtle paper texture for background elements</p>
+            <a href="https://source.unsplash.com/random/800x800/?paper,texture" download="paper-texture.png">
+                <button>Download paper-texture.png</button>
+            </a>
+        </div>
+        
+        <div class="texture-card">
+            <h3>noise-texture.png</h3>
+            <p>Subtle noise pattern for background depth</p>
+            <a href="https://source.unsplash.com/random/800x800/?noise,texture" download="noise-texture.png">
+                <button>Download noise-texture.png</button>
+            </a>
+        </div>
+    </div>
+    
+    <div class="instruction" style="margin-top: 30px;">
+        <h2>Alternative Method:</h2>
+        <p>If the buttons above don't work, you can manually download the following stock texture images:</p>
+        <ul>
+            <li>Search for "dark wood texture" on <a href="https://unsplash.com/s/photos/dark-wood-texture" target="_blank">Unsplash</a></li>
+            <li>Search for "vintage paper texture" on <a href="https://unsplash.com/s/photos/vintage-paper-texture" target="_blank">Unsplash</a></li>
+            <li>Search for "paper texture" on <a href="https://unsplash.com/s/photos/paper-texture" target="_blank">Unsplash</a></li>
+            <li>Search for "noise texture" on <a href="https://unsplash.com/s/photos/noise-texture" target="_blank">Unsplash</a></li>
+        </ul>
+    </div>
+</body>
+</html>

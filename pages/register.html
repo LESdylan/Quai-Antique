@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inscription - Le Quai Antique</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/animations.css">
+    <link rel="stylesheet" href="../css/components.css">
+    <link rel="stylesheet" href="../css/auth.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Cormorant+Infant:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500;600&family=Pinyon+Script&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="page-loader">
+        <div class="loader-animation">
+            <i class="fas fa-utensils"></i>
+        </div>
+    </div>
+
+    <header>
+        <div class="logo">
+            <h1>Le Quai Antique</h1>
+        </div>
+        <nav>
+            <ul></ul>
+                <li><a href="../index.html">Accueil</a></li>
+                <li><a href="menu.html">Carte</a></li>
+                <li><a href="reservation.html">Réservation</a></li>
+                <li><a href="login.html">Connexion</a></li>
+            </ul>
+        </nav>
+        <div class="burger-menu">
+            <i class="fas fa-bars"></i>
+        </div>
+    </header>
+
+    <main class="auth-container">
+        <div class="form-container">
+            <span class="handwritten">Rejoignez-nous</span>
+            <h2>Créer un compte</h2>
+            <div class="text-accent"></div>
+            
+            <form id="registerForm" class="auth-form">
+                <div class="form-row">
+                    <div class="form-group half">
+                        <label for="firstName">Prénom</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-user"></i>
+                            <input type="text" id="firstName" name="firstName" autocomplete="given-name" required>
+                        </div>
+                    </div>
+                    <div class="form-group half">
+                        <label for="lastName">Nom</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-user"></i>
+                            <input type="text" id="lastName" name="lastName" autocomplete="family-name" required>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-envelope"></i>
+                        <input type="email" id="email" name="email" autocomplete="email" required>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Mot de passe</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" id="password" name="password" autocomplete="new-password" required>
+                    </div>
+                    <small>Le mot de passe doit contenir au moins 8 caractères, une majuscule, une minuscule et un chiffre</small>
+                </div>
+                
+                <div class="form-group">
+                    <label for="confirmPassword">Confirmer le mot de passe</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" id="confirmPassword" name="confirmPassword" autocomplete="new-password" required>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="defaultGuests">Nombre de convives par défaut</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-users"></i>
+                        <input type="number" id="defaultGuests" name="defaultGuests" min="1" max="20" value="2">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="allergies">Allergies (optionnel)</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <textarea id="allergies" name="allergies" rows="3" placeholder="Veuillez indiquer vos allergies éventuelles"></textarea>
+                    </div>
+                </div>
+                
+                <div class="form-group consent-group">
+                    <label class="checkbox-container">
+                        <input type="checkbox" required>
+                        <span class="checkmark"></span>
+                        <span>J'accepte les <a href="#">conditions générales</a> et la <a href="#">politique de confidentialité</a></span>
+                    </label>
+                </div>
+                
+                <button type="submit" class="btn-primary">S'inscrire</button>
+            </form>
+            <div class="auth-footer">
+                <p>Vous avez déjà un compte ? <a href="login.html">Se connecter</a></p>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Le Quai Antique</h3>
+                    <p>12 Avenue du Lac</p>
+                    <p>73000 Chambéry</p>
+                    <p>04 50 XX XX XX</p>
+                </div>
+                <div class="footer-section">
+                    <h3>Suivez-nous</h3>
+                    <div class="social-icons">
+                        <a href="#"><i class="fab fa-facebook"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="copyright">
+                <p>&copy; 2023 Le Quai Antique. Tous droits réservés.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="../js/main.js"></script>
+    <script src="../js/animations.js"></script>
+    <script src="../js/auth.js"></script>
+</body>
+</html>

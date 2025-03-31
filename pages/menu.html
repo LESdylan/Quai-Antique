@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notre Carte - Le Quai Antique</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/animations.css">
+    <link rel="stylesheet" href="../css/menu.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Open+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="page-loader">
+        <div class="loader-animation">
+            <i class="fas fa-utensils"></i>
+        </div>
+    </div>
+
+    <header>
+        <div class="logo">
+            <h1>Le Quai Antique</h1>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="../index.html">Accueil</a></li>
+                <li><a href="menu.html" class="active">Carte</a></li>
+                <li><a href="reservation.html">Réservation</a></li>
+                <li><a href="login.html" id="loginBtn">Connexion</a></li>
+            </ul>
+        </nav>
+        <div class="burger-menu">
+            <i class="fas fa-bars"></i>
+        </div>
+    </header>
+
+    <main>
+        <section class="menu-hero">
+            <div class="hero-content">
+                <h1 class="animate-text">Notre Carte</h1>
+                <p class="animate-text delay-1">Une expérience culinaire savoyarde authentique</p>
+            </div>
+            <div class="hero-overlay"></div>
+        </section>
+
+        <section class="menu-filters reveal-section">
+            <div class="container">
+                <div class="filters-container">
+                    <button class="filter-btn active" data-filter="all">Tout voir</button>
+                    <button class="filter-btn" data-filter="entrees">Entrées</button>
+                    <button class="filter-btn" data-filter="plats">Plats</button>
+                    <button class="filter-btn" data-filter="desserts">Desserts</button>
+                    <button class="filter-btn" data-filter="menus">Menus</button>
+                </div>
+            </div>
+        </section>
+
+        <section class="menu-items">
+            <div class="container">
+                <!-- Entrées -->
+                <div class="menu-category" id="entrees">
+                    <h2 class="section-title">Entrées</h2>
+                    <div class="text-accent"></div>
+                    
+                    <div class="menu-grid">
+                        <div class="menu-item appetizing-hover reveal-item" data-category="entrees">
+                            <div class="menu-item-image">
+                                <img src="https://images.unsplash.com/photo-1499125562588-29fb8a56b5d5?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="Tartare de truite" loading="lazy">
+                                <div class="menu-item-badge">Signature</div>
+                            </div>
+                            <div class="menu-item-content">
+                                <h3>Tartare de truite du lac</h3>
+                                <p class="menu-item-description">Truite fraîche du lac, ciboulette, échalotes, huile d'olive et citron</p>
+                                <p class="menu-item-price">16€</p>
+                            </div>
+                        </div>
+
+                        <div class="menu-item appetizing-hover reveal-item" data-delay="0.1" data-category="entrees">
+                            <div class="menu-item-image">
+                                <img src="https://images.unsplash.com/photo-1608897013039-887f21d8c804?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="Chèvre chaud" loading="lazy">
+                            </div>
+                            <div class="menu-item-content">
+                                <h3>Chèvre chaud au miel de montagne</h3>
+                                <p class="menu-item-description">Toast de pain de campagne, chèvre fermier et miel de Savoie, mesclun</p>
+                                <p class="menu-item-price">14€</p>
+                            </div>
+                        </div>
+
+                        <div class="menu-item appetizing-hover reveal-item" data-delay="0.2" data-category="entrees">
+                            <div class="menu-item-image">
+                                <img src="https://images.unsplash.com/photo-1622973536968-3ead9e780960?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="Velouté de potimarron" loading="lazy">
+                            </div>
+                            <div class="menu-item-content">
+                                <h3>Velouté de potimarron aux châtaignes</h3>
+                                <p class="menu-item-description">Velouté onctueux, châtaignes torréfiées et crème fraîche de Savoie</p>
+                                <p class="menu-item-price">12€</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Plats -->
+                <div class="menu-category" id="plats">
+                    <h2 class="section-title">Plats</h2>
+                    <div class="text-accent"></div>
+                    
+                    <div class="menu-grid">
+                        <div class="menu-item appetizing-hover reveal-item" data-category="plats">
+                            <div class="menu-item-image">
+                                <img src="https://images.unsplash.com/photo-1611599537845-1c7aca0091c0?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="Filet de féra" loading="lazy">
+                                <div class="steam-effect">
+                                    <span></span>
+                                    <span></span>
+                                </div>
+                            </div>
+                            <div class="menu-item-content">
+                                <h3>Filet de féra du lac Léman</h3>
+                                <p class="menu-item-description">Poisson d'eau douce, sauce au vin blanc de Savoie, légumes de saison</p>
+                                <p class="menu-item-price">28€</p>
+                            </div>
+                        </div>
+
+                        <div class="menu-item appetizing-hover reveal-item" data-delay="0.1" data-category="plats">
+                            <div class="menu-item-image">
+                                <img src="https://images.unsplash.com/photo-1598103442097-8b74394b95c6?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="Suprême de volaille" loading="lazy">
+                                <div class="menu-item-badge">Coup de cœur</div>
+                                <div class="steam-effect">
+                                    <span></span>
+                                    <span></span>
+                                </div>
+                            </div>
+                            <div class="menu-item-content">
+                                <h3>Suprême de volaille de Bresse aux morilles</h3>
+                                <p class="menu-item-description">Volaille fermière, sauce crémeuse aux morilles, purée de pommes de terre à l'huile de truffe</p>
+                                <p class="menu-item-price">32€</p>
+                            </div>
+                        </div>
+
+                        <div class="menu-item appetizing-hover reveal-item" data-delay="0.2" data-category="plats">
+                            <div class="menu-item-image">
+                                <img src="https://images.unsplash.com/photo-1564436872-f6d81182df14?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="Entrecôte de bœuf" loading="lazy">
+                                <div class="steam-effect">
+                                    <span></span>
+                                    <span></span>
+                                </div>
+                            </div>
+                            <div class="menu-item-content">
+                                <h3>Entrecôte de bœuf de Savoie</h3>
+                                <p class="menu-item-description">Entrecôte maturée, sauce au bleu de Termignon, gratin dauphinois traditionnel</p>
+                                <p class="menu-item-price">34€</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Desserts -->
+                <div class="menu-category" id="desserts">
+                    <h2 class="section-title">Desserts</h2>
+                    <div class="text-accent"></div>
+                    
+                    <div class="menu-grid">
+                        <div class="menu-item appetizing-hover reveal-item" data-category="desserts">
+                            <div class="menu-item-image">
+                                <img src="https://images.unsplash.com/photo-1551024601-bec78aea704b?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="Dessert à la Chartreuse" loading="lazy">
+                            </div>
+                            <div class="menu-item-content">
+                                <h3>Délice à la Chartreuse</h3>
+                                <p class="menu-item-description">Mousse légère infusée à la Chartreuse, crumble aux noix, glace vanille</p>
+                                <p class="menu-item-price">12€</p>
+                            </div>
+                        </div>
+
+                        <div class="menu-item appetizing-hover reveal-item" data-delay="0.1" data-category="desserts">
+                            <div class="menu-item-image">
+                                <img src="https://images.unsplash.com/photo-1470124182917-cc6e71b22ecc?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="Tarte aux myrtilles" loading="lazy">
+                            </div>
+                            <div class="menu-item-content">
+                                <h3>Tarte aux myrtilles sauvages</h3>
+                                <p class="menu-item-description">Pâte sablée, myrtilles sauvages des montagnes, crème glacée au génépi</p>
+                                <p class="menu-item-price">10€</p>
+                            </div>
+                        </div>
+
+                        <div class="menu-item appetizing-hover reveal-item" data-delay="0.2" data-category="desserts">
+                            <div class="menu-item-image">
+                                <img src="https://images.unsplash.com/photo-1561087538-12d9f7247afd?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="Fondant au chocolat" loading="lazy">
+                                <div class="menu-item-badge">Signature</div>
+                            </div>
+                            <div class="menu-item-content">
+                                <h3>Fondant au chocolat de Savoie</h3>
+                                <p class="menu-item-description">Chocolat noir intense, cœur coulant, caramel au beurre salé et noisettes caramélisées</p>
+                                <p class="menu-item-price">14€</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Menus -->
+                <div class="menu-category" id="menus">
+                    <h2 class="section-title">Nos Menus</h2>
+                    <div class="text-accent"></div>
+                    
+                    <div class="menus-container">
+                        <div class="menu-card reveal-item" data-category="menus">
+                            <div class="menu-card-header">
+                                <h3>Menu Découverte</h3>
+                                <p class="menu-card-price">42€</p>
+                            </div>
+                            <div class="menu-card-content">
+                                <div class="menu-card-section">
+                                    <h4>Entrée au choix</h4>
+                                    <ul>
+                                        <li>Velouté de potimarron aux châtaignes</li>
+                                        <li>Chèvre chaud au miel de montagne</li>
+                                    </ul>
+                                </div>
+                                <div class="menu-card-section">
+                                    <h4>Plat au choix</h4>
+                                    <ul>
+                                        <li>Filet de féra du lac Léman</li>
+                                        <li>Entrecôte de bœuf de Savoie</li>
+                                    </ul>
+                                </div>
+                                <div class="menu-card-section">
+                                    <h4>Dessert au choix</h4>
+                                    <ul>
+                                        <li>Tarte aux myrtilles sauvages</li>
+                                        <li>Fondant au chocolat de Savoie</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="menu-card reveal-item" data-delay="0.2" data-category="menus">
+                            <div class="menu-card-header">
+                                <h3>Menu Gastronomique</h3>
+                                <div class="menu-card-badge">Recommandé</div>
+                                <p class="menu-card-price">58€</p>
+                            </div>
+                            <div class="menu-card-content">
+                                <div class="menu-card-section">
+                                    <h4>Entrée au choix</h4>
+                                    <ul>
+                                        <li>Tartare de truite du lac</li>
+                                        <li>Foie gras mi-cuit, confit d'oignons au vin blanc</li>
+                                    </ul>
+                                </div>
+                                <div class="menu-card-section">
+                                    <h4>Plat au choix</h4>
+                                    <ul>
+                                        <li>Suprême de volaille de Bresse aux morilles</li>
+                                        <li>Filet de bœuf, sauce au bleu de Termignon</li>
+                                    </ul>
+                                </div>
+                                <div class="menu-card-section">
+                                    <h4>Fromage</h4>
+                                    <ul>
+                                        <li>Assiette de fromages affinés de nos montagnes</li>
+                                    </ul>
+                                </div>
+                                <div class="menu-card-section">
+                                    <h4>Dessert au choix</h4>
+                                    <ul>
+                                        <li>Délice à la Chartreuse</li>
+                                        <li>Fondant au chocolat de Savoie</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="cta-reservation reveal-section">
+            <div class="container">
+                <div class="cta-content">
+                    <h2>Envie de déguster nos créations?</h2>
+                    <p>Réservez votre table dès maintenant pour vivre une expérience gastronomique inoubliable</p>
+                    <a href="reservation.html" class="btn-primary-large pulse-animation">Réserver une table</a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Le Quai Antique</h3>
+                    <p>12 Avenue du Lac</p>
+                    <p>73000 Chambéry</p>
+                    <p>04 50 XX XX XX</p>
+                </div>
+                <div class="footer-section">
+                    <h3>Suivez-nous</h3>
+                    <div class="social-icons">
+                        <a href="#"><i class="fab fa-facebook"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="copyright">
+                <p>&copy; 2023 Le Quai Antique. Tous droits réservés.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="../js/main.js"></script>
+    <script src="../js/animations.js"></script>
+    <script src="../js/menu.js"></script>
+</body>
+</html>

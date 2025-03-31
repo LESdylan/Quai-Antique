@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Réservation - Le Quai Antique</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/animations.css">
+    <link rel="stylesheet" href="../css/reservation.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Cormorant+Infant:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500;600&family=Pinyon+Script&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/seat-map.css">
+    <link rel="stylesheet" href="../css/seat-map-patch.css">
+    <link rel="stylesheet" href="../css/ultimate-fix.css">
+    <link rel="stylesheet" href="../css/texture-fallbacks.css">
+    <style>
+        .seating-map-container {
+            display: block !important;
+            visibility: visible !important;
+            min-height: 550px !important;
+        }
+
+        /* Important warning message */
+        .visibility-warning {
+            margin: 15px 0;
+            padding: 15px;
+            background-color: #fff3cd;
+            border: 1px solid #ffeeba;
+            border-radius: 4px;
+            font-weight: bold;
+            color: #856404;
+            text-align: center;
+        }
+        
+        .visibility-warning button {
+            background-color: #ffc107;
+            color: #212529;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            margin-left: 10px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="page-loader">
+        <div class="loader-animation">
+            <i class="fas fa-utensils"></i>
+        </div>
+    </div>
+
+    <header>
+        <div class="logo">
+            <h1>Le Quai Antique</h1>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="../index.html">Accueil</a></li>
+                <li><a href="menu.html">Carte</a></li>
+                <li><a href="reservation.html" class="active">Réservation</a></li>
+                <li><a href="login.html" id="loginBtn">Connexion</a></li>
+            </ul>
+        </nav>
+        <div class="burger-menu">
+            <i class="fas fa-bars"></i>
+        </div>
+    </header>
+
+    <main>
+        <section class="reservation-hero parallax">
+            <div class="hero-content">
+                <h1 class="animate-text">Réservez Votre Table</h1>
+                <p class="animate-text delay-1">Vivez une expérience gastronomique inoubliable dans notre restaurant</p>
+            </div>
+            <div class="hero-overlay"></div>
+        </section>
+
+        <section class="reservation-container">
+            <div class="container">
+                <div class="reservation-wrapper">
+                    <div class="reservation-info reveal-item">
+                        <span class="section-subtitle handwritten">Informations</span>
+                        <h2 class="section-title">Détails Pratiques</h2>
+                        <div class="text-accent"></div>
+                        <div class="info-item">
+                            <i class="fas fa-phone"></i>
+                            <div>
+                                <h3>Réservation par téléphone</h3>
+                                <p>04 50 XX XX XX</p>
+                                <p class="info-note">Du mardi au dimanche, 10h-18h</p>
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <i class="fas fa-clock"></i>
+                            <div>
+                                <h3>Nos horaires</h3>
+                                <div class="opening-hours">
+                                    <p><span>Déjeuner:</span> 12h00 - 14h00</p>
+                                    <p><span>Dîner:</span> 19h00 - 21h00</p>
+                                    <p class="info-note">Fermé le lundi</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <div>
+                                <h3>Notre adresse</h3>
+                                <p>12 Avenue du Lac, 73000 Chambéry</p>
+                                <p class="info-note">Parking à proximité</p>
+                            </div>
+                        </div>
+                        <div class="capacity-info">
+                            <i class="fas fa-info-circle"></i>
+                            <p>Capacité maximum: <span id="maxCapacity">50</span> personnes</p>
+                        </div>
+                        <div class="reservation-map">
+                            <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d44136.171093957885!2d5.8803726!3d45.5648317!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x478ba85708695f2f%3A0xd5c21acfa63d899c!2zQ2hhbWLDqXJ5!5e0!3m2!1sfr!2sfr!4v1635077458690!5m2!1sfr!2sfr" 
+                                    style="border:0;" allowfullscreen="" loading="lazy"></iframe>
+                        </div>
+                    </div>
+                    <div class="reservation-form-container reveal-item" data-delay="0.2">
+                        <span class="section-subtitle handwritten">Réservation</span>
+                        <h2 class="section-title">Réserver en ligne</h2>
+                        <div class="text-accent"></div>
+                        <form id="reservationForm" class="reservation-form">
+                            <div class="form-group">
+                                <label for="date">Date <span class="required">*</span></label>
+                                <div class="input-wrapper date-input">
+                                    <i class="fas fa-calendar-alt"></i>
+                                    <input type="date" id="date" name="date" required min="">
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group half">
+                                    <label for="service">Service <span class="required">*</span></label>
+                                    <div class="input-wrapper">
+                                        <i class="fas fa-utensils"></i>
+                                        <select id="service" name="service" required>
+                                            <option value="" disabled selected>Choisir</option>
+                                            <option value="lunch">Déjeuner (12h-14h)</option>
+                                            <option value="dinner">Dîner (19h-21h)</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group half">
+                                    <label for="time">Heure <span class="required">*</span></label>
+                                    <div class="input-wrapper">
+                                        <i class="fas fa-clock"></i>
+                                        <select id="time" name="time" required disabled>
+                                            <option value="" disabled selected>Choisir d'abord un service</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="guests">Nombre de personnes <span class="required">*</span></label>
+                                <div class="guests-input">
+                                    <button type="button" id="decreaseGuests" class="guest-btn">
+                                        <i class="fas fa-minus"></i>
+                                    </button>
+                                    <input type="number" id="guests" name="guests" min="1" max="20" value="2" required>
+                                    <button type="button" id="increaseGuests" class="guest-btn">
+                                        <i class="fas fa-plus"></i>
+                                    </button>
+                                </div>
+                                <div class="seats-availability" id="seatsAvailability">
+                                    <i class="fas fa-check-circle"></i> Places disponibles
+                                </div>
+                                <div class="large-group-warning" id="largeGroupWarning">
+                                    <i class="fas fa-info-circle"></i> Pour les groupes de plus de 10 personnes, veuillez nous contacter directement au 04 50 XX XX XX pour une organisation personnalisée.
+                                </div>
+                            </div>
+                            <div class="visibility-warning">
+                                Si vous ne voyez pas la carte des tables ci-dessous, cliquez sur ce bouton : 
+                                <button type="button" onclick="forceRenderTables()">Afficher les tables</button>
+                            </div>
+                            <div class="seating-map-container" id="seatingMapContainer">
+                                <h3>Sélectionnez votre table</h3>
+                                <div id="seatingMapIndicator" class="seating-map-indicator">
+                                    Plan de salle en cours de chargement... <i class="fas fa-sync fa-spin"></i>
+                                </div>
+                                <div class="seating-map-legend">
+                                    <div class="legend-item">
+                                        <div class="legend-color legend-available"></div>
+                                        <span>Disponible</span>
+                                    </div>
+                                    <div class="legend-item">
+                                        <div class="legend-color legend-selected"></div>
+                                        <span>Sélectionnée</span>
+                                    </div>
+                                    <div class="legend-item">
+                                        <div class="legend-color legend-occupied"></div>
+                                        <span>Occupée</span>
+                                    </div>
+                                </div>
+                                <div class="seating-map" id="seatingMap">
+                                    <div class="restaurant-layout" id="restaurantLayout"></div>
+                                </div>
+                                <div class="map-controls">
+                                    <button type="button" id="zoomIn" class="map-control-btn">
+                                        <i class="fas fa-plus"></i>
+                                    </button>
+                                    <button type="button" id="zoomOut" class="map-control-btn">
+                                        <i class="fas fa-minus"></i>
+                                    </button>
+                                    <button type="button" id="resetView" class="map-control-btn">
+                                        <i class="fas fa-sync-alt"></i>
+                                    </button>
+                                </div>
+                                <button type="button" id="optimizeTablesBtn" class="btn-primary" style="margin-top: 15px; width: 100%;">
+                                    <i class="fas fa-magic"></i> Suggestion optimale
+                                </button>
+                                <div class="table-suggestion" id="tableSuggestion" style="display: none;">
+                                    <div class="suggestion-title">
+                                        <i class="fas fa-lightbulb"></i>
+                                        <span>Suggestion de notre IA</span>
+                                    </div>
+                                    <div class="suggestion-content" id="suggestionContent"></div>
+                                    <div class="suggestion-buttons">
+                                        <button type="button" id="acceptSuggestion" class="suggestion-btn accept">Accepter</button>
+                                        <button type="button" id="declineSuggestion" class="suggestion-btn">Décliner</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <input type="hidden" id="tableNumber" name="tableNumber" value="">
+                            <div class="form-group">
+                                <label for="name">Nom complet <span class="required">*</span></label>
+                                <div class="input-wrapper">
+                                    <i class="fas fa-user"></i>
+                                    <input type="text" id="name" name="name" autocomplete="name" required>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group half">
+                                    <label for="email">Email <span class="required">*</span></label>
+                                    <div class="input-wrapper">
+                                        <i class="fas fa-envelope"></i>
+                                        <input type="email" id="email" name="email" autocomplete="email" required>
+                                    </div>
+                                </div>
+                                <div class="form-group half">
+                                    <label for="phone">Téléphone <span class="required">*</span></label>
+                                    <div class="input-wrapper">
+                                        <i class="fas fa-phone"></i>
+                                        <input type="tel" id="phone" name="phone" autocomplete="tel" required>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="allergies">Allergies ou régimes spéciaux</label>
+                                <div class="input-wrapper">
+                                    <i class="fas fa-exclamation-circle"></i>
+                                    <textarea id="allergies" name="allergies" rows="3" placeholder="Merci de nous préciser vos allergies ou régimes alimentaires particuliers"></textarea>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="notes">Notes spéciales</label>
+                                <div class="input-wrapper">
+                                    <i class="fas fa-pen"></i>
+                                    <textarea id="notes" name="notes" rows="3" placeholder="Occasion spéciale, placement préféré, etc."></textarea>
+                                </div>
+                            </div>
+                            <div class="form-group consent-group">
+                                <label class="checkbox-container">
+                                    <input type="checkbox" required>
+                                    <span class="checkmark"></span>
+                                    <span>J'accepte les <a href="#">conditions générales</a> et la <a href="#">politique de confidentialité</a> <span class="required">*</span></span>
+                                </label>
+                            </div>
+                            <div class="login-prompt" id="loginPrompt">
+                                <p>Vous êtes déjà client ? <a href="login.html">Connectez-vous</a> pour gagner du temps.</p>
+                            </div>
+                            <button type="submit" class="btn-primary-large">Confirmer ma réservation</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section class="reservation-testimonials reveal-section">
+            <div class="container">
+                <span class="section-subtitle handwritten">Ils nous ont fait confiance</span>
+                <h2 class="section-title">Avis de nos clients</h2>
+                <div class="text-accent"></div>
+                <div class="testimonials-slider">
+                    <div class="testimonial reveal-item">
+                        <div class="testimonial-content">
+                            <i class="fas fa-quote-left"></i>
+                            <p>Une expérience gastronomique inoubliable ! Les saveurs de la Savoie sublimées par le talent du Chef Michant. Le service était impeccable et l'ambiance chaleureuse.</p>
+                            <div class="testimonial-rating">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                            </div>
+                        </div>
+                        <div class="testimonial-author">
+                            <h4>Émilie Martin</h4>
+                            <p>Visité en Octobre 2023</p>
+                        </div>
+                    </div>
+                    <div class="testimonial reveal-item" data-delay="0.1">
+                        <div class="testimonial-content">
+                            <i class="fas fa-quote-left"></i>
+                            <p>Le meilleur restaurant de Chambéry sans aucun doute. La fondue aux trois fromages est exceptionnelle et le cadre est magnifique. Je recommande vivement !</p>
+                            <div class="testimonial-rating">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                            </div>
+                        </div>
+                        <div class="testimonial-author">
+                            <h4>Thomas Durand</h4>
+                            <p>Visité en Septembre 2023</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Le Quai Antique</h3>
+                    <p>12 Avenue du Lac</p>
+                    <p>73000 Chambéry</p>
+                    <p>04 50 XX XX XX</p>
+                    <p class="email">contact@quaiantique.fr</p>
+                </div>
+                <div class="footer-section">
+                    <h3>Horaires</h3>
+                    <p>Mardi au Dimanche</p>
+                    <p>Déjeuner: 12h00 - 14h00</p>
+                    <p>Dîner: 19h00 - 21h00</p>
+                    <p>Fermé le lundi</p>
+                </div>
+                <div class="footer-section">
+                    <h3>Suivez-nous</h3>
+                    <div class="social-icons">
+                        <a href="#"><i class="fab fa-facebook"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="copyright">
+                <p>&copy; 2023 Le Quai Antique. Tous droits réservés.</p>
+            </div>
+        </div>
+    </footer>
+    <script src="../js/emergency-tables.js"></script>
+    <script src="../js/main.js"></script>
+    <script src="../js/animations.js"></script>
+    <script src="../js/reservation.js"></script>
+    <script src="../js/seat-map.js"></script>
+    <script src="../js/debug-seat-map.js"></script>
+    <script src="../js/standalone-seat-map.js"></script>
+    <script>
+        function forceRenderTables() {
+            const event = new Event('forceRender');
+            document.dispatchEvent(event);
+
+            const container = document.getElementById('seatingMapContainer');
+            const seatingMap = document.getElementById('seatingMap');
+            const layout = document.getElementById('restaurantLayout');
+
+            if (container) {
+                container.style.cssText = "display: block !important; visibility: visible !important; min-height: 550px !important; border: 3px solid red !important; padding: 20px !important;";
+            }
+
+            if (seatingMap) {
+                seatingMap.style.cssText = "display: block !important; visibility: visible !important; height: 500px !important; background-color: #f9f7f4 !important; border: 2px solid #ddd !important; position: relative !important;";
+            }
+
+            if (layout) {
+                layout.style.cssText = "display: block !important; visibility: visible !important; position: relative !important; width: 100% !important; height: 100% !important;";
+            }
+
+            createEmergencyTablesNow();
+        }
+
+        function createEmergencyTablesNow() {
+            const layout = document.getElementById('restaurantLayout');
+            if (!layout) return;
+
+            if (layout.querySelectorAll('.table').length === 0) {
+                const tableConfigs = [
+                    { id: 1, x: 50, y: 50, width: 60, height: 60, capacity: 2, shape: 'round' },
+                    { id: 2, x: 150, y: 50, width: 60, height: 60, capacity: 2, shape: 'round' },
+                    { id: 3, x: 250, y: 50, width: 60, height: 60, capacity: 2, shape: 'round' },
+                    { id: 4, x: 50, y: 150, width: 60, height: 60, capacity: 2, shape: 'round' },
+                    { id: 5, x: 150, y: 150, width: 60, height: 60, capacity: 2, shape: 'round' },
+                    { id: 9, x: 300, y: 150, width: 80, height: 80, capacity: 4, shape: 'square' },
+                    { id: 14, x: 450, y: 150, width: 120, height: 80, capacity: 6, shape: 'rectangle' }
+                ];
+
+                tableConfigs.forEach(config => {
+                    const tableEl = document.createElement('div');
+                    tableEl.className = `table available ${config.shape}`;
+                    tableEl.setAttribute('data-id', config.id);
+                    tableEl.setAttribute('data-capacity', config.capacity);
+                    tableEl.style.cssText = `
+                        position: absolute !important;
+                        left: ${config.x}px !important;
+                        top: ${config.y}px !important;
+                        width: ${config.width}px !important;
+                        height: ${config.height}px !important;
+                        background-color: rgba(200, 169, 126, 0.7) !important;
+                        border: 2px solid rgba(200, 169, 126, 0.9) !important;
+                        display: flex !important;
+                        justify-content: center !important;
+                        align-items: center !important;
+                        ${config.shape === 'round' ? 'border-radius: 50% !important;' : ''}
+                    `;
+
+                    const tableNumber = document.createElement('div');
+                    tableNumber.className = 'table-number';
+                    tableNumber.textContent = config.id;
+                    tableNumber.style.cssText = "font-weight: bold !important; color: white !important;";
+                    tableEl.appendChild(tableNumber);
+
+                    tableEl.addEventListener('click', function() {
+                        layout.querySelectorAll('.table.selected').forEach(t => {
+                            t.classList.remove('selected');
+                            t.style.backgroundColor = 'rgba(200, 169, 126, 0.7)';
+                        });
+
+                        this.classList.add('selected');
+                        this.style.backgroundColor = '#c8a97e';
+
+                        const tableInput = document.getElementById('tableNumber');
+                        if (tableInput) {
+                            tableInput.value = this.getAttribute('data-id');
+                        }
+                    });
+
+                    layout.appendChild(tableEl);
+                });
+
+                const indicator = document.getElementById('seatingMapIndicator');
+                if (indicator) {
+                    indicator.innerHTML = '<i class="fas fa-check-circle"></i> Tables disponibles pour la réservation';
+                    indicator.style.backgroundColor = '#d4edda';
+                    indicator.style.color = '#155724';
+                }
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const container = document.getElementById('seatingMapContainer');
+            if (container) {
+                container.style.display = 'block';
+                container.style.visibility = 'visible';
+                container.style.minHeight = '550px';
+            }
+
+            setTimeout(createEmergencyTablesNow, 1000);
+        });
+    </script>
+</body>
+</html>
