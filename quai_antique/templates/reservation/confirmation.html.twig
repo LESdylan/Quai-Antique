@@ -1,0 +1,182 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Confirmation de Réservation - Le Quai Antique{% endblock %}
+
+{% block stylesheets %}
+<style>
+    .confirmation-header {
+        background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('{{ asset('images/confirmation-bg.jpg') }}') center/cover no-repeat;
+        height: 30vh;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        margin-bottom: 3rem;
+    }
+    
+    .confirmation-header h1 {
+        font-size: 3rem;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    }
+    
+    .confirmation-card {
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        padding: 2rem;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .confirmation-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 5px;
+        height: 100%;
+        background-color: var(--primary);
+    }
+    
+    .detail-row {
+        margin-bottom: 1rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #f0f0f0;
+    }
+    
+    .detail-row:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+        padding-bottom: 0;
+    }
+    
+    .detail-label {
+        font-weight: 600;
+        color: var(--secondary);
+    }
+    
+    .qr-code {
+        width: 150px;
+        height: 150px;
+        background-color: #f8f9fa;
+        border: 1px solid #dee2e6;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.8rem;
+        color: #6c757d;
+        text-align: center;
+        margin: 0 auto 1rem auto;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<!-- Confirmation Header -->
+<header class="confirmation-header">
+    <div class="container">
+        <h1>Réservation Confirmée</h1>
+        <p class="lead">Nous avons bien enregistré votre réservation</p>
+    </div>
+</header>
+
+<div class="container mb-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            {% for label, messages in app.flashes %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ label }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endfor %}
+            
+            <div class="confirmation-card">
+                <div class="text-center mb-4">
+                    <div class="qr-code">
+                        <div>
+                            <i class="fas fa-qrcode fa-4x mb-2"></i><br>
+                            Ref: #{{ reservation.id }}
+                        </div>
+                    </div>
+                    <h2>Merci pour votre réservation !</h2>
+                    <p class="text-muted">Une confirmation a été envoyée à votre adresse email.</p>
+                </div>
+                
+                <div class="row detail-row">
+                    <div class="col-md-4 detail-label">Référence</div>
+                    <div class="col-md-8">#{{ reservation.id }}</div>
+                </div>
+                
+                <div class="row detail-row">
+                    <div class="col-md-4 detail-label">Nom</div>
+                    <div class="col-md-8">{{ reservation.lastName }} {{ reservation.firstName }}</div>
+                </div>
+                
+                <div class="row detail-row">
+                    <div class="col-md-4 detail-label">Date & Heure</div>
+                    <div class="col-md-8">{{ reservation.date|date('d/m/Y') }} à {{ reservation.timeSlot }}</div>
+                </div>
+                
+                <div class="row detail-row">
+                    <div class="col-md-4 detail-label">Nombre de personnes</div>
+                    <div class="col-md-8">{{ reservation.guestCount }}</div>
+                </div>
+                
+                {% if reservation.allergies %}
+                <div class="row detail-row">
+                    <div class="col-md-4 detail-label">Allergies</div>
+                    <div class="col-md-8">{{ reservation.allergies }}</div>
+                </div>
+                {% endif %}
+                
+                {% if reservation.notes %}
+                <div class="row detail-row">
+                    <div class="col-md-4 detail-label">Commentaires</div>
+                    <div class="col-md-8">{{ reservation.notes }}</div>
+                </div>
+                {% endif %}
+                
+                <div class="row detail-row">
+                    <div class="col-md-4 detail-label">Statut</div>
+                    <div class="col-md-8">
+                        {% if reservation.status == 'pending' %}
+                            <span class="badge bg-warning">En attente</span>
+                        {% elseif reservation.status == 'confirmed' %}
+                            <span class="badge bg-success">Confirmée</span>
+                        {% elseif reservation.status == 'cancelled' %}
+                            <span class="badge bg-danger">Annulée</span>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="mt-4">
+                    <div class="row">
+                        <div class="col-md-6 mb-2 mb-md-0">
+                            <a href="{{ path('app_reservation') }}" class="btn btn-outline-primary w-100">
+                                <i class="fas fa-calendar-plus me-2"></i> Nouvelle réservation
+                            </a>
+                        </div>
+                        <div class="col-md-6">
+                            <form action="{{ path('app_reservation_cancel', {'id': reservation.id}) }}" method="post" onsubmit="return confirm('Êtes-vous sûr de vouloir annuler cette réservation ?');">
+                                <input type="hidden" name="_token" value="{{ csrf_token('cancel' ~ reservation.id) }}">
+                                <button type="submit" class="btn btn-outline-danger w-100">
+                                    <i class="fas fa-calendar-times me-2"></i> Annuler la réservation
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="text-center mt-4">
+                <a href="{{ path('app_home') }}" class="btn btn-link">
+                    <i class="fas fa-arrow-left me-2"></i> Retour à l'accueil
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

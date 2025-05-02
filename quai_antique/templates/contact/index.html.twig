@@ -1,0 +1,192 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Contact - Le Quai Antique{% endblock %}
+
+{% block stylesheets %}
+<style>
+    .contact-header {
+        background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('{{ asset('images/contact-header.jpg') }}') center/cover no-repeat;
+        height: 30vh;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        margin-bottom: 3rem;
+    }
+    
+    .contact-header h1 {
+        font-size: 3rem;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    }
+    
+    .contact-form {
+        background-color: white;
+        padding: 2rem;
+        border-radius: 8px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+    
+    .contact-info {
+        margin-bottom: 3rem;
+    }
+    
+    .contact-item {
+        display: flex;
+        align-items: flex-start;
+        margin-bottom: 1.5rem;
+    }
+    
+    .contact-icon {
+        width: 50px;
+        height: 50px;
+        background-color: var(--primary);
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 1rem;
+        flex-shrink: 0;
+    }
+    
+    .contact-text h4 {
+        margin-bottom: 0.25rem;
+    }
+    
+    .map-container {
+        height: 400px;
+        overflow: hidden;
+        border-radius: 8px;
+        margin-bottom: 2rem;
+    }
+    
+    .map-container iframe {
+        width: 100%;
+        height: 100%;
+        border: 0;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<!-- Contact Header -->
+<header class="contact-header">
+    <div class="container">
+        <h1>Contact</h1>
+        <p class="lead">Nous sommes à votre écoute</p>
+    </div>
+</header>
+
+<div class="container mb-5">
+    <div class="row">
+        <div class="col-lg-7">
+            <h2 class="mb-4">Nous Contacter</h2>
+            
+            {% for label, messages in app.flashes %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ label }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endfor %}
+            
+            <div class="contact-form mb-4">
+                {{ form_start(form) }}
+                
+                <div class="mb-3">
+                    {{ form_row(form.name) }}
+                </div>
+                
+                <div class="mb-3">
+                    {{ form_row(form.email) }}
+                </div>
+                
+                <div class="mb-3">
+                    {{ form_row(form.subject) }}
+                </div>
+                
+                <div class="mb-3">
+                    {{ form_row(form.message) }}
+                </div>
+                
+                <div class="text-center">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-paper-plane me-2"></i> Envoyer le message
+                    </button>
+                </div>
+                
+                {{ form_end(form) }}
+            </div>
+        </div>
+        
+        <div class="col-lg-5">
+            <h2 class="mb-4">Informations</h2>
+            
+            <div class="contact-info">
+                <div class="contact-item">
+                    <div class="contact-icon">
+                        <i class="fas fa-map-marker-alt"></i>
+                    </div>
+                    <div class="contact-text">
+                        <h4>Adresse</h4>
+                        <p>12 Quai des Allobroges<br>73000 Chambéry</p>
+                    </div>
+                </div>
+                
+                <div class="contact-item">
+                    <div class="contact-icon">
+                        <i class="fas fa-phone"></i>
+                    </div>
+                    <div class="contact-text">
+                        <h4>Téléphone</h4>
+                        <p>04 79 85 XX XX</p>
+                    </div>
+                </div>
+                
+                <div class="contact-item">
+                    <div class="contact-icon">
+                        <i class="fas fa-envelope"></i>
+                    </div>
+                    <div class="contact-text">
+                        <h4>Email</h4>
+                        <p>contact@quaiantique.fr</p>
+                    </div>
+                </div>
+                
+                <div class="contact-item">
+                    <div class="contact-icon">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="contact-text">
+                        <h4>Horaires</h4>
+                        <p>Mardi au Dimanche<br>
+                           Déjeuner: 12h00 - 14h00<br>
+                           Dîner: 19h00 - 22h00<br>
+                           <span class="text-danger">Fermé le lundi</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="map-container">
+                <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2794.3218692058825!2d5.91582!3d45.563212!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x478ba85bcc2e9913%3A0x829560f48149b7fc!2sQuai%20des%20Allobroges%2C%2073000%20Chamb%C3%A9ry!5e0!3m2!1sfr!2sfr!4v1665404142330!5m2!1sfr!2sfr" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+            </div>
+            
+            <div class="social-links text-center">
+                <h4 class="mb-3">Suivez-nous</h4>
+                <a href="#" class="btn btn-outline-dark mx-1">
+                    <i class="fab fa-facebook-f"></i>
+                </a>
+                <a href="#" class="btn btn-outline-dark mx-1">
+                    <i class="fab fa-instagram"></i>
+                </a>
+                <a href="#" class="btn btn-outline-dark mx-1">
+                    <i class="fab fa-tripadvisor"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

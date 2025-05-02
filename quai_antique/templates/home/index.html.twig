@@ -1,0 +1,325 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Le Quai Antique - Restaurant Gastronomique à Chambéry{% endblock %}
+
+{% block stylesheets %}
+<style>
+    .hero {
+        background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('{{ asset('images/hero-bg.jpg') }}') center/cover no-repeat;
+        height: 80vh;
+        color: white;
+        display: flex;
+        align-items: center;
+        text-align: center;
+    }
+    
+    .hero-content {
+        max-width: 800px;
+    }
+    
+    .hero h1 {
+        font-size: 3.5rem;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    }
+    
+    .hero p {
+        font-size: 1.2rem;
+        margin-bottom: 2rem;
+    }
+    
+    .section {
+        padding: 5rem 0;
+    }
+    
+    .section-title {
+        position: relative;
+        margin-bottom: 3rem;
+        font-weight: 700;
+    }
+    
+    .section-title::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        bottom: -15px;
+        width: 60px;
+        height: 3px;
+        background-color: var(--primary);
+    }
+    
+    .about-img {
+        height: 400px;
+        object-fit: cover;
+        border-radius: 5px;
+    }
+    
+    .gallery {
+        background-color: #f8f9fa;
+    }
+    
+    .gallery-item {
+        position: relative;
+        overflow: hidden;
+        border-radius: 5px;
+        margin-bottom: 30px;
+        height: 250px;
+    }
+    
+    .gallery-item img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.5s;
+    }
+    
+    .gallery-item:hover img {
+        transform: scale(1.05);
+    }
+    
+    .gallery-title {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: rgba(0, 0, 0, 0.7);
+        color: white;
+        padding: 10px;
+        text-align: center;
+        opacity: 0;
+        transition: opacity 0.5s;
+    }
+    
+    .gallery-item:hover .gallery-title {
+        opacity: 1;
+    }
+    
+    .menu-highlight {
+        border: 1px solid #e9ecef;
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 20px;
+        transition: all 0.3s;
+    }
+    
+    .menu-highlight:hover {
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        transform: translateY(-5px);
+    }
+    
+    .menu-price {
+        color: var(--primary);
+        font-weight: bold;
+        font-size: 1.2rem;
+    }
+    
+    .testimonial {
+        background-color: white;
+        padding: 25px;
+        border-radius: 8px;
+        box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
+        margin-bottom: 20px;
+    }
+    
+    .testimonial-text {
+        font-style: italic;
+        margin-bottom: 15px;
+    }
+    
+    .testimonial-author {
+        font-weight: bold;
+    }
+    
+    .reservation-section {
+        background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('{{ asset('images/reservation-bg.jpg') }}') center/cover no-repeat;
+        color: white;
+        text-align: center;
+        padding: 6rem 0;
+    }
+    
+    .btn-lg {
+        padding: 12px 30px;
+        font-weight: 600;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<!-- Hero Section -->
+<section class="hero">
+    <div class="container">
+        <div class="hero-content mx-auto fade-in">
+            <h1>Le Quai Antique</h1>
+            <p class="lead">Une expérience gastronomique au cœur de la Savoie, orchestrée par le Chef Arnaud Michant</p>
+            <a href="#" class="btn btn-primary btn-lg">Réserver une table</a>
+        </div>
+    </div>
+</section>
+
+<!-- About Section -->
+<section class="section">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6 mb-4 mb-lg-0">
+                <h2 class="section-title">Notre Histoire</h2>
+                <p>Le Chef Arnaud Michant, passionné par les produits et producteurs savoyards, vous accueille dans son restaurant gastronomique à Chambéry.</p>
+                <p>Le Quai Antique, son troisième établissement, est le fruit d'une passion pour une cuisine sincère et authentique qui met à l'honneur les produits locaux de qualité.</p>
+                <p>Chaque plat est élaboré avec soin pour vous offrir une expérience culinaire qui raconte l'histoire des montagnes et vallées de Savoie, à travers des saveurs qui n'ont rien à envier aux meilleurs restaurants de Paris.</p>
+                <p>Notre restaurant vous promet un voyage gustatif et une immersion totale dans l'univers du Chef Michant.</p>
+            </div>
+            <div class="col-lg-6">
+                <img src="{{ asset('images/chef.jpg') }}" alt="Chef Arnaud Michant" class="img-fluid about-img">
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Gallery Section -->
+<section class="section gallery">
+    <div class="container">
+        <h2 class="section-title text-center">Notre Cuisine en Images</h2>
+        <div class="row">
+            <div class="col-md-4">
+                <div class="gallery-item">
+                    <img src="{{ asset('images/dish1.jpg') }}" alt="Plat du Quai Antique">
+                    <div class="gallery-title">Tarte fine aux légumes oubliés et son coulis de roquette</div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="gallery-item">
+                    <img src="{{ asset('images/dish2.jpg') }}" alt="Plat du Quai Antique">
+                    <div class="gallery-title">Filet de truite au beurre d'herbes fraîches</div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="gallery-item">
+                    <img src="{{ asset('images/dish3.jpg') }}" alt="Plat du Quai Antique">
+                    <div class="gallery-title">Crémeux au chocolat et noisettes de Savoie</div>
+                </div>
+            </div>
+        </div>
+        <div class="text-center mt-4">
+            <a href="#" class="btn btn-outline-primary">Voir plus de photos</a>
+        </div>
+    </div>
+</section>
+
+<!-- Menu Highlights -->
+<section class="section">
+    <div class="container">
+        <h2 class="section-title text-center">Notre Carte</h2>
+        <div class="row">
+            <div class="col-md-6">
+                <h3 class="mb-4">Nos Plats Signature</h3>
+                <div class="menu-highlight">
+                    <h5>Tatin d'Endives Caramélisées au Miel de Savoie</h5>
+                    <p>Endives braisées, caramélisées au miel de fleurs sauvages, servies avec un chèvre frais des Bauges</p>
+                    <div class="menu-price">18€</div>
+                </div>
+                <div class="menu-highlight">
+                    <h5>Filet de Féra du Lac du Bourget</h5>
+                    <p>Poisson d'eau douce poêlé, écrasé de pommes de terre à l'huile d'olive et aux herbes, sauce au vin blanc de Savoie</p>
+                    <div class="menu-price">32€</div>
+                </div>
+                <div class="menu-highlight">
+                    <h5>Croustillant aux Pommes et Caramel de Chartreuse</h5>
+                    <p>Pommes caramélisées, feuilletage croustillant, glace vanille, caramel à la Chartreuse verte</p>
+                    <div class="menu-price">14€</div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <h3 class="mb-4">Nos Menus</h3>
+                <div class="menu-highlight">
+                    <h5>Menu Dégustation</h5>
+                    <p>6 plats découverte pour un voyage complet à travers la cuisine de notre Chef</p>
+                    <div class="menu-price">75€</div>
+                </div>
+                <div class="menu-highlight">
+                    <h5>Menu Savoyard</h5>
+                    <p>Entrée, plat et dessert mettant à l'honneur les meilleurs produits régionaux</p>
+                    <div class="menu-price">45€</div>
+                </div>
+                <div class="menu-highlight">
+                    <h5>Menu du Midi</h5>
+                    <p>Entrée, plat ou plat, dessert (du mardi au vendredi midi uniquement)</p>
+                    <div class="menu-price">29€</div>
+                </div>
+            </div>
+        </div>
+        <div class="text-center mt-4">
+            <a href="#" class="btn btn-outline-primary">Voir toute la carte</a>
+        </div>
+    </div>
+</section>
+
+<!-- Testimonials -->
+<section class="section gallery">
+    <div class="container">
+        <h2 class="section-title text-center">Avis de nos Clients</h2>
+        <div class="row">
+            <div class="col-md-4">
+                <div class="testimonial">
+                    <div class="testimonial-text">
+                        "Une découverte extraordinaire. La cuisine du Chef Michant sublime les produits locaux avec une créativité impressionnante."
+                    </div>
+                    <div class="testimonial-author">Marie D. - Tripadvisor</div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="testimonial">
+                    <div class="testimonial-text">
+                        "Le service était impeccable et les plats magnifiques. Le menu dégustation est une véritable expérience gastronomique."
+                    </div>
+                    <div class="testimonial-author">Thomas L. - Google</div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="testimonial">
+                    <div class="testimonial-text">
+                        "On sent la passion dans chaque assiette. Sans aucun doute le meilleur restaurant de Chambéry en ce moment."
+                    </div>
+                    <div class="testimonial-author">Sophie R. - LaFourchette</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Reservation CTA -->
+<section class="reservation-section">
+    <div class="container">
+        <h2 class="mb-4">Réservez votre table dès maintenant</h2>
+        <p class="mb-4">Découvrez l'expérience Quai Antique et laissez-vous transporter par une cuisine authentique et raffinée.</p>
+        <a href="#" class="btn btn-primary btn-lg">Réserver</a>
+    </div>
+</section>
+
+<!-- Information Section -->
+<section class="section">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6 mb-4 mb-md-0">
+                <h2 class="section-title">Informations Pratiques</h2>
+                <ul class="list-unstyled">
+                    <li class="mb-3"><i class="fas fa-clock me-2 text-primary"></i> <strong>Horaires d'ouverture:</strong><br>
+                        Mardi au Dimanche<br>
+                        Déjeuner: 12h00 - 14h00<br>
+                        Dîner: 19h00 - 22h00<br>
+                        Fermé le Lundi
+                    </li>
+                    <li class="mb-3"><i class="fas fa-map-marker-alt me-2 text-primary"></i> <strong>Adresse:</strong><br>
+                        12 Quai des Allobroges<br>
+                        73000 Chambéry
+                    </li>
+                    <li class="mb-3"><i class="fas fa-phone me-2 text-primary"></i> <strong>Téléphone:</strong> 04 79 85 XX XX</li>
+                    <li><i class="fas fa-envelope me-2 text-primary"></i> <strong>Email:</strong> contact@quaiantique.fr</li>
+                </ul>
+            </div>
+            <div class="col-md-6">
+                <h2 class="section-title">Nous Trouver</h2>
+                <!-- Replace with an actual Google Maps embed -->
+                <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2794.3218692058825!2d5.91582!3d45.563212!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x478ba85bcc2e9913%3A0x829560f48149b7fc!2sQuai%20des%20Allobroges%2C%2073000%20Chamb%C3%A9ry!5e0!3m2!1sfr!2sfr!4v1665404142330!5m2!1sfr!2sfr" width="100%" height="300" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

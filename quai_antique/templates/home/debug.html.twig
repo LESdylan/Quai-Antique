@@ -1,0 +1,43 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Database Debug{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+    <h1>Database Structure</h1>
+    
+    {% for table, columns in database_structure %}
+        <div class="card mb-4">
+            <div class="card-header">
+                <h2>{{ table }}</h2>
+            </div>
+            <div class="card-body">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Field</th>
+                            <th>Type</th>
+                            <th>Null</th>
+                            <th>Key</th>
+                            <th>Default</th>
+                            <th>Extra</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for column in columns %}
+                            <tr>
+                                <td>{{ column.Field }}</td>
+                                <td>{{ column.Type }}</td>
+                                <td>{{ column.Null }}</td>
+                                <td>{{ column.Key }}</td>
+                                <td>{{ column.Default }}</td>
+                                <td>{{ column.Extra }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    {% endfor %}
+</div>
+{% endblock %}

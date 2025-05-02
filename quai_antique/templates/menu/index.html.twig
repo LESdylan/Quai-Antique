@@ -1,0 +1,289 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Notre Carte - Le Quai Antique{% endblock %}
+
+{% block stylesheets %}
+<style>
+    .menu-header {
+        background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('{{ asset('images/menu-header.jpg') }}') center/cover no-repeat;
+        height: 40vh;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        margin-bottom: 3rem;
+    }
+    
+    .menu-header h1 {
+        font-size: 3rem;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    }
+    
+    .menu-filters {
+        margin-bottom: 2rem;
+    }
+    
+    .category-tabs {
+        margin-bottom: 1.5rem;
+    }
+    
+    .menu-filter {
+        border: none;
+        background: none;
+        color: var(--dark);
+        font-weight: 600;
+        padding: 0.5rem 1rem;
+        margin-right: 0.5rem;
+        margin-bottom: 0.5rem;
+        border-radius: 20px;
+        transition: all 0.3s;
+    }
+    
+    .menu-filter:hover {
+        color: var(--primary);
+    }
+    
+    .menu-filter.active {
+        background-color: var(--primary);
+        color: white;
+    }
+    
+    .menu-item {
+        background-color: white;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+        transition: all 0.3s ease;
+        margin-bottom: 2rem;
+        opacity: 0;
+        transform: translateY(20px);
+        animation: fadeInUp 0.5s forwards;
+    }
+    
+    @keyframes fadeInUp {
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .menu-item:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+    }
+    
+    .menu-item-image {
+        height: 200px;
+        width: 100%;
+        object-fit: cover;
+    }
+    
+    .menu-item-content {
+        padding: 1.5rem;
+    }
+    
+    .menu-item-title {
+        font-family: 'Playfair Display', serif;
+        margin-bottom: 0.5rem;
+        font-weight: 700;
+    }
+    
+    .menu-item-description {
+        color: #666;
+        font-size: 0.95rem;
+        margin-bottom: 1rem;
+    }
+    
+    .menu-item-price {
+        font-weight: 700;
+        color: var(--primary);
+        font-size: 1.2rem;
+    }
+    
+    .menu-item-seasonal {
+        background-color: #d4edda;
+        color: #155724;
+        font-size: 0.8rem;
+        padding: 0.25rem 0.5rem;
+        border-radius: 3px;
+        display: inline-block;
+        margin-left: 0.5rem;
+    }
+    
+    .menu-item-allergens {
+        font-size: 0.8rem;
+        color: #6c757d;
+        margin-top: 0.5rem;
+        font-style: italic;
+    }
+    
+    .filters-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        margin-bottom: 1rem;
+    }
+    
+    .filter-select {
+        max-width: 200px;
+    }
+    
+    .menu-card {
+        background-color: white;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 3px 15px rgba(0, 0, 0, 0.05);
+        height: 100%;
+        transition: transform 0.3s;
+        padding: 2rem;
+    }
+    
+    .menu-card:hover {
+        transform: translateY(-5px);
+    }
+    
+    .menu-title {
+        color: var(--primary);
+        margin-bottom: 1rem;
+        font-family: 'Playfair Display', serif;
+        font-weight: 700;
+    }
+    
+    .menu-description {
+        margin-bottom: 1.5rem;
+    }
+    
+    .menu-price-tag {
+        background-color: var(--primary);
+        color: white;
+        padding: 0.5rem 1.5rem;
+        border-radius: 20px;
+        font-weight: 600;
+        display: inline-block;
+    }
+    
+    .menu-item-visible {
+        animation: fadeIn 0.5s forwards;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<!-- Menu Header -->
+<header class="menu-header">
+    <div class="container">
+        <h1>Notre Carte</h1>
+        <p class="lead">Découvrez les créations culinaires du Chef Arnaud Michant</p>
+    </div>
+</header>
+
+<div class="container mb-5">
+    <!-- Menu Filters -->
+    <div class="menu-filters">
+        <div class="filters-row">
+            <div class="category-tabs">
+                <button class="menu-filter active" data-category="all">Tous</button>
+                {% for category in categories %}
+                    <button class="menu-filter" data-category="{{ category.id }}">{{ category.name }}</button>
+                {% endfor %}
+            </div>
+            
+            <div class="filter-options d-flex">
+                <div class="filter-select me-3">
+                    <select id="allergen-filter" class="form-select">
+                        <option value="">Filtrer par allergènes</option>
+                        <option value="gluten">Sans gluten</option>
+                        <option value="lactose">Sans lactose</option>
+                        <option value="nuts">Sans fruits à coque</option>
+                    </select>
+                </div>
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="seasonal-filter">
+                    <label class="form-check-label" for="seasonal-filter">Plats de saison</label>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Menu Items -->
+    <div id="menu-container">
+        <h2 class="mb-4">À la Carte</h2>
+        
+        <div id="menu-items-container" class="row">
+            {% for categoryWithDishes in categoriesWithDishes %}
+                <div class="col-12 mb-4">
+                    <h3 class="mb-3">{{ categoryWithDishes.category.name }}</h3>
+                    <div class="row">
+                        {% for dish in categoryWithDishes.dishes %}
+                            <div class="col-md-6 col-lg-4 menu-item" data-category="{{ dish.category.id }}">
+                                <div class="d-flex flex-column h-100">
+                                    {% if dish.image %}
+                                        <img src="{{ asset('images/dishes/' ~ dish.image) }}" alt="{{ dish.name }}" class="menu-item-image">
+                                    {% else %}
+                                        <img src="{{ asset('images/dish-placeholder.jpg') }}" alt="{{ dish.name }}" class="menu-item-image">
+                                    {% endif %}
+                                    
+                                    <div class="menu-item-content flex-grow-1">
+                                        <h4 class="menu-item-title">{{ dish.name }}</h4>
+                                        <p class="menu-item-description">{{ dish.description }}</p>
+                                        <div>
+                                            <span class="menu-item-price">{{ dish.price|number_format(2, ',', ' ') }} €</span>
+                                            {% if dish.isSeasonal %}
+                                                <span class="menu-item-seasonal">De saison</span>
+                                            {% endif %}
+                                        </div>
+                                        
+                                        {% if dish.allergens.count > 0 %}
+                                            <div class="menu-item-allergens">
+                                                Allergènes: 
+                                                {% for allergen in dish.allergens %}
+                                                    {{ allergen.name }}{% if not loop.last %}, {% endif %}
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+        
+        <!-- Menus Section -->
+        <h2 class="my-5">Nos Menus</h2>
+        <div class="row">
+            {% for menu in menus %}
+                <div class="col-md-4 mb-4">
+                    <div class="menu-card">
+                        <h3 class="menu-title">{{ menu.title }}</h3>
+                        <div class="menu-description">{{ menu.description|nl2br }}</div>
+                        <div class="text-center">
+                            <span class="menu-price-tag">{{ menu.price|number_format(2, ',', ' ') }} €</span>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+        
+        <!-- Allergen Information -->
+        <div class="alert alert-info mt-5">
+            <h4>Informations sur les allergènes</h4>
+            <p>Nous sommes soucieux du bien-être de nos clients et tenons à vous informer que certains plats peuvent contenir des allergènes.</p>
+            <p>N'hésitez pas à nous signaler toute allergie ou restriction alimentaire lors de votre réservation ou auprès de notre personnel en salle.</p>
+        </div>
+    </div>
+    
+    <!-- Reservation CTA -->
+    <div class="text-center my-5">
+        <h3 class="mb-3">Envie de déguster notre cuisine ?</h3>
+        <a href="{{ path('app_reservation') }}" class="btn btn-primary btn-lg">Réserver une table</a>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+<script src="{{ asset('js/menu-filter.js') }}"></script>
+{% endblock %}

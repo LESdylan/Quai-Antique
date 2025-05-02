@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="fr">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>{% block title %}Quai Antique - Restaurant Gastronomique à Chambéry{% endblock %}</title>
+        <link rel="icon" href="{{ asset('images/favicon.ico') }}">
+        
+        <!-- Bootstrap CSS -->
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+        <!-- Font Awesome -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+        <!-- Google Fonts -->
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Raleway:wght@300;400;600&display=swap" rel="stylesheet">
+        
+        <style>
+            :root {
+                --primary: #A67C52;
+                --secondary: #2C3E50;
+                --light: #F8F9FA;
+                --dark: #212529;
+                --accent: #8B4513;
+            }
+            
+            body {
+                font-family: 'Raleway', sans-serif;
+                color: var(--dark);
+                background-color: #FAFAFA;
+            }
+            
+            h1, h2, h3, h4, h5, h6 {
+                font-family: 'Playfair Display', serif;
+            }
+            
+            .navbar {
+                background-color: rgba(255, 255, 255, 0.95);
+                box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            }
+            
+            .navbar-brand {
+                font-family: 'Playfair Display', serif;
+                font-weight: 700;
+                color: var(--primary);
+            }
+            
+            .nav-link {
+                color: var(--secondary);
+                font-weight: 600;
+                transition: color 0.3s;
+                margin: 0 10px;
+            }
+            
+            .nav-link:hover, .nav-link.active {
+                color: var(--primary);
+            }
+            
+            .btn-primary {
+                background-color: var(--primary);
+                border-color: var(--primary);
+            }
+            
+            .btn-primary:hover {
+                background-color: var(--accent);
+                border-color: var(--accent);
+            }
+            
+            .btn-outline-primary {
+                color: var(--primary);
+                border-color: var(--primary);
+            }
+            
+            .btn-outline-primary:hover {
+                background-color: var(--primary);
+                color: white;
+            }
+            
+            footer {
+                background-color: var(--secondary);
+                color: var(--light);
+                padding: 3rem 0;
+            }
+            
+            /* Custom animations */
+            .fade-in {
+                animation: fadeIn 1s ease-in;
+            }
+            
+            @keyframes fadeIn {
+                from { opacity: 0; }
+                to { opacity: 1; }
+            }
+        </style>
+        
+        {% block stylesheets %}{% endblock %}
+    </head>
+    <body>
+        <!-- Navigation -->
+        <nav class="navbar navbar-expand-lg navbar-light sticky-top">
+            <div class="container">
+                <a class="navbar-brand" href="{{ path('app_home') }}">
+                    Le Quai Antique
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav ms-auto">
+                        <li class="nav-item">
+                            <a class="nav-link {% if app.request.get('_route') == 'app_home' %}active{% endif %}" href="{{ path('app_home') }}">Accueil</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if app.request.get('_route') starts with 'app_gallery' %}active{% endif %}" href="{{ path('app_gallery') }}">Notre Cuisine</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if app.request.get('_route') starts with 'app_menu' %}active{% endif %}" href="{{ path('app_menu') }}">La Carte</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if app.request.get('_route') starts with 'app_reservation' %}active{% endif %}" href="{{ path('app_reservation') }}">Réservation</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if app.request.get('_route') starts with 'app_contact' %}active{% endif %}" href="{{ path('app_contact') }}">Contact</a>
+                        </li>
+                    </ul>
+                    <div class="ms-3">
+                        {% if app.user %}
+                            <div class="dropdown">
+                                <button class="btn btn-outline-primary btn-sm dropdown-toggle" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fas fa-user me-1"></i> 
+                                    {% if app.user.firstName %}
+                                        {{ app.user.firstName }}
+                                    {% else %}
+                                        Mon Compte
+                                    {% endif %}
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                                    {% if is_granted('ROLE_ADMIN') %}
+                                        <li><a class="dropdown-item" href="{{ path('app_admin_dashboard') }}"><i class="fas fa-tachometer-alt me-2"></i> Tableau de bord</a></li>
+                                        <li><hr class="dropdown-divider"></li>
+                                    {% endif %}
+                                    <li><a class="dropdown-item" href="{{ path('app_my_reservations') }}"><i class="fas fa-calendar-alt me-2"></i> Mes réservations</a></li>
+                                    <li><a class="dropdown-item" href="#"><i class="fas fa-user-edit me-2"></i> Mon profil</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item" href="{{ path('app_logout') }}"><i class="fas fa-sign-out-alt me-2"></i> Déconnexion</a></li>
+                                </ul>
+                            </div>
+                        {% else %}
+                            <a href="{{ path('app_login') }}" class="btn btn-outline-primary btn-sm">
+                                <i class="fas fa-user me-1"></i> Connexion
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main>
+            {% block body %}{% endblock %}
+        </main>
+        
+        <!-- Footer -->
+        <footer>
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-4 mb-4 mb-md-0">
+                        <h5 class="text-white mb-4">Le Quai Antique</h5>
+                        <p>Une expérience gastronomique unique à Chambéry, proposant une cuisine authentique et raffinée mettant en valeur les produits savoyards.</p>
+                    </div>
+                    <div class="col-md-4 mb-4 mb-md-0">
+                        <h5 class="text-white mb-4">Horaires d'ouverture</h5>
+                        <ul class="list-unstyled">
+                            <li>Mardi au Dimanche</li>
+                            <li>Déjeuner: 12h00 - 14h00</li>
+                            <li>Dîner: 19h00 - 22h00</li>
+                            <li>Fermé le Lundi</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-4">
+                        <h5 class="text-white mb-4">Contact</h5>
+                        <ul class="list-unstyled">
+                            <li><i class="fas fa-map-marker-alt me-2"></i> 12 Quai des Allobroges, Chambéry</li>
+                            <li><i class="fas fa-phone me-2"></i> 04 79 85 XX XX</li>
+                            <li><i class="fas fa-envelope me-2"></i> contact@quaiantique.fr</li>
+                        </ul>
+                        <div class="mt-3">
+                            <a href="#" class="text-white me-3"><i class="fab fa-facebook-f"></i></a>
+                            <a href="#" class="text-white me-3"><i class="fab fa-instagram"></i></a>
+                            <a href="#" class="text-white"><i class="fab fa-tripadvisor"></i></a>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mt-4">
+                    <div class="col-12 text-center">
+                        <p class="mb-0">&copy; {{ "now"|date("Y") }} Le Quai Antique - Tous droits réservés</p>
+                    </div>
+                </div>
+            </div>
+        </footer>
+
+        <!-- Bootstrap JS Bundle with Popper -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+        
+        {% block javascripts %}{% endblock %}
+    </body>
+</html>
