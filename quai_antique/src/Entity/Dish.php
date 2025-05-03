@@ -62,6 +62,9 @@ class Dish
     #[ORM\OneToMany(mappedBy: 'dish', targetEntity: Image::class, cascade: ['persist'], orphanRemoval: true)]
     private Collection $images;
 
+    #[ORM\ManyToMany(targetEntity: DietaryRegime::class, inversedBy: 'dishes')]
+    private Collection $dietaryRegimes;
+
     public function __construct()
     {
         $this->allergens = new ArrayCollection();
@@ -69,6 +72,7 @@ class Dish
         $this->createdAt = new \DateTime();
         $this->updatedAt = new \DateTime();
         $this->images = new ArrayCollection();
+        $this->dietaryRegimes = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -306,5 +310,29 @@ class Dish
         }
 
         return $this->images->first();
+    }
+
+    /**
+     * @return Collection<int, DietaryRegime>
+     */
+    public function getDietaryRegimes(): Collection
+    {
+        return $this->dietaryRegimes;
+    }
+
+    public function addDietaryRegime(DietaryRegime $dietaryRegime): static
+    {
+        if (!$this->dietaryRegimes->contains($dietaryRegime)) {
+            $this->dietaryRegimes->add($dietaryRegime);
+        }
+
+        return $this;
+    }
+
+    public function removeDietaryRegime(DietaryRegime $dietaryRegime): static
+    {
+        $this->dietaryRegimes->removeElement($dietaryRegime);
+
+        return $this;
     }
 }

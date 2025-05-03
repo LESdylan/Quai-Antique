@@ -1,0 +1,106 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block page_title %}Gestion de la Capacité du Restaurant{% endblock %}
+
+{% block admin_content %}
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Configuration de la Capacité</h6>
+        </div>
+        <div class="card-body">
+            <form method="post">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="max_capacity" class="form-label">Capacité Maximum du Restaurant</label>
+                            <input type="number" id="max_capacity" name="max_capacity" class="form-control" 
+                                   value="{{ restaurant.maxCapacity ?? 50 }}">
+                            <small class="form-text text-muted">Nombre maximum de clients pouvant être servis simultanément</small>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="time_slot_duration" class="form-label">Durée d'un Créneau (minutes)</label>
+                            <input type="number" id="time_slot_duration" name="time_slot_duration" class="form-control" 
+                                   value="{{ restaurant.timeSlotDuration ?? 30 }}">
+                            <small class="form-text text-muted">Intervalle entre les créneaux de réservation</small>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="max_reservations_per_slot" class="form-label">Réservations Maximum par Créneau</label>
+                            <input type="number" id="max_reservations_per_slot" name="max_reservations_per_slot" class="form-control" 
+                                   value="{{ restaurant.maxReservationsPerSlot ?? 10 }}">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="buffer_between_slots" class="form-label">Temps Tampon (minutes)</label>
+                            <input type="number" id="buffer_between_slots" name="buffer_between_slots" class="form-control" 
+                                   value="{{ restaurant.bufferBetweenSlots ?? 15 }}">
+                            <small class="form-text text-muted">Temps tampon entre les créneaux pour préparer les tables</small>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="card bg-light mb-3">
+                            <div class="card-header">Configuration des Tables</div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <label for="max_tables_small" class="form-label">Petites Tables (2 personnes)</label>
+                                    <input type="number" id="max_tables_small" name="max_tables_small" class="form-control" 
+                                           value="{{ restaurant.maxTablesSmall ?? 6 }}">
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="max_tables_medium" class="form-label">Tables Moyennes (4 personnes)</label>
+                                    <input type="number" id="max_tables_medium" name="max_tables_medium" class="form-control" 
+                                           value="{{ restaurant.maxTablesMedium ?? 8 }}">
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="max_tables_large" class="form-label">Grandes Tables (6-8 personnes)</label>
+                                    <input type="number" id="max_tables_large" name="max_tables_large" class="form-control" 
+                                           value="{{ restaurant.maxTablesLarge ?? 4 }}">
+                                </div>
+                                
+                                <div class="alert alert-info mt-3">
+                                    Capacité totale théorique: 
+                                    <strong>
+                                        {{ (restaurant.maxTablesSmall ?? 6) * 2 + 
+                                           (restaurant.maxTablesMedium ?? 8) * 4 + 
+                                           (restaurant.maxTablesLarge ?? 4) * 8 }} personnes
+                                    </strong>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center mt-4">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save me-1"></i> Enregistrer les Paramètres
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <div class="card shadow">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Optimisation des Réservations</h6>
+        </div>
+        <div class="card-body">
+            <p>L'optimisation des réservations vous permet d'attribuer automatiquement des tables aux réservations basées sur la taille des groupes.</p>
+            
+            <form method="post" action="{{ path('app_admin_reservations_optimize') }}" class="d-flex align-items-end gap-2">
+                <div class="mb-0 flex-grow-1">
+                    <label for="date" class="form-label">Date</label>
+                    <input type="date" id="date" name="date" class="form-control" value="{{ 'now'|date('Y-m-d') }}">
+                </div>
+                <div class="mb-0">
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-magic me-1"></i> Optimiser les Réservations
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}

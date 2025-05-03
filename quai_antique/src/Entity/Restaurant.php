@@ -74,6 +74,27 @@ class Restaurant
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private ?\DateTimeInterface $update_date = null;
 
+    #[ORM\Column(type: 'integer', nullable: true, options: ["default" => 50])]
+    private ?int $maxCapacity = 50;
+
+    #[ORM\Column(type: 'integer', nullable: true, options: ["default" => 6])]
+    private ?int $maxTablesSmall = 6;
+
+    #[ORM\Column(type: 'integer', nullable: true, options: ["default" => 8])]
+    private ?int $maxTablesMedium = 8;
+
+    #[ORM\Column(type: 'integer', nullable: true, options: ["default" => 4])]
+    private ?int $maxTablesLarge = 4;
+
+    #[ORM\Column(type: 'integer', nullable: true, options: ["default" => 30])]
+    private ?int $timeSlotDuration = 30;
+
+    #[ORM\Column(type: 'integer', nullable: true, options: ["default" => 10])]
+    private ?int $maxReservationsPerSlot = 10;
+
+    #[ORM\Column(type: 'integer', nullable: true, options: ["default" => 15])]
+    private ?int $bufferBetweenSlots = 15;
+
     public function __construct()
     {
         // Initialize timestamps
@@ -323,5 +344,82 @@ class Restaurant
         }
 
         return null;
+    }
+
+    public function getMaxCapacity(): ?int
+    {
+        return $this->maxCapacity;
+    }
+
+    public function setMaxCapacity(?int $maxCapacity): self
+    {
+        $this->maxCapacity = $maxCapacity;
+        return $this;
+    }
+
+    public function getMaxTablesSmall(): ?int
+    {
+        return $this->maxTablesSmall;
+    }
+
+    public function setMaxTablesSmall(?int $maxTablesSmall): self
+    {
+        $this->maxTablesSmall = $maxTablesSmall;
+        return $this;
+    }
+
+    public function getMaxTablesMedium(): ?int
+    {
+        return $this->maxTablesMedium;
+    }
+
+    public function setMaxTablesMedium(?int $maxTablesMedium): self
+    {
+        $this->maxTablesMedium = $maxTablesMedium;
+        return $this;
+    }
+
+    public function getMaxTablesLarge(): ?int
+    {
+        return $this->maxTablesLarge;
+    }
+
+    public function setMaxTablesLarge(?int $maxTablesLarge): self
+    {
+        $this->maxTablesLarge = $maxTablesLarge;
+        return $this;
+    }
+
+    public function getTimeSlotDuration(): ?int
+    {
+        return $this->timeSlotDuration;
+    }
+
+    public function setTimeSlotDuration(?int $timeSlotDuration): self
+    {
+        $this->timeSlotDuration = $timeSlotDuration;
+        return $this;
+    }
+
+    public function getMaxReservationsPerSlot(): ?int
+    {
+        return $this->maxReservationsPerSlot;
+    }
+
+    public function setMaxReservationsPerSlot(?int $maxReservationsPerSlot): self
+    {
+        $this->maxReservationsPerSlot = $maxReservationsPerSlot;
+        return $this;
+    }
+
+    public function getBufferBetweenSlots(): ?int
+    {
+        return $this->bufferBetweenSlots;
+    }
+
+    public function setBufferBetweenSlots(?int $bufferBetweenSlots): self
+    {
+        $this->bufferBetweenSlots = $bufferBetweenSlots;
+        return $this;
     }
 }

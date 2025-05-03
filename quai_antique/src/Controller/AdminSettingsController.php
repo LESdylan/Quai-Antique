@@ -9,6 +9,7 @@ use App\Form\HoursExceptionType;
 use App\Repository\HoursRepository;
 use App\Repository\RestaurantRepository;
 use App\Repository\HoursExceptionRepository;
+use App\Repository\ImageRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -17,6 +18,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\String\Slugger\SluggerInterface;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 #[Route('/admin/settings')]
 #[IsGranted('ROLE_ADMIN')]
@@ -28,7 +30,8 @@ class AdminSettingsController extends AbstractController
         EntityManagerInterface $entityManager, 
         RestaurantRepository $restaurantRepository,
         HoursRepository $hoursRepository,
-        SluggerInterface $slugger
+        SluggerInterface $slugger,
+        ImageRepository $imageRepository
     ): Response {
         // Get or create restaurant info
         $restaurant = $restaurantRepository->findOneBy([]) ?? new Restaurant();
@@ -67,10 +70,32 @@ class AdminSettingsController extends AbstractController
             return $this->redirectToRoute('app_admin_settings');
         }
         
+        // Get hero image
+        $heroImage = $imageRepository->findOneBy(['purpose' => 'hero_banner', 'isActive' => true]);
+        if (!$heroImage) {
+            $heroImage = $imageRepository->findOneBy(['purpose' => 'hero', 'isActive' => true]);
+        }
+        
+        // Get quote background image
+        $quoteBackgroundImage = $imageRepository->findOneBy(['purpose' => 'quote_background', 'isActive' => true]);
+        
+        // Get reservation background image
+        $reservationBackgroundImage = $imageRepository->findOneBy(['purpose' => 'reservation_background', 'isActive' => true]);
+        if (!$reservationBackgroundImage) {
+            $reservationBackgroundImage = $imageRepository->findOneBy(['purpose' => 'Reservation Background', 'isActive' => true]);
+        }
+        
+        // Get chef image
+        $chefImage = $imageRepository->findOneBy(['purpose' => 'chef', 'isActive' => true]);
+        
         return $this->render('admin/settings/index.html.twig', [
             'restaurant_form' => $form->createView(),
             'restaurant' => $restaurant,
             'hours' => $hours,
+            'hero_image' => $heroImage,
+            'quote_background_image' => $quoteBackgroundImage,
+            'reservation_background_image' => $reservationBackgroundImage,
+            'chef_image' => $chefImage,
         ]);
     }
     
@@ -189,5 +214,204 @@ class AdminSettingsController extends AbstractController
         }
         
         return $this->redirectToRoute('app_admin_hours');
+    }
+
+    #[Route('/hero', name: 'app_admin_settings_update_hero', methods: ['POST'])]
+    public function updateHeroImage(Request $request, ImageRepository $imageRepository): JsonResponse
+    {
+        $data = json_decode($request->getContent(), true);
+        $imageId = $data['imageId'] ?? null;
+        
+        if (!$imageId) {
+            return new JsonResponse([
+                'success' => false,
+                'message' => 'No image ID provided'
+            ]);
+        }
+        
+        $image = $imageRepository->find($imageId);
+        
+        if (!$image) {
+            return new JsonResponse([
+                'success' => false,
+                'message' => 'Image not found'
+            ]);
+        }
+        
+        try {
+            // Clear any existing hero images
+            $existingHeroImages = $imageRepository->findBy(['purpose' => 'hero']);
+            foreach ($existingHeroImages as $heroImage) {
+                $heroImage->setPurpose(null);
+                $this->entityManager->persist($heroImage);
+            }
+            
+            // Set the new hero image
+            $image->setPurpose('hero');
+            $this->entityManager->persist($image);
+            $this->entityManager->flush();
+            
+            return new JsonResponse([
+                'success' => true,
+                'message' => 'Hero image updated successfully'
+            ]);
+        } catch (\Exception $e) {
+            return new JsonResponse([
+                'success' => false,
+                'message' => 'Error updating hero image: ' . $e->getMessage()
+            ]);
+        }
+    }
+
+    #[Route('/admin/settings/quote-background', name: 'app_admin_settings_update_quote_background', methods: ['POST'])]
+    public function updateQuoteBackgroundImage(Request $request, ImageRepository $imageRepository): JsonResponse
+    {
+        $data = json_decode($request->getContent(), true);
+        $imageId = $data['imageId'] ?? null;
+        
+        if (!$imageId) {
+            return new JsonResponse([
+                'success' => false,
+                'message' => 'No image ID provided'
+            ]);
+        }
+        
+        $image = $imageRepository->find($imageId);
+        
+        if (!$image) {
+            return new JsonResponse([
+                'success' => false,
+                'message' => 'Image not found'
+            ]);
+        }
+        
+        try {
+            // Clear any existing quote background images
+            $existingImages = $imageRepository->findBy(['purpose' => 'quote_background']);
+            foreach ($existingImages as $existingImage) {
+                $existingImage->setPurpose(null);
+                $this->entityManager->persist($existingImage);
+            }
+            
+            // Set the new quote background image
+            $image->setPurpose('quote_background');
+            $this->entityManager->persist($image);
+            $this->entityManager->flush();
+            
+            return new JsonResponse([
+                'success' => true,
+                'message' => 'Quote background image updated successfully'
+            ]);
+        } catch (\Exception $e) {
+            return new JsonResponse([
+                'success' => false,
+                'message' => 'Error updating quote background image: ' . $e->getMessage()
+            ]);
+        }
+    }
+
+    #[Route('/admin/settings/reservation-background', name: 'app_admin_settings_update_reservation_background', methods: ['POST'])]
+    public function updateReservationBackgroundImage(Request $request, ImageRepository $imageRepository): JsonResponse
+    {
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+        
+        $data = json_decode($request->getContent(), true);
+        $imageId = $data['imageId'] ?? null;
+        
+        if (!$imageId) {
+            return new JsonResponse([
+                'success' => false,
+                'message' => 'No image ID provided'
+            ]);
+        }
+        
+        $image = $imageRepository->find($imageId);
+        
+        if (!$image) {
+            return new JsonResponse([
+                'success' => false,
+                'message' => 'Image not found'
+            ]);
+        }
+        
+        try {
+            // Clear any existing reservation background images
+            $existingImages = $imageRepository->findBy(['purpose' => 'reservation_background']);
+            foreach ($existingImages as $existingImage) {
+                $existingImage->setPurpose(null);
+                $this->entityManager->persist($existingImage);
+            }
+            
+            // Check for alternative naming and clear those too
+            $existingAlternativeImages = $imageRepository->findBy(['purpose' => 'Reservation Background']);
+            foreach ($existingAlternativeImages as $existingImage) {
+                $existingImage->setPurpose(null);
+                $this->entityManager->persist($existingImage);
+            }
+            
+            // Set the new reservation background image
+            $image->setPurpose('reservation_background');
+            $this->entityManager->persist($image);
+            $this->entityManager->flush();
+            
+            return new JsonResponse([
+                'success' => true,
+                'message' => 'Reservation background image updated successfully'
+            ]);
+        } catch (\Exception $e) {
+            return new JsonResponse([
+                'success' => false,
+                'message' => 'Error updating reservation background image: ' . $e->getMessage()
+            ]);
+        }
+    }
+
+    #[Route('/admin/settings/chef-image', name: 'app_admin_settings_update_chef_image', methods: ['POST'])]
+    public function updateChefImage(Request $request, ImageRepository $imageRepository): JsonResponse
+    {
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+        
+        $data = json_decode($request->getContent(), true);
+        $imageId = $data['imageId'] ?? null;
+        
+        if (!$imageId) {
+            return new JsonResponse([
+                'success' => false,
+                'message' => 'No image ID provided'
+            ]);
+        }
+        
+        $image = $imageRepository->find($imageId);
+        
+        if (!$image) {
+            return new JsonResponse([
+                'success' => false,
+                'message' => 'Image not found'
+            ]);
+        }
+        
+        try {
+            // Clear any existing chef images
+            $existingImages = $imageRepository->findBy(['purpose' => 'chef']);
+            foreach ($existingImages as $existingImage) {
+                $existingImage->setPurpose(null);
+                $this->entityManager->persist($existingImage);
+            }
+            
+            // Set the new chef image
+            $image->setPurpose('chef');
+            $this->entityManager->persist($image);
+            $this->entityManager->flush();
+            
+            return new JsonResponse([
+                'success' => true,
+                'message' => 'Chef image updated successfully'
+            ]);
+        } catch (\Exception $e) {
+            return new JsonResponse([
+                'success' => false,
+                'message' => 'Error updating chef image: ' . $e->getMessage()
+            ]);
+        }
     }
 }

@@ -3,8 +3,12 @@
 namespace App\Controller;
 
 use App\Entity\Reservation;
+use App\Entity\Restaurant;
 use App\Form\ReservationType;
 use App\Repository\HoursRepository;
+use App\Repository\ImageRepository;
+use App\Repository\ReservationRepository;
+use App\Repository\RestaurantRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -16,13 +20,60 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 class ReservationController extends AbstractController
 {
     #[Route('/reservation', name: 'app_reservation')]
-    public function index(Request $request, EntityManagerInterface $entityManager, HoursRepository $hoursRepository): Response
-    {
+    public function index(
+        Request $request, 
+        EntityManagerInterface $entityManager, 
+        HoursRepository $hoursRepository, 
+        ImageRepository $imageRepository,
+        RestaurantRepository $restaurantRepository
+    ): Response {
         // Create a new reservation form
         $form = $this->createForm(ReservationType::class);
         $form->handleRequest($request);
         
+        // Get restaurant opening hours
+        $hours = $hoursRepository->findAllOrdered();
+        
+        // Get reservation background image
+        $reservationImage = $imageRepository->findOneBy(['purpose' => 'reservation_background', 'isActive' => true]);
+        
+        // If not found, try alternative naming
+        if (!$reservationImage) {
+            $reservationImage = $imageRepository->findOneBy(['purpose' => 'Reservation Background', 'isActive' => true]);
+        }
+        
         if ($form->isSubmitted() && $form->isValid()) {
+            $reservation = $form->getData();
+            
+            // Check if reservation time slot is at capacity
+            $date = $reservation->getDate();
+            $time = $reservation->getTime();
+            $guests = $reservation->getNumberOfGuests();
+            
+            // Get restaurant capacity settings
+            $restaurant = $restaurantRepository->findOneBy([]);
+            $maxCapacity = $restaurant && method_exists($restaurant, 'getMaxCapacity') ? $restaurant->getMaxCapacity() : 50;
+            
+            // Get existing reservations for this date/time
+            $existingReservations = $entityManager->getRepository(Reservation::class)
+                ->findByDateTime($date, $time);
+            
+            // Calculate current capacity
+            $currentCapacity = 0;
+            foreach ($existingReservations as $existingReservation) {
+                $currentCapacity += $existingReservation->getNumberOfGuests();
+            }
+            
+            // Check if adding this reservation would exceed capacity
+            if (($currentCapacity + $guests) > $maxCapacity) {
+                $this->addFlash('error', 'Désolé, nous sommes complets à cette heure. Veuillez choisir un autre horaire.');
+                return $this->render('reservation/index.html.twig', [
+                    'form' => $form->createView(),
+                    'hours' => $hours,
+                    'reservation_image' => $reservationImage,
+                ]);
+            }
+            
             // Process form submission (redirect to login if not authenticated)
             if (!$this->getUser()) {
                 $this->addFlash('info', 'Veuillez vous connecter pour finaliser votre réservation.');
@@ -31,7 +82,6 @@ class ReservationController extends AbstractController
                 ]);
             }
             
-            $reservation = $form->getData();
             $reservation->setUser($this->getUser());
             $reservation->setCreatedAt(new \DateTime());
             $reservation->setStatus('pending');
@@ -45,17 +95,16 @@ class ReservationController extends AbstractController
             ]);
         }
         
-        // Get restaurant opening hours
-        $hours = $hoursRepository->findAllOrdered();
-        
         return $this->render('reservation/index.html.twig', [
             'form' => $form->createView(),
-            'hours' => $hours
+            'hours' => $hours,
+            'reservation_image' => $reservationImage,
+            'controller_name' => 'ReservationController',
         ]);
     }
     
     #[Route('/reservation/available-slots', name: 'app_reservation_slots', methods: ['GET'])]
-    public function getAvailableSlots(Request $request, HoursRepository $hoursRepository): JsonResponse
+    public function getAvailableSlots(Request $request, HoursRepository $hoursRepository, EntityManagerInterface $entityManager, ReservationRepository $reservationRepository): JsonResponse
     {
         $date = $request->query->get('date');
         
@@ -77,7 +126,24 @@ class ReservationController extends AbstractController
                 ]);
             }
             
-            // Generate time slots in 15-minute increments
+            // Get restaurant capacity settings
+            $restaurant = $entityManager->getRepository(Restaurant::class)->findOneBy([]) ?? new Restaurant();
+            $maxCapacity = $restaurant->getMaxCapacity() ?? 50; // Default to 50 if not set
+            
+            // Get existing reservations for this date
+            $reservations = $reservationRepository->findByDate($dateObj);
+            
+            // Calculate capacity for each time slot
+            $capacityByTimeSlot = [];
+            foreach ($reservations as $reservation) {
+                $timeKey = $reservation->getTime()->format('H:i');
+                if (!isset($capacityByTimeSlot[$timeKey])) {
+                    $capacityByTimeSlot[$timeKey] = 0;
+                }
+                $capacityByTimeSlot[$timeKey] += $reservation->getNumberOfGuests();
+            }
+            
+            // Generate time slots
             $timeSlots = [];
             
             // Lunch slots
@@ -87,10 +153,19 @@ class ReservationController extends AbstractController
                 
                 $currentSlot = $start;
                 while ($currentSlot < $end) {
+                    $timeKey = $currentSlot->format('H:i');
+                    $currentCapacity = $capacityByTimeSlot[$timeKey] ?? 0;
+                    $availableCapacity = max(0, $maxCapacity - $currentCapacity);
+                    $capacityPercentage = $maxCapacity > 0 ? ($currentCapacity / $maxCapacity) * 100 : 0;
+                    
                     $timeSlots[] = [
-                        'time' => $currentSlot->format('H:i'),
-                        'period' => 'lunch'
+                        'time' => $timeKey,
+                        'period' => 'lunch',
+                        'available' => $availableCapacity > 0,
+                        'remainingCapacity' => $availableCapacity,
+                        'capacityPercentage' => $capacityPercentage
                     ];
+                    
                     $currentSlot = (clone $currentSlot)->modify('+15 minutes');
                 }
             }
@@ -102,17 +177,27 @@ class ReservationController extends AbstractController
                 
                 $currentSlot = $start;
                 while ($currentSlot < $end) {
+                    $timeKey = $currentSlot->format('H:i');
+                    $currentCapacity = $capacityByTimeSlot[$timeKey] ?? 0;
+                    $availableCapacity = max(0, $maxCapacity - $currentCapacity);
+                    $capacityPercentage = $maxCapacity > 0 ? ($currentCapacity / $maxCapacity) * 100 : 0;
+                    
                     $timeSlots[] = [
-                        'time' => $currentSlot->format('H:i'),
-                        'period' => 'dinner'
+                        'time' => $timeKey,
+                        'period' => 'dinner',
+                        'available' => $availableCapacity > 0,
+                        'remainingCapacity' => $availableCapacity,
+                        'capacityPercentage' => $capacityPercentage
                     ];
+                    
                     $currentSlot = (clone $currentSlot)->modify('+15 minutes');
                 }
             }
             
             return new JsonResponse([
                 'available' => true,
-                'timeSlots' => $timeSlots
+                'timeSlots' => $timeSlots,
+                'maxCapacity' => $maxCapacity
             ]);
             
         } catch (\Exception $e) {

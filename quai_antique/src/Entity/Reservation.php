@@ -64,6 +64,12 @@ class Reservation
     #[ORM\Column(length: 10)]
     private ?string $timeSlot = null;
 
+    #[ORM\Column(type: 'string', length: 20, nullable: true)]
+    private ?string $tableType = null;
+    
+    #[ORM\Column(type: 'integer', nullable: true)]
+    private ?int $tableNumber = null;
+
     public function __construct()
     {
         $this->tables = new ArrayCollection();
@@ -120,6 +126,22 @@ class Reservation
     {
         $this->firstName = $firstName;
 
+        return $this;
+    }
+    public function setNumberOfGuests(int $numberOfGuests):self
+    {
+        $this->numberOfGuests = $numberOfGuests;
+        return $this;
+    }
+    public function setTime(\DateTimeInterface $time): self
+    {
+        $this->date = $time;
+        return $this;
+    }
+
+    public function setName(string $name): self
+    {
+        $this->name = $name;
         return $this;
     }
 
@@ -240,6 +262,28 @@ class Reservation
     {
         $this->timeSlot = $timeSlot;
 
+        return $this;
+    }
+
+    public function getTableType(): ?string
+    {
+        return $this->tableType;
+    }
+    
+    public function setTableType(?string $tableType): self
+    {
+        $this->tableType = $tableType;
+        return $this;
+    }
+    
+    public function getTableNumber(): ?int
+    {
+        return $this->tableNumber;
+    }
+    
+    public function setTableNumber(?int $tableNumber): self
+    {
+        $this->tableNumber = $tableNumber;
         return $this;
     }
 

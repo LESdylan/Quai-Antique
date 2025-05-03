@@ -12,10 +12,12 @@ class ImageUploader
     private $targetDirectory;
     private $slugger;
     private $logger;
+    private $tempDirectory;
 
-    public function __construct(string $targetDirectory, SluggerInterface $slugger, LoggerInterface $logger = null)
+    public function __construct(string $targetDirectory, string $tempDirectory, SluggerInterface $slugger, LoggerInterface $logger = null)
     {
         $this->targetDirectory = $targetDirectory;
+        $this->tempDirectory = $tempDirectory;
         $this->slugger = $slugger;
         $this->logger = $logger;
         
@@ -23,31 +25,21 @@ class ImageUploader
         $this->ensureTargetDirectoryExists();
     }
 
+    /**
+     * Upload a file from any location (uploaded file or filesystem path)
+     */
     public function upload($file): string
     {
         try {
-            // Get original filename and create a safe version
             if ($file instanceof UploadedFile) {
-                $originalFilename = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+                // Handle standard upload
+                return $this->handleUploadedFile($file);
+            } elseif (is_string($file) && file_exists($file) && is_readable($file)) {
+                // Handle file path
+                return $this->handleFilePath($file);
             } else {
-                // Handle string file path
-                $originalFilename = pathinfo($file, PATHINFO_FILENAME);
+                throw new FileException('Invalid file source. Provide either an UploadedFile or a valid file path.');
             }
-            
-            $safeFilename = $this->slugger->slug($originalFilename);
-            $fileName = $safeFilename . '-' . uniqid() . '.' . ($file instanceof UploadedFile ? $file->guessExtension() : pathinfo($file, PATHINFO_EXTENSION));
-
-            // Move the file to the target directory
-            if ($file instanceof UploadedFile) {
-                $file->move($this->getTargetDirectory(), $fileName);
-            } else {
-                // Copy the file from the given path
-                if (!copy($file, $this->getTargetDirectory() . '/' . $fileName)) {
-                    throw new FileException('Failed to copy file from path');
-                }
-            }
-            
-            return $fileName;
         } catch (FileException $e) {
             if ($this->logger) {
                 $this->logger->error('Failed to upload file', [
@@ -57,6 +49,101 @@ class ImageUploader
             }
             throw $e;
         }
+    }
+
+    /**
+     * Handle an uploaded file
+     */
+    private function handleUploadedFile(UploadedFile $file): string
+    {
+        $originalFilename = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+        $safeFilename = $this->slugger->slug($originalFilename);
+        $fileName = $safeFilename . '-' . uniqid() . '.' . $file->guessExtension();
+
+        try {
+            $file->move($this->getTargetDirectory(), $fileName);
+        } catch (FileException $e) {
+            throw new FileException('Failed to move uploaded file: ' . $e->getMessage());
+        }
+
+        return $fileName;
+    }
+
+    /**
+     * Handle a file from filesystem path
+     */
+    private function handleFilePath(string $filePath): string
+    {
+        $originalFilename = pathinfo($filePath, PATHINFO_FILENAME);
+        $extension = pathinfo($filePath, PATHINFO_EXTENSION);
+        $safeFilename = $this->slugger->slug($originalFilename);
+        $fileName = $safeFilename . '-' . uniqid() . '.' . $extension;
+
+        try {
+            // Copy the file to the target directory
+            copy($filePath, $this->getTargetDirectory() . '/' . $fileName);
+            
+            // Check if copy was successful
+            if (!file_exists($this->getTargetDirectory() . '/' . $fileName)) {
+                throw new FileException('Failed to copy file from ' . $filePath);
+            }
+        } catch (\Exception $e) {
+            throw new FileException('Failed to copy file: ' . $e->getMessage());
+        }
+
+        return $fileName;
+    }
+
+    /**
+     * Create temporary file from base64 data
+     */
+    public function createTempFromBase64(string $base64Data): string
+    {
+        // Extract actual base64 string if it contains a data URI
+        if (strpos($base64Data, ';base64,') !== false) {
+            list(, $base64Data) = explode(';base64,', $base64Data);
+        }
+        
+        $decodedData = base64_decode($base64Data);
+        
+        if ($decodedData === false) {
+            throw new FileException('Invalid base64 data');
+        }
+        
+        // Create temp directory if it doesn't exist
+        if (!file_exists($this->tempDirectory)) {
+            mkdir($this->tempDirectory, 0777, true);
+        }
+        
+        $tempFile = tempnam($this->tempDirectory, 'img_');
+        file_put_contents($tempFile, $decodedData);
+        
+        // Try to determine file extension
+        $finfo = new \finfo(FILEINFO_MIME_TYPE);
+        $mimeType = $finfo->file($tempFile);
+        $extension = $this->getExtensionFromMimeType($mimeType);
+        
+        // Rename with proper extension
+        $newTempFile = $tempFile . '.' . $extension;
+        rename($tempFile, $newTempFile);
+        
+        return $newTempFile;
+    }
+
+    /**
+     * Get file extension from MIME type
+     */
+    private function getExtensionFromMimeType(string $mimeType): string
+    {
+        $map = [
+            'image/jpeg' => 'jpg',
+            'image/png' => 'png',
+            'image/gif' => 'gif',
+            'image/webp' => 'webp',
+            'image/svg+xml' => 'svg',
+        ];
+        
+        return $map[$mimeType] ?? 'jpg';
     }
 
     public function getTargetDirectory(): string

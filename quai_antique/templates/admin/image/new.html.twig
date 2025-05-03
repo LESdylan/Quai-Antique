@@ -4,558 +4,511 @@
 
 {% block stylesheets %}
     {{ parent() }}
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.9.3/min/dropzone.min.css">
     <style>
-        .upload-container {
-            background-color: #f8f9fa;
-            border: 2px dashed #dee2e6;
+        .image-upload-container {
+            border: 2px dashed #ddd;
             border-radius: 8px;
-            padding: 2rem;
+            padding: 20px;
             text-align: center;
-            transition: all 0.3s ease;
-        }
-        
-        .upload-container:hover, .upload-container.dz-drag-hover {
-            background-color: #e9ecef;
-            border-color: #adb5bd;
-        }
-        
-        .upload-icon {
-            font-size: 3rem;
-            color: #6c757d;
-            margin-bottom: 1rem;
-        }
-        
-        .file-preview {
-            max-height: 300px;
-            margin-top: 1rem;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-        
-        .preview-container {
-            margin-top: 1.5rem;
-            text-align: center;
-        }
-        
-        .purpose-preview {
-            border: 1px solid #dee2e6;
-            border-radius: 10px;
-            overflow: hidden;
-            margin-bottom: 1.5rem;
-            box-shadow: 0 3px 6px rgba(0,0,0,0.1);
-        }
-        
-        .purpose-preview .preview-title {
-            background-color: #f8f9fa;
-            padding: 0.75rem;
-            border-bottom: 1px solid #dee2e6;
-            font-weight: 600;
-        }
-        
-        .purpose-preview .preview-image {
-            height: 200px;
-            background-color: #e9ecef;
-            background-position: center;
-            background-size: cover;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 20px;
+            height: 300px;
             display: flex;
-            align-items: center;
+            flex-direction: column;
             justify-content: center;
+            align-items: center;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            position: relative;
         }
         
-        .purpose-preview .preview-image span {
+        .image-upload-container:hover {
+            border-color: #aaa;
+            background-color: #f8f9fa;
+        }
+        
+        .image-upload-container.has-image:hover .image-overlay {
+            opacity: 1;
+        }
+        
+        .image-upload-container i {
+            font-size: 48px;
+            color: #aaa;
+            margin-bottom: 10px;
+        }
+        
+        .image-upload-container.has-image .upload-placeholder {
+            display: none;
+        }
+        
+        .image-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
             background-color: rgba(0,0,0,0.5);
-            color: white;
-            padding: 0.5rem 1rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 0.3s;
+            border-radius: 6px;
+        }
+        
+        .image-overlay .btn {
+            margin: 0 5px;
+        }
+        
+        #selectedImagePreview {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+        
+        /* Modal styles */
+        .media-item {
+            cursor: pointer;
+            margin-bottom: 15px;
+            border: 2px solid transparent;
+            transition: all 0.2s;
             border-radius: 4px;
         }
         
-        .tab-content {
-            padding-top: 1.5rem;
+        .media-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
         
-        .tab-buttons {
-            margin-bottom: 1.5rem;
+        .media-item.selected {
+            border-color: #4e73df;
+            box-shadow: 0 0 0 3px rgba(78, 115, 223, 0.3);
         }
         
-        .tab-buttons .btn {
-            border-radius: 30px;
+        .media-item img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 4px;
         }
         
-        .image-source-tabs .nav-link {
-            border-radius: 0.5rem 0.5rem 0 0;
-            padding: 0.75rem 1.25rem;
+        .media-library-container {
+            max-height: 500px;
+            overflow-y: auto;
         }
     </style>
 {% endblock %}
 
 {% block admin_content %}
-    <div class="card">
-        <div class="card-header d-flex justify-content-between align-items-center">
-            <h5 class="mb-0">Add New Image</h5>
-            <a href="{{ path('app_admin_image_index') }}" class="btn btn-outline-secondary">
-                <i class="fas fa-arrow-left"></i> Back to list
-            </a>
+    <div class="d-flex justify-content-between mb-4">
+        <div>
+            <h2 class="mb-0">Add New Image</h2>
+            <p class="text-muted">Upload a new image or select from your library</p>
         </div>
-        <div class="card-body">
-            <!-- Display validation errors at the top of the form -->
-            {% if not form.vars.valid and form.vars.submitted %}
-                <div class="alert alert-danger">
-                    <h5><i class="fas fa-exclamation-triangle"></i> Please correct the following errors:</h5>
-                    <ul class="mb-0">
-                        {% for error in form.vars.errors %}
-                            <li>{{ error.message }}</li>
-                        {% endfor %}
-                        
-                        {% if form.file.vars.errors|length > 0 %}
-                            {% for error in form.file.vars.errors %}
-                                <li>File: {{ error.message }}</li>
-                            {% endfor %}
-                        {% endif %}
-                        
-                        {% if form.existing_path.vars.errors|length > 0 %}
-                            {% for error in form.existing_path.vars.errors %}
-                                <li>Path: {{ error.message }}</li>
-                            {% endfor %}
-                        {% endif %}
-                    </ul>
-                </div>
-            {% endif %}
-            
-            <!-- Image source tabs -->
-            <ul class="nav nav-tabs image-source-tabs mb-4" id="imageSourceTabs" role="tablist">
-                <li class="nav-item" role="presentation">
-                    <a class="nav-link active" id="upload-tab" data-bs-toggle="tab" href="#upload-content" role="tab">
-                        <i class="fas fa-upload me-2"></i> Upload New
-                    </a>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <a class="nav-link" id="library-tab" data-bs-toggle="tab" href="#library-content" role="tab">
-                        <i class="fas fa-photo-video me-2"></i> Select from Library
-                    </a>
-                </li>
-            </ul>
-            
-            {{ form_start(form, {'attr': {'enctype': 'multipart/form-data', 'id': 'image-form'}}) }}
-                
-                <div class="tab-content">
-                    <!-- Upload Tab -->
-                    <div class="tab-pane fade show active" id="upload-content" role="tabpanel">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="upload-container" id="dropzone">
-                                    <i class="fas fa-cloud-upload-alt upload-icon"></i>
-                                    <h5>Drag & Drop Image Here</h5>
-                                    <p class="text-muted">or</p>
-                                    <button type="button" class="btn btn-primary" id="browseFiles">
-                                        <i class="fas fa-folder-open me-2"></i> Browse Files
-                                    </button>
-                                    <input type="file" id="file-input" style="display: none" accept="image/*">
-                                    <div class="preview-container" id="preview-container" style="display: none;">
-                                        <img src="" alt="Preview" class="img-fluid file-preview" id="file-preview">
-                                        <div class="mt-2">
-                                            <button type="button" class="btn btn-sm btn-danger" id="remove-file">
-                                                <i class="fas fa-trash me-1"></i> Remove
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                {{ form_widget(form.file, {'attr': {'class': 'd-none'}}) }}
-                                {{ form_widget(form.upload_method, {'attr': {'class': 'd-none'}}) }}
-                                
-                                <div class="form-text mt-2">
-                                    <i class="fas fa-info-circle me-1"></i>
-                                    Accepted formats: JPEG, PNG, GIF, WEBP. Maximum file size: 5MB.
-                                </div>
-                            </div>
-                            
-                            <div class="col-md-6">
-                                <h5 class="mb-3">Image Information</h5>
-                                
-                                <div class="mb-3">
-                                    {{ form_label(form.title) }}
-                                    {{ form_widget(form.title, {'attr': {'class': 'form-control', 'placeholder': 'Enter a descriptive title'}}) }}
-                                    {{ form_errors(form.title) }}
-                                </div>
-                                
-                                <div class="mb-3">
-                                    {{ form_label(form.alt) }}
-                                    {{ form_widget(form.alt, {'attr': {'class': 'form-control', 'placeholder': 'Alternative text for accessibility and SEO'}}) }}
-                                    {{ form_errors(form.alt) }}
-                                    <div class="form-text">This text is used by screen readers and search engines.</div>
-                                </div>
-                                
-                                <div class="mb-3">
-                                    {{ form_label(form.description) }}
-                                    {{ form_widget(form.description, {'attr': {'class': 'form-control', 'rows': '3', 'placeholder': 'Optional description of this image'}}) }}
-                                    {{ form_errors(form.description) }}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Library Tab -->
-                    <div class="tab-pane fade" id="library-content" role="tabpanel">
-                        <div class="alert alert-info">
-                            <i class="fas fa-info-circle me-2"></i>
-                            Click on an image below to select it from your media library.
-                        </div>
-                        
-                        <div class="text-center py-5" id="loading-library">
-                            <div class="spinner-border text-primary" role="status">
-                                <span class="visually-hidden">Loading...</span>
-                            </div>
-                            <p>Loading media library...</p>
-                        </div>
-                        
-                        <div class="row g-3" id="media-library-container" style="max-height: 400px; overflow-y: auto;">
-                            <!-- Media items will be loaded here via JavaScript -->
-                        </div>
-                        
-                        <div class="alert alert-warning" id="no-media-message" style="display: none;">
-                            <i class="fas fa-exclamation-triangle me-2"></i>
-                            No images found in your media library. Please upload new images.
-                        </div>
-                    </div>
-                </div>
-                
-                <hr class="my-4">
-                
-                <div class="row">
-                    <div class="col-md-6">
-                        <h5 class="mb-3">Usage Settings</h5>
-                        
-                        <div class="mb-3">
-                            {{ form_label(form.category) }}
-                            {{ form_widget(form.category, {'attr': {'class': 'form-select'}}) }}
-                            {{ form_errors(form.category) }}
-                            <div class="form-text">Categorize your image for easier organization.</div>
-                        </div>
-                        
-                        <div class="mb-3">
-                            {{ form_label(form.purpose) }}
-                            {{ form_widget(form.purpose, {'attr': {'class': 'form-select', 'id': 'image-purpose'}}) }}
-                            {{ form_errors(form.purpose) }}
-                            <div class="form-text">Assign this image to a specific location on your website.</div>
-                        </div>
-                        
-                        <div class="mb-3">
-                            {{ form_label(form.dish) }}
-                            {{ form_widget(form.dish, {'attr': {'class': 'form-select'}}) }}
-                            {{ form_errors(form.dish) }}
-                            <div class="form-text">Associate this image with a specific dish (optional).</div>
-                        </div>
-                        
-                        <div class="form-check form-switch mb-3">
-                            {{ form_widget(form.isActive, {'attr': {'class': 'form-check-input'}}) }}
-                            {{ form_label(form.isActive, null, {'label_attr': {'class': 'form-check-label'}}) }}
-                        </div>
-                    </div>
-                    
-                    <div class="col-md-6">
-                        <h5 class="mb-3">Preview</h5>
-                        
-                        <div class="purpose-previews">
-                            <!-- Hero Banner Preview -->
-                            <div class="purpose-preview" data-purpose="hero_banner">
-                                <div class="preview-title">Hero Banner</div>
-                                <div class="preview-image" id="preview-hero_banner">
-                                    <span>No image selected</span>
-                                </div>
-                            </div>
-                            
-                            <!-- Reservation Page Preview -->
-                            <div class="purpose-preview" data-purpose="reservation_page" style="display:none">
-                                <div class="preview-title">Reservation Page</div>
-                                <div class="preview-image" id="preview-reservation_page">
-                                    <span>No image selected</span>
-                                </div>
-                            </div>
-                            
-                            <!-- Menu Header Preview -->
-                            <div class="purpose-preview" data-purpose="menu_header" style="display:none">
-                                <div class="preview-title">Menu Header</div>
-                                <div class="preview-image" id="preview-menu_header">
-                                    <span>No image selected</span>
-                                </div>
-                            </div>
-                            
-                            <!-- Gallery Featured Preview -->
-                            <div class="purpose-preview" data-purpose="gallery_featured" style="display:none">
-                                <div class="preview-title">Gallery Featured</div>
-                                <div class="preview-image" id="preview-gallery_featured">
-                                    <span>No image selected</span>
-                                </div>
-                            </div>
-                            
-                            <!-- About Us Preview -->
-                            <div class="purpose-preview" data-purpose="about_us" style="display:none">
-                                <div class="preview-title">About Us Section</div>
-                                <div class="preview-image" id="preview-about_us">
-                                    <span>No image selected</span>
-                                </div>
-                            </div>
-                            
-                            <!-- Generic Preview -->
-                            <div class="purpose-preview" data-purpose="generic" style="display:none">
-                                <div class="preview-title">Image Preview</div>
-                                <div class="preview-image" id="preview-generic">
-                                    <span>No image selected</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="text-center mt-4">
-                    <button type="submit" class="btn btn-primary btn-lg">
-                        <i class="fas fa-save me-2"></i> Save Image
-                    </button>
-                </div>
-                
-                <!-- Hidden field for selected library image -->
-                <input type="hidden" id="selected-library-image" name="selected_library_image">
-            {{ form_end(form) }}
+        <div>
+            <a href="{{ path('app_admin_image_index') }}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left me-2"></i> Back to Images
+            </a>
         </div>
     </div>
 
-    <!-- Include media library modal -->
-    {% include 'admin/components/media_library_modal.html.twig' %}
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Image Details</h6>
+        </div>
+        <div class="card-body">
+            {{ form_start(form) }}
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="image-upload-container" id="imageUploadContainer">
+                            <div class="upload-placeholder">
+                                <i class="fas fa-image"></i>
+                                <p class="mb-0">Click to upload or select an image</p>
+                                <small class="text-muted">Supports JPG, PNG and GIF</small>
+                            </div>
+                            <img id="selectedImagePreview" style="display: none;" />
+                            <div class="image-overlay">
+                                <button type="button" class="btn btn-primary btn-sm" id="uploadButton">
+                                    <i class="fas fa-upload me-1"></i> Upload
+                                </button>
+                                <button type="button" class="btn btn-info btn-sm" id="libraryButton">
+                                    <i class="fas fa-th me-1"></i> Media Library
+                                </button>
+                            </div>
+                        </div>
+                        <div id="imageSources" class="mb-3">
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="image_source" id="source_upload" value="upload" checked>
+                                <label class="form-check-label" for="source_upload">Upload New Image</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="image_source" id="source_path" value="path">
+                                <label class="form-check-label" for="source_path">Use File Path</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="image_source" id="source_library" value="library">
+                                <label class="form-check-label" for="source_library">Select from Library</label>
+                            </div>
+                        </div>
+                        
+                        <!-- File upload is hidden and triggered by JS -->
+                        <div class="d-none">
+                            {{ form_row(form.upload_method) }}
+                            {{ form_row(form.file) }}
+                            <input type="hidden" name="selected_library_image" id="selectedLibraryImage">
+                        </div>
+
+                        <!-- Path input field -->
+                        <div id="pathInputContainer" class="mb-3" style="display: none;">
+                            {{ form_row(form.file_path) }}
+                            <button type="button" class="btn btn-sm btn-outline-secondary" id="verifyPathBtn">Verify Path</button>
+                            <div id="pathVerificationResult" class="mt-2"></div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        {{ form_row(form.title) }}
+                        {{ form_row(form.alt) }}
+                        {{ form_row(form.category) }}
+                        {{ form_row(form.description) }}
+                        
+                        {% if form.purpose is defined %}
+                            {{ form_row(form.purpose, {
+                                'attr': {'class': 'form-control'},
+                                'choice_attr': {
+                                    'hero': {'data-description': 'Used as homepage hero header background'}
+                                }
+                            }) }}
+                        {% endif %}
+                        
+                        {% if form.dish is defined %}
+                            {{ form_row(form.dish) }}
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="text-end mt-3">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save me-2"></i> Save Image
+                    </button>
+                </div>
+            {{ form_end(form) }}
+        </div>
+    </div>
+    
+    <!-- Media Library Modal -->
+    <div class="modal fade" id="mediaLibraryModal" tabindex="-1" aria-labelledby="mediaLibraryModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="mediaLibraryModalLabel">Select Image from Media Library</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="mediaSearchInput" placeholder="Search images...">
+                            <button class="btn btn-outline-secondary" type="button" id="mediaSearchButton">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="text-center py-5" id="mediaLoadingIndicator">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="mt-2">Loading media library...</p>
+                    </div>
+                    
+                    <div class="media-library-container">
+                        <div class="row" id="mediaLibraryItems"></div>
+                    </div>
+                    
+                    <div class="alert alert-info mt-3" id="noMediaMessage" style="display: none;">
+                        No images found in your media library.
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="selectMediaButton" disabled>Select Image</button>
+                </div>
+            </div>
+        </div>
+    </div>
 {% endblock %}
 
 {% block admin_javascripts %}
-<script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.9.3/min/dropzone.min.js"></script>
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // File input handling
-    const fileInput = document.getElementById('file-input');
-    const browseBtn = document.getElementById('browseFiles');
-    const dropzone = document.getElementById('dropzone');
-    const previewContainer = document.getElementById('preview-container');
-    const filePreview = document.getElementById('file-preview');
-    const removeBtn = document.getElementById('remove-file');
-    const formFileInput = document.querySelector('{{ form.file.vars.id }}');
-    const uploadMethodRadio = document.querySelector('input[name="{{ form.upload_method.vars.full_name }}"][value="upload"]');
-
-    // Set upload method
-    uploadMethodRadio.checked = true;
-    
-    browseBtn.addEventListener('click', function() {
-        fileInput.click();
-    });
-    
-    fileInput.addEventListener('change', function() {
-        handleFileSelect(this.files[0]);
-    });
-    
-    // Drag and drop
-    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-        dropzone.addEventListener(eventName, preventDefaults, false);
-    });
-    
-    ['dragenter', 'dragover'].forEach(eventName => {
-        dropzone.addEventListener(eventName, highlight, false);
-    });
-    
-    ['dragleave', 'drop'].forEach(eventName => {
-        dropzone.addEventListener(eventName, unhighlight, false);
-    });
-    
-    dropzone.addEventListener('drop', handleDrop, false);
-    
-    removeBtn.addEventListener('click', function() {
-        resetFileInput();
-    });
-    
-    function preventDefaults(e) {
-        e.preventDefault();
-        e.stopPropagation();
-    }
-    
-    function highlight() {
-        dropzone.classList.add('dz-drag-hover');
-    }
-    
-    function unhighlight() {
-        dropzone.classList.remove('dz-drag-hover');
-    }
-    
-    function handleDrop(e) {
-        const dt = e.dataTransfer;
-        const files = dt.files;
+    document.addEventListener('DOMContentLoaded', function() {
+        const imageUploadContainer = document.getElementById('imageUploadContainer');
+        const uploadButton = document.getElementById('uploadButton');
+        const libraryButton = document.getElementById('libraryButton');
+        const fileInput = document.getElementById('{{ form.file.vars.id }}');
+        const uploadMethodInput = document.getElementById('{{ form.upload_method.vars.id }}');
+        const selectedImagePreview = document.getElementById('selectedImagePreview');
+        const selectedLibraryImageInput = document.getElementById('selectedLibraryImage');
+        const sourceUploadRadio = document.getElementById('source_upload');
+        const sourcePathRadio = document.getElementById('source_path');
+        const sourceLibraryRadio = document.getElementById('source_library');
+        const pathInputContainer = document.getElementById('pathInputContainer');
+        const filePathInput = document.getElementById('{{ form.file_path.vars.id }}');
+        const verifyPathBtn = document.getElementById('verifyPathBtn');
+        const pathVerificationResult = document.getElementById('pathVerificationResult');
         
-        if (files.length) {
-            handleFileSelect(files[0]);
-        }
-    }
-    
-    function handleFileSelect(file) {
-        // Check if it's an image
-        if (!file.type.match('image.*')) {
-            alert('Please select an image file.');
-            return;
-        }
+        // Media Library Modal Elements
+        const mediaLibraryModal = new bootstrap.Modal(document.getElementById('mediaLibraryModal'));
+        const mediaLoadingIndicator = document.getElementById('mediaLoadingIndicator');
+        const mediaLibraryItems = document.getElementById('mediaLibraryItems');
+        const noMediaMessage = document.getElementById('noMediaMessage');
+        const selectMediaButton = document.getElementById('selectMediaButton');
+        const mediaSearchInput = document.getElementById('mediaSearchInput');
         
-        // Show preview
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            filePreview.src = e.target.result;
-            previewContainer.style.display = 'block';
-            
-            // Update purpose previews
-            updatePurposePreview(e.target.result);
-        };
-        reader.readAsDataURL(file);
+        let selectedMediaId = null;
+        let mediaLoaded = false;
         
-        // Update form's file input
-        const dataTransfer = new DataTransfer();
-        dataTransfer.items.add(file);
-        formFileInput.files = dataTransfer.files;
-        
-        // Show preview in all preview containers
-        updateAllPreviewContainers(URL.createObjectURL(file));
-    }
-    
-    function resetFileInput() {
-        fileInput.value = '';
-        formFileInput.value = '';
-        previewContainer.style.display = 'none';
-        filePreview.src = '';
-        
-        // Reset preview containers
-        document.querySelectorAll('.preview-image').forEach(container => {
-            container.style.backgroundImage = '';
-            container.querySelector('span').style.display = 'block';
-        });
-    }
-    
-    // Purpose dropdown handling
-    const purposeSelect = document.getElementById('image-purpose');
-    const purposePreviews = document.querySelectorAll('.purpose-preview');
-    
-    purposeSelect.addEventListener('change', function() {
-        const selectedPurpose = this.value;
-        
-        // Hide all previews first
-        purposePreviews.forEach(preview => {
-            preview.style.display = 'none';
+        // Setup click handlers for the image container
+        imageUploadContainer.addEventListener('click', function() {
+            if (sourceUploadRadio.checked) {
+                fileInput.click();
+            } else if (sourceLibraryRadio.checked) {
+                openMediaLibrary();
+            }
+            // Don't do anything special for path mode
         });
         
-        // Show the selected purpose preview or generic preview
-        const selectedPreview = document.querySelector(`.purpose-preview[data-purpose="${selectedPurpose}"]`);
-        if (selectedPreview) {
-            selectedPreview.style.display = 'block';
-        } else {
-            document.querySelector('.purpose-preview[data-purpose="generic"]').style.display = 'block';
-        }
-    });
-    
-    function updatePurposePreview(imageUrl) {
-        // Update all preview containers
-        document.querySelectorAll('.preview-image').forEach(container => {
-            container.style.backgroundImage = `url('${imageUrl}')`;
-            container.querySelector('span').style.display = 'none';
+        // Direct button handlers
+        uploadButton.addEventListener('click', function(e) {
+            e.stopPropagation(); // Prevent event bubbling
+            sourceUploadRadio.checked = true;
+            updateUploadMethod('upload');
+            fileInput.click();
         });
-    }
-    
-    // Initialize based on current purpose value
-    const currentPurpose = purposeSelect.value;
-    if (currentPurpose) {
-        const targetPreview = document.querySelector(`.purpose-preview[data-purpose="${currentPurpose}"]`);
-        if (targetPreview) {
-            targetPreview.style.display = 'block';
-        } else {
-            document.querySelector('.purpose-preview[data-purpose="generic"]').style.display = 'block';
-        }
-    } else {
-        document.querySelector('.purpose-preview[data-purpose="generic"]').style.display = 'block';
-    }
-    
-    // Media Library handling
-    let selectedMediaItem = null;
-    
-    function loadMediaLibrary() {
-        const libraryContainer = document.getElementById('media-library-container');
-        const loadingIndicator = document.getElementById('loading-library');
-        const noMediaMessage = document.getElementById('no-media-message');
         
-        // Show loading indicator
-        libraryContainer.innerHTML = '';
-        loadingIndicator.style.display = 'block';
-        noMediaMessage.style.display = 'none';
+        libraryButton.addEventListener('click', function(e) {
+            e.stopPropagation(); // Prevent event bubbling
+            sourceLibraryRadio.checked = true;
+            updateUploadMethod('existing');
+            openMediaLibrary();
+        });
         
-        // Fetch images from API
-        fetch('/admin/api/media')
-            .then(response => response.json())
-            .then(data => {
-                loadingIndicator.style.display = 'none';
+        // File input change handler
+        fileInput.addEventListener('change', function() {
+            if (this.files && this.files[0]) {
+                const file = this.files[0];
+                const reader = new FileReader();
                 
-                if (data.length === 0) {
-                    noMediaMessage.style.display = 'block';
-                    return;
+                reader.onload = function(e) {
+                    selectedImagePreview.src = e.target.result;
+                    selectedImagePreview.style.display = 'block';
+                    imageUploadContainer.classList.add('has-image');
+                    imageUploadContainer.style.backgroundImage = `url(${e.target.result})`;
                 }
                 
-                // Render media items
-                data.forEach(item => {
-                    const mediaItem = document.createElement('div');
-                    mediaItem.className = 'col-md-3 media-item';
-                    mediaItem.dataset.id = item.id;
+                reader.readAsDataURL(file);
+                uploadMethodInput.value = 'upload';
+                selectedLibraryImageInput.value = '';
+                sourceUploadRadio.checked = true;
+            }
+        });
+        
+        // Radio button change handlers
+        sourceUploadRadio.addEventListener('change', function() {
+            if (this.checked) {
+                updateUploadMethod('upload');
+            }
+        });
+        
+        sourcePathRadio.addEventListener('change', function() {
+            if (this.checked) {
+                updateUploadMethod('path');
+            }
+        });
+        
+        sourceLibraryRadio.addEventListener('change', function() {
+            if (this.checked) {
+                updateUploadMethod('existing');
+                openMediaLibrary();
+            }
+        });
+        
+        // Update form based on selected upload method
+        function updateUploadMethod(method) {
+            uploadMethodInput.value = method;
+            
+            // Hide/show the appropriate containers
+            if (method === 'path') {
+                pathInputContainer.style.display = 'block';
+            } else {
+                pathInputContainer.style.display = 'none';
+            }
+        }
+        
+        // Verify path button
+        verifyPathBtn.addEventListener('click', function() {
+            const path = filePathInput.value.trim();
+            
+            if (!path) {
+                pathVerificationResult.innerHTML = '<div class="alert alert-warning">Please enter a file path</div>';
+                return;
+            }
+            
+            // Send AJAX request to verify if file exists
+            fetch('/admin/api/verify-path', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token("verify_path") }}'
+                },
+                body: JSON.stringify({ path: path })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.exists) {
+                    pathVerificationResult.innerHTML = `
+                        <div class="alert alert-success">
+                            <strong>File exists!</strong> ${data.mime_type || ''}
+                            ${data.preview ? `<img src="${data.preview}" class="img-fluid mt-2" style="max-height: 100px;">` : ''}
+                        </div>
+                    `;
+                } else {
+                    pathVerificationResult.innerHTML = `
+                        <div class="alert alert-danger">
+                            <strong>File not found or not readable.</strong> ${data.error || ''}
+                        </div>
+                    `;
+                }
+            })
+            .catch(error => {
+                pathVerificationResult.innerHTML = `
+                    <div class="alert alert-danger">
+                        Error verifying path: ${error}
+                    </div>
+                `;
+            });
+        });
+        
+        // Media Library functions
+        function openMediaLibrary() {
+            mediaLibraryModal.show();
+            
+            // Only load media items if they haven't been loaded yet
+            if (!mediaLoaded) {
+                loadMediaItems();
+            }
+        }
+        
+        function loadMediaItems() {
+            mediaLoadingIndicator.style.display = 'block';
+            mediaLibraryItems.innerHTML = '';
+            noMediaMessage.style.display = 'none';
+            selectMediaButton.disabled = true;
+            selectedMediaId = null;
+            
+            // Fetch media library items
+            fetch('/admin/api/media')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    mediaLoadingIndicator.style.display = 'none';
+                    mediaLoaded = true;
                     
-                    mediaItem.innerHTML = `
-                        <div class="card h-100 media-card">
-                            <img src="/uploads/images/${item.filename}" class="card-img-top" style="height: 150px; object-fit: cover;">
-                            <div class="card-body">
-                                <h6 class="card-title text-truncate">${item.title || item.alt}</h6>
-                                <p class="card-text small text-muted">${item.category || 'Uncategorized'}</p>
+                    if (!data || data.length === 0) {
+                        noMediaMessage.style.display = 'block';
+                        return;
+                    }
+                    
+                    renderMediaItems(data);
+                })
+                .catch(error => {
+                    console.error('Error fetching media library:', error);
+                    mediaLoadingIndicator.style.display = 'none';
+                    mediaLibraryItems.innerHTML = `
+                        <div class="col-12">
+                            <div class="alert alert-danger">
+                                Error loading media library. Please try again later.
                             </div>
                         </div>
                     `;
-                    
-                    mediaItem.addEventListener('click', function() {
-                        // Remove selection from all items
-                        document.querySelectorAll('.media-card').forEach(card => {
-                            card.classList.remove('border-primary');
-                        });
-                        
-                        // Mark this item as selected
-                        this.querySelector('.media-card').classList.add('border-primary');
-                        selectedMediaItem = item;
-                        
-                        // Update preview
-                        updatePurposePreview(`/uploads/images/${item.filename}`);
-                        
-                        // Set the selected image in the hidden field
-                        document.getElementById('selected-library-image').value = item.id;
-                    });
-                    
-                    libraryContainer.appendChild(mediaItem);
                 });
-            })
-            .catch(error => {
-                loadingIndicator.style.display = 'none';
-                libraryContainer.innerHTML = `
-                    <div class="col-12">
-                        <div class="alert alert-danger">
-                            Failed to load media library. Please try again later.
+        }
+        
+        function renderMediaItems(items) {
+            mediaLibraryItems.innerHTML = '';
+            
+            items.forEach(item => {
+                const mediaItem = document.createElement('div');
+                mediaItem.className = 'col-md-3 mb-3';
+                mediaItem.innerHTML = `
+                    <div class="media-item" data-id="${item.id}">
+                        <img src="/uploads/images/${item.filename}" alt="${item.alt || ''}" class="img-fluid">
+                        <div class="p-2">
+                            <p class="mb-0 text-truncate">${item.title || item.alt || 'Untitled'}</p>
                         </div>
                     </div>
                 `;
-                console.error('Error loading media library:', error);
+                
+                const mediaItemElement = mediaItem.querySelector('.media-item');
+                mediaItemElement.addEventListener('click', function(e) {
+                    e.stopPropagation(); // Prevent event bubbling
+                    
+                    // Unselect all items
+                    document.querySelectorAll('.media-item').forEach(el => {
+                        el.classList.remove('selected');
+                    });
+                    
+                    // Select this item
+                    this.classList.add('selected');
+                    selectedMediaId = this.dataset.id;
+                    selectMediaButton.disabled = false;
+                });
+                
+                mediaLibraryItems.appendChild(mediaItem);
             });
-    }
-    
-    // Load media library when tab is selected
-    document.getElementById('library-tab').addEventListener('click', function() {
-        loadMediaLibrary();
-    });
-    
-    function updateAllPreviewContainers(imageUrl) {
-        document.querySelectorAll('.preview-image').forEach(container => {
-            container.style.backgroundImage = `url('${imageUrl}')`;
-            container.querySelector('span').style.display = 'none';
+        }
+        
+        // Search media
+        mediaSearchInput.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            
+            document.querySelectorAll('.media-item').forEach(item => {
+                const title = item.querySelector('p').textContent.toLowerCase();
+                
+                if (title.includes(searchTerm)) {
+                    item.parentElement.style.display = 'block';
+                } else {
+                    item.parentElement.style.display = 'none';
+                }
+            });
         });
-    }
-});
+        
+        // Select media button handler
+        selectMediaButton.addEventListener('click', function() {
+            if (selectedMediaId) {
+                // Find the selected item data
+                const selectedItem = document.querySelector(`.media-item[data-id="${selectedMediaId}"]`);
+                const imageUrl = selectedItem.querySelector('img').src;
+                
+                // Update form values
+                selectedLibraryImageInput.value = selectedMediaId;
+                uploadMethodInput.value = 'existing';
+                sourceLibraryRadio.checked = true;
+                
+                // Update preview
+                selectedImagePreview.src = imageUrl;
+                selectedImagePreview.style.display = 'block';
+                imageUploadContainer.classList.add('has-image');
+                imageUploadContainer.style.backgroundImage = `url(${imageUrl})`;
+                
+                // Close modal
+                mediaLibraryModal.hide();
+            }
+        });
+    });
 </script>
 {% endblock %}

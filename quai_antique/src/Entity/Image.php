@@ -154,10 +154,17 @@ class Image
         return $this->purpose;
     }
 
-    public function setPurpose(?string $purpose): static
+    public function setPurpose(?string $purpose): self
     {
+        // Normalize purpose value for consistency
+        if ($purpose === 'Hero Banner') {
+            $purpose = 'hero_banner';
+        } else if ($purpose === 'hero') {
+            $purpose = 'hero_banner';
+        }
+        
         $this->purpose = $purpose;
-
+        
         return $this;
     }
 
@@ -313,13 +320,19 @@ class Image
      */
     public function getPurposeLabel(): string
     {
-        return match($this->purpose) {
+        $purposes = [
+            'hero' => 'Hero Banner',
             'hero_banner' => 'Hero Banner',
-            'reservation_page' => 'Reservation Page',
-            'menu_header' => 'Menu Header',
-            'gallery_featured' => 'Gallery Featured',
-            'about_us' => 'About Us Section',
-            default => $this->purpose ?? 'General'
-        };
+            'quote_background' => 'Quote Background',
+            'reservation_background' => 'Reservation Background',
+            'logo' => 'Restaurant Logo',
+            'background' => 'Background Image',
+            'gallery' => 'Gallery Image',
+            'dish' => 'Dish Image',
+            'chef' => 'Chef Image',
+            'interior' => 'Interior Photo',
+        ];
+        
+        return $purposes[$this->purpose] ?? $this->purpose;
     }
 }

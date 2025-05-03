@@ -301,7 +301,11 @@
 <div class="reservation-container">
     <!-- Left side - Beautiful dish image with quote -->
     <div class="reservation-image-section">
-        <img src="{{ asset('images/gourmet-dish.jpg') }}" alt="Plat gastronomique" class="reservation-image">
+        {% if reservation_image %}
+            <img src="{{ asset('uploads/images/' ~ reservation_image.filename) }}" alt="{{ reservation_image.alt }}" class="reservation-image">
+        {% else %}
+            <img src="/images/gourmet-dish.jpg" alt="Plat gastronomique" class="reservation-image">
+        {% endif %}
         <span class="dish-badge">Savoureux!</span>
         <div class="image-overlay">
             <div class="quote">"La cuisine est l'art de transformer instantanément des produits chargés d'histoire en bonheur."</div>

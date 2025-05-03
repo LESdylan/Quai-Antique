@@ -69,6 +69,14 @@ class RegistrationFormType extends AbstractType
                     'rows' => 3,
                 ],
             ])
+            ->add('dietary_regime', TextareaType::class, [
+                'required' => false,
+                'label' => 'Dietary Regime',
+                'attr' => [
+                    'placeholder' => 'Please specify your dietary regime (e.g., vegetarian, vegan, gluten-free)',
+                    'rows' => 3
+                ]
+            ])
             ->add('agreeTerms', CheckboxType::class, [
                 'label' => 'J\'accepte les conditions d\'utilisation',
                 'mapped' => false,

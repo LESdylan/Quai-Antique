@@ -25,27 +25,40 @@ class ImageType extends AbstractType
                 'mapped' => false,
                 'label' => 'Upload Method',
                 'choices' => [
-                    'Upload file' => 'upload',
-                    'Use existing file' => 'existing',
+                    'Upload new file' => 'upload',
+                    'Use existing file path' => 'path', 
+                    'Select from library' => 'existing',
                 ],
                 'expanded' => true,
+                'multiple' => false,
                 'data' => 'upload',
             ])
             ->add('file', FileType::class, [
-                'label' => 'Image File',
+                'label' => 'Image file',
                 'mapped' => false,
                 'required' => false,
                 'constraints' => [
                     new File([
-                        'maxSize' => '10M',
+                        'maxSize' => '5M',
                         'mimeTypes' => [
                             'image/jpeg',
                             'image/png',
+                            'image/gif',
                             'image/webp',
                         ],
                         'mimeTypesMessage' => 'Please upload a valid image file',
                     ])
                 ],
+            ])
+            ->add('file_path', TextType::class, [
+                'mapped' => false,
+                'required' => false,
+                'label' => 'File Path',
+                'attr' => [
+                    'placeholder' => 'Enter full path to the image file',
+                    'class' => 'form-control'
+                ],
+                'help' => 'For example: /path/to/your/image.jpg'
             ])
             ->add('existing_path', TextType::class, [
                 'mapped' => false,
@@ -82,17 +95,20 @@ class ImageType extends AbstractType
                 'placeholder' => 'Select a category',
             ])
             ->add('purpose', ChoiceType::class, [
-                'label' => 'Special Purpose',
                 'required' => false,
                 'choices' => [
-                    'General Image' => null,
-                    'Hero Banner (Homepage)' => 'hero_banner',
-                    'Reservation Page' => 'reservation_page',
-                    'Menu Header' => 'menu_header',
-                    'Gallery Featured' => 'gallery_featured',
-                    'About Us Section' => 'about_us',
+                    'Hero Banner' => 'hero_banner',
+                    'Quote Background' => 'quote_background',
+                    'Reservation Background' => 'reservation_background',
+                    'Logo' => 'logo',
+                    'Background Image' => 'background',
+                    'Gallery Image' => 'gallery',
+                    'Dish Image' => 'dish',
+                    'Chef Image' => 'chef',
+                    'Interior Photo' => 'interior',
+                    // Add other options as needed
                 ],
-                'help' => 'Designate this image for a special purpose on the website',
+                'placeholder' => 'None (general purpose)',
             ])
             ->add('dish', EntityType::class, [
                 'class' => Dish::class,

@@ -1,259 +1,404 @@
 {% extends 'admin/base.html.twig' %}
 
-{% block page_title %}Gestion des Réservations{% endblock %}
+{% block page_title %}Réservations{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .time-slot {
+            padding: 5px 10px;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            position: relative;
+        }
+        
+        .capacity-bar {
+            height: 5px;
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            background-color: #4e73df;
+            transition: width 0.5s;
+        }
+        
+        .capacity-warning .capacity-bar {
+            background-color: #f6c23e;
+        }
+        
+        .capacity-danger .capacity-bar {
+            background-color: #e74a3b;
+        }
+        
+        .time-slot-time {
+            font-weight: bold;
+        }
+        
+        .time-slot-capacity {
+            font-size: 0.8rem;
+            color: #6c757d;
+        }
+        
+        .table-assignment {
+            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 12px;
+            color: white;
+        }
+        
+        .table-small {
+            background-color: #36b9cc;
+        }
+        
+        .table-medium {
+            background-color: #4e73df;
+        }
+        
+        .table-large {
+            background-color: #1cc88a;
+        }
+        
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            display: inline-block;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+        
+        .status-pending {
+            background-color: #f6c23e;
+        }
+        
+        .status-confirmed {
+            background-color: #1cc88a;
+        }
+        
+        .status-cancelled {
+            background-color: #e74a3b;
+        }
+        
+        .status-completed {
+            background-color: #858796;
+        }
+        
+        .status-waitlist {
+            background-color: #f8f9fc;
+            border: 1px solid #858796;
+        }
+    </style>
+{% endblock %}
 
 {% block admin_content %}
     <div class="d-flex justify-content-between mb-4">
-        <h2>Réservations</h2>
-        
-        <div class="d-flex">
-            <div class="me-2">
-                <form method="get" action="{{ path('app_admin_reservations') }}" class="d-flex">
-                    <input type="date" name="date" class="form-control" value="{{ selected_date|date('Y-m-d') }}" required>
-                    <button type="submit" class="btn btn-primary ms-2">
-                        <i class="fas fa-search"></i>
-                    </button>
+        <h1 class="h3 mb-0 text-gray-800">Réservations</h1>
+        <div>
+            <a href="{{ path('app_admin_reservation_capacity') }}" class="btn btn-info">
+                <i class="fas fa-cogs me-1"></i> Gérer la Capacité
+            </a>
+        </div>
+    </div>
+
+    <!-- Date Navigation -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Sélectionner une date</h6>
+        </div>
+        <div class="card-body">
+            <div class="d-flex gap-2">
+                <a href="{{ path('app_admin_reservations', {'date': 'today'}) }}" class="btn btn-outline-primary">
+                    Aujourd'hui
+                </a>
+                <a href="{{ path('app_admin_reservations', {'date': 'tomorrow'}) }}" class="btn btn-outline-primary">
+                    Demain
+                </a>
+                <a href="{{ path('app_admin_reservations', {'date': 'weekend'}) }}" class="btn btn-outline-primary">
+                    Weekend
+                </a>
+                <form method="get" action="{{ path('app_admin_reservations') }}" class="d-flex ms-2">
+                    <input type="date" name="date" class="form-control" value="{{ selected_date|date('Y-m-d') }}">
+                    <button type="submit" class="btn btn-primary ms-2">Afficher</button>
                 </form>
             </div>
-            <div class="btn-group">
-                <a href="{{ path('app_admin_reservations', {date: 'today'}) }}" class="btn btn-outline-secondary {{ selected_date|date('Y-m-d') == 'now'|date('Y-m-d') ? 'active' : '' }}">Aujourd'hui</a>
-                <a href="{{ path('app_admin_reservations', {date: 'tomorrow'}) }}" class="btn btn-outline-secondary {{ selected_date|date('Y-m-d') == 'now+1 day'|date('Y-m-d') ? 'active' : '' }}">Demain</a>
-                <a href="{{ path('app_admin_reservations', {date: 'weekend'}) }}" class="btn btn-outline-secondary {{ is_weekend ? 'active' : '' }}">Week-end</a>
-            </div>
         </div>
     </div>
-    
-    <div class="card">
-        <div class="card-header bg-primary text-white">
-            <h5 class="mb-0">Réservations pour le {{ selected_date|date('d/m/Y') }}</h5>
-        </div>
-        <div class="card-body">
-            {% if reservations|length > 0 %}
-                <div class="table-responsive">
-                    <table class="table table-striped table-hover">
-                        <thead>
-                            <tr>
-                                <th>Client</th>
-                                <th>Horaire</th>
-                                <th>Convives</th>
-                                <th>Contact</th>
-                                <th>Allergies</th>
-                                <th>Statut</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for reservation in reservations %}
-                                <tr>
-                                    <td>
-                                        <strong>{{ reservation.lastName }} {{ reservation.firstName }}</strong>
-                                        {% if reservation.user %}
-                                            <span class="badge bg-info">Client enregistré</span>
-                                        {% endif %}
-                                    </td>
-                                    <td>{{ reservation.timeSlot }}</td>
-                                    <td>{{ reservation.guestCount }} personnes</td>
-                                    <td>
-                                        <div>{{ reservation.email }}</div>
-                                        <div>{{ reservation.phone }}</div>
-                                    </td>
-                                    <td>
-                                        {% if reservation.allergies %}
-                                            <span class="text-danger">{{ reservation.allergies }}</span>
-                                        {% else %}
-                                            <span class="text-muted">Aucune</span>
-                                        {% endif %}
-                                    </td>
-                                    <td>
-                                        {% if reservation.status == 'pending' %}
-                                            <span class="badge bg-warning">En attente</span>
-                                        {% elseif reservation.status == 'confirmed' %}
-                                            <span class="badge bg-success">Confirmée</span>
-                                        {% elseif reservation.status == 'cancelled' %}
-                                            <span class="badge bg-danger">Annulée</span>
-                                        {% elseif reservation.status == 'completed' %}
-                                            <span class="badge bg-secondary">Terminée</span>
-                                        {% endif %}
-                                    </td>
-                                    <td>
-                                        <div class="btn-group">
-                                            <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#viewModal{{ reservation.id }}">
-                                                <i class="fas fa-eye"></i>
-                                            </button>
-                                            <div class="btn-group">
-                                                <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown">
-                                                    <i class="fas fa-cog"></i>
-                                                </button>
-                                                <ul class="dropdown-menu dropdown-menu-end">
-                                                    {% if reservation.status != 'confirmed' %}
-                                                        <li>
-                                                            <form method="post" action="{{ path('app_admin_reservation_status', {'id': reservation.id, 'status': 'confirmed'}) }}">
-                                                                <input type="hidden" name="_token" value="{{ csrf_token('status' ~ reservation.id) }}">
-                                                                <button type="submit" class="dropdown-item text-success">
-                                                                    <i class="fas fa-check me-2"></i> Confirmer
-                                                                </button>
-                                                            </form>
-                                                        </li>
-                                                    {% endif %}
-                                                    {% if reservation.status != 'cancelled' %}
-                                                        <li>
-                                                            <form method="post" action="{{ path('app_admin_reservation_status', {'id': reservation.id, 'status': 'cancelled'}) }}">
-                                                                <input type="hidden" name="_token" value="{{ csrf_token('status' ~ reservation.id) }}">
-                                                                <button type="submit" class="dropdown-item text-danger">
-                                                                    <i class="fas fa-times me-2"></i> Annuler
-                                                                </button>
-                                                            </form>
-                                                        </li>
-                                                    {% endif %}
-                                                    {% if reservation.status != 'completed' %}
-                                                        <li>
-                                                            <form method="post" action="{{ path('app_admin_reservation_status', {'id': reservation.id, 'status': 'completed'}) }}">
-                                                                <input type="hidden" name="_token" value="{{ csrf_token('status' ~ reservation.id) }}">
-                                                                <button type="submit" class="dropdown-item">
-                                                                    <i class="fas fa-check-double me-2"></i> Marquer comme terminée
-                                                                </button>
-                                                            </form>
-                                                        </li>
-                                                    {% endif %}
-                                                    <li><hr class="dropdown-divider"></li>
-                                                    <li>
-                                                        <a href="mailto:{{ reservation.email }}" class="dropdown-item">
-                                                            <i class="fas fa-envelope me-2"></i> Contacter par email
-                                                        </a>
-                                                    </li>
-                                                </ul>
-                                            </div>
-                                        </div>
-                                        
-                                        <!-- View Modal -->
-                                        <div class="modal fade" id="viewModal{{ reservation.id }}" tabindex="-1" aria-hidden="true">
-                                            <div class="modal-dialog">
-                                                <div class="modal-content">
-                                                    <div class="modal-header">
-                                                        <h5 class="modal-title">Détails de la réservation</h5>
-                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                    </div>
-                                                    <div class="modal-body">
-                                                        <div class="row">
-                                                            <div class="col-6 mb-3">
-                                                                <strong>Client :</strong>
-                                                                <div>{{ reservation.lastName }} {{ reservation.firstName }}</div>
-                                                            </div>
-                                                            <div class="col-6 mb-3">
-                                                                <strong>Date :</strong>
-                                                                <div>{{ reservation.date|date('d/m/Y') }}</div>
-                                                            </div>
-                                                        </div>
-                                                        <div class="row">
-                                                            <div class="col-6 mb-3">
-                                                                <strong>Heure :</strong>
-                                                                <div>{{ reservation.timeSlot }}</div>
-                                                            </div>
-                                                            <div class="col-6 mb-3">
-                                                                <strong>Nombre de personnes :</strong>
-                                                                <div>{{ reservation.guestCount }}</div>
-                                                            </div>
-                                                        </div>
-                                                        <div class="row">
-                                                            <div class="col-6 mb-3">
-                                                                <strong>Email :</strong>
-                                                                <div>{{ reservation.email }}</div>
-                                                            </div>
-                                                            <div class="col-6 mb-3">
-                                                                <strong>Téléphone :</strong>
-                                                                <div>{{ reservation.phone }}</div>
-                                                            </div>
-                                                        </div>
-                                                        {% if reservation.allergies %}
-                                                            <div class="mb-3">
-                                                                <strong>Allergies :</strong>
-                                                                <div class="text-danger">{{ reservation.allergies }}</div>
-                                                            </div>
-                                                        {% endif %}
-                                                        {% if reservation.notes %}
-                                                            <div class="mb-3">
-                                                                <strong>Notes :</strong>
-                                                                <div>{{ reservation.notes }}</div>
-                                                            </div>
-                                                        {% endif %}
-                                                        <div>
-                                                            <strong>Statut :</strong>
-                                                            {% if reservation.status == 'pending' %}
-                                                                <span class="badge bg-warning">En attente</span>
-                                                            {% elseif reservation.status == 'confirmed' %}
-                                                                <span class="badge bg-success">Confirmée</span>
-                                                            {% elseif reservation.status == 'cancelled' %}
-                                                                <span class="badge bg-danger">Annulée</span>
-                                                            {% elseif reservation.status == 'completed' %}
-                                                                <span class="badge bg-secondary">Terminée</span>
-                                                            {% endif %}
-                                                        </div>
-                                                    </div>
-                                                    <div class="modal-footer">
-                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+
+    <div class="row">
+        <!-- Capacity Overview -->
+        <div class="col-md-3">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Créneaux Horaires</h6>
                 </div>
-            {% else %}
-                <div class="alert alert-info">
-                    <i class="fas fa-info-circle"></i> Aucune réservation pour cette date.
-                </div>
-            {% endif %}
-        </div>
-    </div>
-    
-    <!-- Calendar Overview Section -->
-    <div class="card mt-4">
-        <div class="card-header">
-            <h5 class="mb-0">Vue du mois</h5>
-        </div>
-        <div class="card-body">
-            <div class="row">
-                {% set days = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'] %}
-                <div class="calendar-header d-flex">
-                    {% for day in days %}
-                        <div class="calendar-cell text-center fw-bold">{{ day }}</div>
-                    {% endfor %}
-                </div>
-                
-                <div class="calendar-grid d-flex flex-wrap">
-                    {% for i in 1..31 %}
-                        <div class="calendar-cell">
-                            <div class="calendar-date">{{ i }}</div>
-                            <div class="calendar-info">
-                                <div class="badge bg-primary">2</div>
+                <div class="card-body">
+                    {% for time, capacity in capacityByTimeSlot %}
+                        {% set capacityPercent = (capacity / maxCapacity) * 100 %}
+                        {% set capacityClass = '' %}
+                        {% if capacityPercent > 80 %}
+                            {% set capacityClass = 'capacity-danger' %}
+                        {% elseif capacityPercent > 60 %}
+                            {% set capacityClass = 'capacity-warning' %}
+                        {% endif %}
+                        
+                        <div class="time-slot {{ capacityClass }}">
+                            <div class="time-slot-time">{{ time }}</div>
+                            <div class="time-slot-capacity">
+                                {{ capacity }} / {{ maxCapacity }} personnes 
+                                ({{ capacityPercent|round }}%)
                             </div>
+                            <div class="capacity-bar" style="width: {{ capacityPercent }}%;"></div>
+                        </div>
+                    {% else %}
+                        <div class="alert alert-info">
+                            Aucune réservation pour cette date.
                         </div>
                     {% endfor %}
                 </div>
             </div>
+            
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Légende</h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-2">
+                        <div class="table-assignment table-small me-2">S</div>
+                        <span>Petite table (2 pers.)</span>
+                    </div>
+                    <div class="d-flex align-items-center mb-2">
+                        <div class="table-assignment table-medium me-2">M</div>
+                        <span>Table moyenne (4 pers.)</span>
+                    </div>
+                    <div class="d-flex align-items-center mb-2">
+                        <div class="table-assignment table-large me-2">L</div>
+                        <span>Grande table (6-8 pers.)</span>
+                    </div>
+                    <hr>
+                    <div class="d-flex align-items-center mb-2">
+                        <div class="status-indicator status-pending"></div>
+                        <span>En attente</span>
+                    </div>
+                    <div class="d-flex align-items-center mb-2">
+                        <div class="status-indicator status-confirmed"></div>
+                        <span>Confirmé</span>
+                    </div>
+                    <div class="d-flex align-items-center mb-2">
+                        <div class="status-indicator status-cancelled"></div>
+                        <span>Annulé</span>
+                    </div>
+                    <div class="d-flex align-items-center mb-2">
+                        <div class="status-indicator status-completed"></div>
+                        <span>Terminé</span>
+                    </div>
+                    <div class="d-flex align-items-center mb-2">
+                        <div class="status-indicator status-waitlist"></div>
+                        <span>Liste d'attente</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Reservations List -->
+        <div class="col-md-9">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        Réservations pour {{ selected_date|date('d/m/Y') }}
+                        {% if is_weekend %}(Weekend){% endif %}
+                    </h6>
+                    <div>
+                        <button type="button" class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#addReservationModal">
+                            <i class="fas fa-plus me-1"></i> Nouvelle Réservation
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    {% if reservations|length > 0 %}
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Heure</th>
+                                        <th>Client</th>
+                                        <th>Convives</th>
+                                        <th>Table</th>
+                                        <th>Statut</th>
+                                        <th>Notes</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for reservation in reservations %}
+                                        <tr class="{{ reservation.status == 'cancelled' ? 'table-danger' : '' }}">
+                                            <td>{{ reservation.time|date('H:i') }}</td>
+                                            <td>
+                                                <strong>{{ reservation.name }}</strong>
+                                                {% if reservation.user %}
+                                                    <br><small>{{ reservation.user.email }}</small>
+                                                {% endif %}
+                                            </td>
+                                            <td>{{ reservation.numberOfGuests }} pers.</td>
+                                            <td>
+                                                {% if reservation.tableType is defined %}
+                                                    <div class="table-assignment table-{{ reservation.tableType }}">
+                                                        {% if reservation.tableType == 'small' %}S{% endif %}
+                                                        {% if reservation.tableType == 'medium' %}M{% endif %}
+                                                        {% if reservation.tableType == 'large' %}L{% endif %}
+                                                        {{ reservation.tableNumber }}
+                                                    </div>
+                                                {% else %}
+                                                    -
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <div class="status-indicator status-{{ reservation.status }}"></div>
+                                                    {{ reservation.status|capitalize }}
+                                                </div>
+                                            </td>
+                                            <td>
+                                                {% if reservation.notes %}
+                                                    <small>{{ reservation.notes|nl2br }}</small>
+                                                {% else %}
+                                                    -
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                <div class="btn-group">
+                                                    <!-- Status Change Dropdown -->
+                                                    <button class="btn btn-sm btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                                        Statut
+                                                    </button>
+                                                    <ul class="dropdown-menu">
+                                                        <li>
+                                                            <form method="post" action="{{ path('app_admin_reservation_status', {'id': reservation.id, 'status': 'confirmed'}) }}">
+                                                                <input type="hidden" name="_token" value="{{ csrf_token('status' ~ reservation.id) }}">
+                                                                <button type="submit" class="dropdown-item">Confirmer</button>
+                                                            </form>
+                                                        </li>
+                                                        <li>
+                                                            <form method="post" action="{{ path('app_admin_reservation_status', {'id': reservation.id, 'status': 'cancelled'}) }}">
+                                                                <input type="hidden" name="_token" value="{{ csrf_token('status' ~ reservation.id) }}">
+                                                                <button type="submit" class="dropdown-item">Annuler</button>
+                                                            </form>
+                                                        </li>
+                                                        <li>
+                                                            <form method="post" action="{{ path('app_admin_reservation_status', {'id': reservation.id, 'status': 'completed'}) }}">
+                                                                <input type="hidden" name="_token" value="{{ csrf_token('status' ~ reservation.id) }}">
+                                                                <button type="submit" class="dropdown-item">Terminer</button>
+                                                            </form>
+                                                        </li>
+                                                    </ul>
+                                                    
+                                                    <!-- Table Assignment -->
+                                                    <button class="btn btn-sm btn-outline-info ms-1" data-bs-toggle="modal" 
+                                                            data-bs-target="#assignTableModal{{ reservation.id }}">
+                                                        <i class="fas fa-chair"></i>
+                                                    </button>
+                                                </div>
+                                                
+                                                <!-- Assign Table Modal -->
+                                                <div class="modal fade" id="assignTableModal{{ reservation.id }}" tabindex="-1" aria-hidden="true">
+                                                    <div class="modal-dialog">
+                                                        <div class="modal-content">
+                                                            <div class="modal-header">
+                                                                <h5 class="modal-title">Attribuer une Table</h5>
+                                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                            </div>
+                                                            <form method="post" action="{{ path('app_admin_reservation_assign_table', {'id': reservation.id}) }}">
+                                                                <div class="modal-body">
+                                                                    <div class="mb-3">
+                                                                        <label for="tableType{{ reservation.id }}" class="form-label">Type de Table</label>
+                                                                        <select id="tableType{{ reservation.id }}" name="tableType" class="form-select">
+                                                                            <option value="small" {{ reservation.tableType == 'small' ? 'selected' : '' }}>Petite (2 personnes)</option>
+                                                                            <option value="medium" {{ reservation.tableType == 'medium' ? 'selected' : '' }}>Moyenne (4 personnes)</option>
+                                                                            <option value="large" {{ reservation.tableType == 'large' ? 'selected' : '' }}>Grande (6-8 personnes)</option>
+                                                                        </select>
+                                                                    </div>
+                                                                    
+                                                                    <div class="mb-3">
+                                                                        <label for="tableNumber{{ reservation.id }}" class="form-label">Numéro de Table</label>
+                                                                        <input type="number" id="tableNumber{{ reservation.id }}" name="tableNumber" 
+                                                                               class="form-control" value="{{ reservation.tableNumber ?? 1 }}">
+                                                                    </div>
+                                                                </div>
+                                                                <div class="modal-footer">
+                                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                                                                    <button type="submit" class="btn btn-primary">Attribuer</button>
+                                                                </div>
+                                                            </form>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="alert alert-info">
+                            Aucune réservation pour cette date.
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
         </div>
     </div>
-{% endblock %}
-
-{% block admin_javascripts %}
-<style>
-    .calendar-cell {
-        width: calc(100% / 7);
-        height: 80px;
-        border: 1px solid #dee2e6;
-        padding: 5px;
-    }
     
-    .calendar-date {
-        font-weight: bold;
-    }
-    
-    .calendar-info {
-        font-size: 0.8rem;
-        margin-top: 5px;
-    }
-</style>
+    <!-- Add Reservation Modal -->
+    <div class="modal fade" id="addReservationModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Ajouter une Réservation</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form method="post" action="{{ path('app_admin_reservation_add') }}">
+                    <div class="modal-body">
+                        <!-- Reservation form fields -->
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Nom</label>
+                            <input type="text" id="name" name="name" class="form-control" required>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col">
+                                <label for="date" class="form-label">Date</label>
+                                <input type="date" id="date" name="date" class="form-control" value="{{ selected_date|date('Y-m-d') }}" required>
+                            </div>
+                            <div class="col">
+                                <label for="time" class="form-label">Heure</label>
+                                <input type="time" id="time" name="time" class="form-control" required>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col">
+                                <label for="guests" class="form-label">Nombre de personnes</label>
+                                <input type="number" id="guests" name="numberOfGuests" class="form-control" min="1" max="12" value="2" required>
+                            </div>
+                            <div class="col">
+                                <label for="phone" class="form-label">Téléphone</label>
+                                <input type="tel" id="phone" name="phone" class="form-control">
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" id="email" name="email" class="form-control">
+                        </div>
+                        <div class="mb-3">
+                            <label for="notes" class="form-label">Notes</label>
+                            <textarea id="notes" name="notes" class="form-control" rows="2"></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                        <button type="submit" class="btn btn-primary">Ajouter</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 {% endblock %}

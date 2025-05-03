@@ -15,22 +15,4 @@ class AllergenRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, Allergen::class);
     }
-
-    public function save(Allergen $entity, bool $flush = false): void
-    {
-        $this->getEntityManager()->persist($entity);
-
-        if ($flush) {
-            $this->getEntityManager()->flush();
-        }
-    }
-
-    public function remove(Allergen $entity, bool $flush = false): void
-    {
-        $this->getEntityManager()->remove($entity);
-
-        if ($flush) {
-            $this->getEntityManager()->flush();
-        }
-    }
 }

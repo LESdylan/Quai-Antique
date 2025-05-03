@@ -33,51 +33,21 @@
                             <div class="card h-100">
                                 <img src="{{ asset('uploads/images/' ~ image.filename) }}" class="card-img-top" alt="{{ image.alt }}" style="height: 180px; object-fit: cover;">
                                 <div class="card-body">
-                                    <h6 class="image-title">{{ image.title ?? image.alt }}</h6>
-                                    <p class="small text-muted mb-2 image-desc">{{ image.description|slice(0, 50) }}{{ image.description|length > 50 ? '...' : '' }}</p>
-                                    
-                                    <div class="btn-group btn-group-sm w-100">
-                                        <a href="{{ path('app_admin_image_edit', {'id': image.id}) }}" class="btn btn-outline-primary">
-                                            <i class="fas fa-edit"></i>
-                                        </a>
-                                        <a href="{{ path('app_admin_image_show', {'id': image.id}) }}" class="btn btn-outline-info">
+                                    <h5 class="card-title text-truncate">{{ image.title|default(image.alt) }}</h5>
+                                    <p class="card-text small text-muted">{{ image.category|default('Uncategorized') }}</p>
+                                    <div class="d-flex justify-content-between">
+                                        <a href="{{ path('app_admin_image_show', {'id': image.id}) }}" class="btn btn-sm btn-outline-primary">
                                             <i class="fas fa-eye"></i>
                                         </a>
-                                        {% if image.isActive is defined %}
-                                            <form method="post" action="{{ path('app_admin_image_toggle_active', {'id': image.id}) }}" class="d-inline">
-                                                <button class="btn btn-sm btn-outline-{{ image.isActive ? 'success' : 'danger' }}">
-                                                    <i class="fas fa-{{ image.isActive ? 'eye' : 'eye-slash' }}"></i>
-                                                </button>
-                                            </form>
-                                        {% endif %}
-                                        <button class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal{{ image.id }}">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <!-- Delete Modal -->
-                            <div class="modal fade" id="deleteModal{{ image.id }}" tabindex="-1" aria-hidden="true">
-                                <div class="modal-dialog">
-                                    <div class="modal-content">
-                                        <div class="modal-header">
-                                            <h5 class="modal-title">Confirm Delete</h5>
-                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                        </div>
-                                        <div class="modal-body">
-                                            <p>Are you sure you want to delete this image?</p>
-                                            <div class="text-center">
-                                                <img src="{{ asset('uploads/images/' ~ image.filename) }}" alt="{{ image.alt }}" style="max-height: 200px; max-width: 100%;">
-                                            </div>
-                                        </div>
-                                        <div class="modal-footer">
-                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                            <form method="post" action="{{ path('app_admin_image_delete', {'id': image.id}) }}">
-                                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ image.id) }}">
-                                                <button type="submit" class="btn btn-danger">Delete</button>
-                                            </form>
-                                        </div>
+                                        <a href="{{ path('app_admin_image_edit', {'id': image.id}) }}" class="btn btn-sm btn-outline-secondary">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <form method="post" action="{{ path('app_admin_image_delete', {'id': image.id}) }}" onsubmit="return confirm('Are you sure you want to delete this image?');" class="d-inline">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ image.id) }}">
+                                            <button class="btn btn-sm btn-outline-danger">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </form>
                                     </div>
                                 </div>
                             </div>
@@ -86,35 +56,37 @@
                 </div>
             {% else %}
                 <div class="alert alert-info">
-                    <i class="fas fa-info-circle me-2"></i> No images found. Please add some images.
+                    No images found. <a href="{{ path('app_admin_image_new') }}">Add your first image</a>.
                 </div>
             {% endif %}
         </div>
     </div>
 {% endblock %}
 
-{% block admin_javascripts %}
+{% block javascripts %}
+{{ parent() }}
+<script src="{{ asset('js/admin/media-library.js') }}"></script>
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Image search functionality
-    const searchInput = document.getElementById('imageSearch');
-    if (searchInput) {
-        searchInput.addEventListener('keyup', function() {
-            const searchTerm = this.value.toLowerCase();
-            const imageItems = document.querySelectorAll('.image-item');
-            
-            imageItems.forEach(item => {
-                const title = item.querySelector('.image-title')?.textContent.toLowerCase() || '';
-                const desc = item.querySelector('.image-desc')?.textContent.toLowerCase() || '';
+    document.addEventListener('DOMContentLoaded', function() {
+        // Image search functionality
+        const searchInput = document.getElementById('imageSearch');
+        if (searchInput) {
+            searchInput.addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase();
+                const imageItems = document.querySelectorAll('.image-item');
                 
-                if (title.includes(searchTerm) || desc.includes(searchTerm)) {
-                    item.style.display = '';
-                } else {
-                    item.style.display = 'none';
-                }
+                imageItems.forEach(item => {
+                    const title = item.querySelector('.card-title').textContent.toLowerCase();
+                    const category = item.querySelector('.card-text').textContent.toLowerCase();
+                    
+                    if (title.includes(searchTerm) || category.includes(searchTerm)) {
+                        item.style.display = 'block';
+                    } else {
+                        item.style.display = 'none';
+                    }
+                });
             });
-        });
-    }
-});
+        }
+    });
 </script>
 {% endblock %}

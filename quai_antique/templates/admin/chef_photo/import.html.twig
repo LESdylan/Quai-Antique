@@ -1,0 +1,58 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block page_title %}Import Chef Photo{% endblock %}
+
+{% block admin_content %}
+    <div class="card">
+        <div class="card-header">
+            <h5 class="card-title mb-0">Import Chef Photo from Path</h5>
+        </div>
+        <div class="card-body">
+            {% for flash_error in app.flashes('error') %}
+                <div class="alert alert-danger" role="alert">
+                    {{ flash_error }}
+                </div>
+            {% endfor %}
+            
+            {% for flash_info in app.flashes('info') %}
+                <div class="alert alert-info" role="alert">
+                    {{ flash_info }}
+                </div>
+            {% endfor %}
+            
+            {% if success %}
+                <div class="alert alert-success" role="alert">
+                    Chef photo was successfully imported! 
+                    <a href="{{ path('app_admin_settings') }}" class="alert-link">Go to Settings</a> 
+                    to see it.
+                </div>
+            {% endif %}
+            
+            <form method="post">
+                <div class="mb-3">
+                    <label for="file_path" class="form-label">Path to Chef Photo File</label>
+                    <input type="text" class="form-control" id="file_path" name="file_path" 
+                           placeholder="/path/to/chef-photo.jpg" required>
+                    <div class="form-text">
+                        Enter the full file path on the server where the chef photo is located.
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="title" class="form-label">Title</label>
+                    <input type="text" class="form-control" id="title" name="title" 
+                           value="Chef Photo">
+                </div>
+                
+                <div class="mb-3">
+                    <label for="alt" class="form-label">Alt Text</label>
+                    <input type="text" class="form-control" id="alt" name="alt" 
+                           value="Chef Photo">
+                </div>
+                
+                <button type="submit" class="btn btn-primary">Import Photo</button>
+                <a href="{{ path('app_admin_settings') }}" class="btn btn-secondary">Cancel</a>
+            </form>
+        </div>
+    </div>
+{% endblock %}

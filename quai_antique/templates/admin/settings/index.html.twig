@@ -155,6 +155,182 @@
     </div>
 </div>
 
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Image d'accueil (Hero Header)</h6>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Image actuelle</h5>
+                    </div>
+                    <div class="card-body text-center">
+                        {% if hero_image %}
+                            <img src="{{ asset('uploads/images/' ~ hero_image.filename) }}" alt="{{ hero_image.alt }}" class="img-fluid mb-3" style="max-height: 200px;">
+                        {% else %}
+                            <div class="bg-light py-5 mb-3 d-flex align-items-center justify-content-center">
+                                <span class="text-muted">Aucune image d'accueil définie</span>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Changer l'image</h5>
+                    </div>
+                    <div class="card-body">
+                        <button type="button" class="btn btn-primary w-100" id="selectHeroImageBtn">
+                            <i class="fas fa-image me-2"></i> Sélectionner une image
+                        </button>
+                        
+                        <div class="mt-3">
+                            <p class="text-muted">
+                                <i class="fas fa-info-circle"></i> L'image sélectionnée doit être de grande taille, idéalement au moins 1920×1080px pour un bon rendu sur tous les appareils.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Image du Chef</h6>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Image actuelle</h5>
+                    </div>
+                    <div class="card-body text-center">
+                        {% if chef_image %}
+                            <img src="{{ asset('uploads/images/' ~ chef_image.filename) }}" alt="{{ chef_image.alt }}" class="img-fluid mb-3" style="max-height: 200px;">
+                        {% else %}
+                            <div class="bg-light py-5 mb-3 d-flex align-items-center justify-content-center">
+                                <span class="text-muted">Aucune image de chef définie</span>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Changer l'image du chef</h5>
+                    </div>
+                    <div class="card-body">
+                        <button type="button" class="btn btn-primary w-100" id="selectChefImageBtn">
+                            <i class="fas fa-image me-2"></i> Sélectionner une image
+                        </button>
+                        
+                        <div class="mt-3">
+                            <p class="text-muted">
+                                <i class="fas fa-info-circle"></i> Cette image sera utilisée pour représenter le Chef dans la section "Notre Histoire" sur la page d'accueil.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Citation du Chef</h6>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Image d'arrière-plan actuelle</h5>
+                    </div>
+                    <div class="card-body text-center">
+                        {% if quote_background_image %}
+                            <img src="{{ asset('uploads/images/' ~ quote_background_image.filename) }}" alt="{{ quote_background_image.alt }}" class="img-fluid mb-3" style="max-height: 200px;">
+                        {% else %}
+                            <div class="bg-light py-5 mb-3 d-flex align-items-center justify-content-center">
+                                <span class="text-muted">Aucune image d'arrière-plan définie</span>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Changer l'image d'arrière-plan</h5>
+                    </div>
+                    <div class="card-body">
+                        <button type="button" class="btn btn-primary w-100" id="selectQuoteBackgroundBtn">
+                            <i class="fas fa-image me-2"></i> Sélectionner une image
+                        </button>
+                        
+                        <div class="mt-3">
+                            <p class="text-muted">
+                                <i class="fas fa-info-circle"></i> Cette image sera utilisée comme fond pour la citation du Chef sur la page d'accueil.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Image de fond pour les réservations</h6>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Image actuelle</h5>
+                    </div>
+                    <div class="card-body text-center">
+                        {% if reservation_background_image %}
+                            <img src="{{ asset('uploads/images/' ~ reservation_background_image.filename) }}" alt="{{ reservation_background_image.alt }}" class="img-fluid mb-3" style="max-height: 200px;">
+                        {% else %}
+                            <div class="bg-light py-5 mb-3 d-flex align-items-center justify-content-center">
+                                <span class="text-muted">Aucune image d'arrière-plan définie</span>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Changer l'image d'arrière-plan</h5>
+                    </div>
+                    <div class="card-body">
+                        <button type="button" class="btn btn-primary w-100" id="selectReservationBackgroundBtn">
+                            <i class="fas fa-image me-2"></i> Sélectionner une image
+                        </button>
+                        
+                        <div class="mt-3">
+                            <p class="text-muted">
+                                <i class="fas fa-info-circle"></i> Cette image sera utilisée comme fond pour la page de réservation.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="card shadow">
     <div class="card-header py-3">
         <h6 class="m-0 font-weight-bold text-primary">Prévisualisation</h6>
@@ -232,4 +408,200 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block admin_javascripts %}
+{{ parent() }}
+<script src="{{ asset('js/admin/media-library.js') }}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Hero image selector
+        const selectHeroImageBtn = document.getElementById('selectHeroImageBtn');
+        
+        if (selectHeroImageBtn) {
+            selectHeroImageBtn.addEventListener('click', function() {
+                // Open the media selector in a new window
+                const width = 900;
+                const height = 600;
+                const left = (window.innerWidth - width) / 2;
+                const top = (window.innerHeight - height) / 2;
+                
+                window.open(
+                    '{{ path("app_admin_media_selector") }}?mode=single&purpose=hero&callback=updateHeroImage', 
+                    'mediaSelector',
+                    `width=${width},height=${height},top=${top},left=${left}`
+                );
+            });
+        }
+        
+        // Quote background image selector
+        const selectQuoteBackgroundBtn = document.getElementById('selectQuoteBackgroundBtn');
+        
+        if (selectQuoteBackgroundBtn) {
+            selectQuoteBackgroundBtn.addEventListener('click', function() {
+                // Open the media selector in a new window
+                const width = 900;
+                const height = 600;
+                const left = (window.innerWidth - width) / 2;
+                const top = (window.innerHeight - height) / 2;
+                
+                window.open(
+                    '{{ path("app_admin_media_selector") }}?mode=single&purpose=quote_background&callback=updateQuoteBackgroundImage', 
+                    'mediaSelector',
+                    `width=${width},height=${height},top=${top},left=${left}`
+                );
+            });
+        }
+        
+        // Reservation background image selector
+        const selectReservationBackgroundBtn = document.getElementById('selectReservationBackgroundBtn');
+        
+        if (selectReservationBackgroundBtn) {
+            selectReservationBackgroundBtn.addEventListener('click', function() {
+                // Open the media selector in a new window
+                const width = 900;
+                const height = 600;
+                const left = (window.innerWidth - width) / 2;
+                const top = (window.innerHeight - height) / 2;
+                
+                window.open(
+                    '{{ path("app_admin_media_selector") }}?mode=single&purpose=reservation_background&callback=updateReservationBackgroundImage', 
+                    'mediaSelector',
+                    `width=${width},height=${height},top=${top},left=${left}`
+                );
+            });
+        }
+        
+        // Chef image selector
+        const selectChefImageBtn = document.getElementById('selectChefImageBtn');
+        
+        if (selectChefImageBtn) {
+            selectChefImageBtn.addEventListener('click', function() {
+                // Open the media selector in a new window
+                const width = 900;
+                const height = 600;
+                const left = (window.innerWidth - width) / 2;
+                const top = (window.innerHeight - height) / 2;
+                
+                window.open(
+                    '{{ path("app_admin_media_selector") }}?mode=single&purpose=chef&callback=updateChefImage', 
+                    'mediaSelector',
+                    `width=${width},height=${height},top=${top},left=${left}`
+                );
+            });
+        }
+        
+        // Define the callback function for the hero image selector
+        window.updateHeroImage = function(image) {
+            // Send AJAX request to update the hero image
+            fetch('{{ path("app_admin_settings_update_hero") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token("update_hero_image") }}'
+                },
+                body: JSON.stringify({
+                    imageId: image.id
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Reload the page to show the updated image
+                    window.location.reload();
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while updating the hero image.');
+            });
+        };
+        
+        // Define the callback function for the quote background image selector
+        window.updateQuoteBackgroundImage = function(image) {
+            // Send AJAX request to update the quote background image
+            fetch('{{ path("app_admin_settings_update_quote_background") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token("update_quote_background_image") }}'
+                },
+                body: JSON.stringify({
+                    imageId: image.id
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Reload the page to show the updated image
+                    window.location.reload();
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while updating the quote background image.');
+            });
+        };
+        
+        // Define the callback function for the reservation background image selector
+        window.updateReservationBackgroundImage = function(image) {
+            // Send AJAX request to update the reservation background image
+            fetch('{{ path("app_admin_settings_update_reservation_background") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token("update_reservation_background_image") }}'
+                },
+                body: JSON.stringify({
+                    imageId: image.id
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Reload the page to show the updated image
+                    window.location.reload();
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while updating the reservation background image.');
+            });
+        };
+        
+        // Define the callback function for the chef image selector
+        window.updateChefImage = function(image) {
+            // Send AJAX request to update the chef image
+            fetch('{{ path("app_admin_settings_update_chef_image") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token("update_chef_image") }}'
+                },
+                body: JSON.stringify({
+                    imageId: image.id
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Reload the page to show the updated image
+                    window.location.reload();
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while updating the chef image.');
+            });
+        };
+    });
+</script>
 {% endblock %}

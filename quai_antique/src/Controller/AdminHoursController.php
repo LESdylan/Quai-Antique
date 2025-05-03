@@ -6,7 +6,7 @@ use App\Entity\Hours;
 use App\Entity\HoursException;
 use App\Repository\HoursRepository;
 use App\Repository\HoursExceptionRepository;
-use App\Service\SchemaToolHelper;  // Add this import
+use App\Service\SchemaToolHelper;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -69,15 +69,25 @@ class AdminHoursController extends AbstractController
             ]);
         } catch (\Exception $e) {
             $this->addFlash('error', 'Database error: ' . $e->getMessage());
-            $openingHours = [];
-            $exceptions = [];
-        }
+            return $this->render('admin/hours/index.html.twig', [
+                'openingHours' => [],
+                'exceptions' => [],
+                'displaySettings' => $this->getDisplaySettings(),
+                'error' => $e->getMessage()
+            ]);
+        }   
     }
     
     #[Route('/update', name: 'app_admin_hours_update', methods: ['POST'])]
     public function update(Request $request, HoursRepository $hoursRepository, EntityManagerInterface $entityManager): Response
     {
-        $hoursData = $request->request->get('hours', []);
+        // Fix 2: Get hours as array without default value (removing the array as second argument)
+        $hoursData = $request->request->get('hours');
+        
+        if (!is_array($hoursData)) {
+            $this->addFlash('error', 'Invalid hours data provided');
+            return $this->redirectToRoute('app_admin_hours');
+        }
         
         // Process each day's hours
         foreach ($hoursData as $dayOfWeek => $dayData) {
@@ -89,6 +99,11 @@ class AdminHoursController extends AbstractController
             if (!$hours) {
                 $hours = new Hours();
                 $hours->setDayOfWeek($dayIndex);
+            }
+            
+            // Fix 3: Ensure dayData is an array and use it safely
+            if (!is_array($dayData)) {
+                continue; // Skip this day if data is invalid
             }
             
             // Check if day is closed

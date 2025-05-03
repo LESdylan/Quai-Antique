@@ -52,7 +52,8 @@ services:
 
     App\Service\ImageUploader:
         arguments:
-            $targetDirectory: '%images_directory%'
+            $targetDirectory: '%kernel.project_dir%/public/uploads/images'
+            $tempDirectory: '%kernel.project_dir%/var/uploads/temp'
             $slugger: '@Symfony\Component\String\Slugger\SluggerInterface'
             $logger: '@logger'
             
@@ -68,3 +69,8 @@ services:
     App\Command\FixConfigCommand:
         arguments:
             $projectDir: '%kernel.project_dir%'
+            
+    App\Command\FixMediaDirectoriesCommand:
+        arguments:
+            $projectDir: '%kernel.project_dir%'
+        tags: ['console.command']

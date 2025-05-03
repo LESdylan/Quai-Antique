@@ -2,17 +2,19 @@
 
 namespace App\Command;
 
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Filesystem\Filesystem;
 
+#[AsCommand(
+    name: 'app:fix-config',
+    description: 'Fixes configuration settings in the database',
+)]
 class FixConfigCommand extends Command
 {
-    protected static $defaultName = 'app:fix-config';
-    protected static $defaultDescription = 'Fix configuration and clear cache';
-    
     private $projectDir;
     
     public function __construct(string $projectDir)
@@ -23,7 +25,8 @@ class FixConfigCommand extends Command
 
     protected function configure(): void
     {
-        $this->setDescription(self::$defaultDescription);
+        $this
+            ->setHelp('This command helps fix configuration settings in the database');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -31,6 +34,7 @@ class FixConfigCommand extends Command
         $io = new SymfonyStyle($input, $output);
         $fs = new Filesystem();
         
+        $io->title('Configuration Fixer');
         $io->section('Clearing cache directories');
         
         // Clear cache directories

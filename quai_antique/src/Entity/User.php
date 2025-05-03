@@ -45,14 +45,25 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(type: 'text', nullable: true)]
     private ?string $allergies = null;
 
+    #[ORM\Column(type: 'text', nullable: true)]
+    private ?string $dietary_regime = null;
+
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: Reservation::class)]
     private Collection $reservations;
+
+    #[ORM\ManyToMany(targetEntity: Allergen::class, inversedBy: 'users')]
+    private Collection $allergens;
+
+    #[ORM\ManyToMany(targetEntity: DietaryRegime::class, inversedBy: 'users')]
+    private Collection $dietaryRegimes;
 
     public function __construct()
     {
         $this->reservations = new ArrayCollection();
         $this->createdAt = new \DateTimeImmutable();
         $this->updatedAt = new \DateTimeImmutable();
+        $this->allergens = new ArrayCollection();
+        $this->dietaryRegimes = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -197,6 +208,17 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
+    public function getDietaryRegime(): ?string
+    {
+        return $this->dietary_regime;
+    }
+
+    public function setDietaryRegime(?string $dietary_regime): self
+    {
+        $this->dietary_regime = $dietary_regime;
+        return $this;
+    }
+
     /**
      * @return Collection<int, Reservation>
      */
@@ -230,5 +252,51 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function getFullName(): string
     {
         return trim($this->firstName . ' ' . $this->lastName);
+    }
+
+    /**
+     * @return Collection<int, Allergen>
+     */
+    public function getAllergens(): Collection
+    {
+        return $this->allergens;
+    }
+
+    public function addAllergen(Allergen $allergen): self
+    {
+        if (!$this->allergens->contains($allergen)) {
+            $this->allergens->add($allergen);
+        }
+
+        return $this;
+    }
+
+    public function removeAllergen(Allergen $allergen): self
+    {
+        $this->allergens->removeElement($allergen);
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, DietaryRegime>
+     */
+    public function getDietaryRegimes(): Collection
+    {
+        return $this->dietaryRegimes;
+    }
+
+    public function addDietaryRegime(DietaryRegime $dietaryRegime): self
+    {
+        if (!$this->dietaryRegimes->contains($dietaryRegime)) {
+            $this->dietaryRegimes->add($dietaryRegime);
+        }
+
+        return $this;
+    }
+
+    public function removeDietaryRegime(DietaryRegime $dietaryRegime): self
+    {
+        $this->dietaryRegimes->removeElement($dietaryRegime);
+        return $this;
     }
 }
