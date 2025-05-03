@@ -7,10 +7,12 @@ use App\Entity\Dish;
 use App\Entity\Menu;
 use App\Entity\Reservation;
 use App\Entity\Restaurant;
+use App\Entity\Image;
 use App\Form\CategoryType;
 use App\Form\DishType;
 use App\Form\MenuType;
 use App\Form\RestaurantSettingsType;
+use App\Repository\ImageRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -100,6 +102,19 @@ class AdminController extends AbstractController
             'categories' => $categories,
             'dishes' => $dishes,
             'menus' => $menus,
+        ]);
+    }
+
+    // Image management route
+    #[Route('/images', name: 'app_admin_images')]
+    public function images(ImageRepository $imageRepository): Response
+    {
+        // Fetch all images from the repository
+        $images = $imageRepository->findBy([], ['createdAt' => 'DESC']);
+        
+        return $this->render('admin/image/index.html.twig', [
+            'controller_name' => 'AdminController',
+            'images' => $images
         ]);
     }
 }

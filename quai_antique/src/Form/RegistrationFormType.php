@@ -57,8 +57,7 @@ class RegistrationFormType extends AbstractType
                     new Range([
                         'min' => 1,
                         'max' => 10,
-                        'minMessage' => 'Le nombre de convives doit être au moins {{ limit }}',
-                        'maxMessage' => 'Le nombre maximum de convives est {{ limit }}',
+                        'notInRangeMessage' => 'Le nombre de convives doit être entre {{ min }} et {{ max }}',
                     ]),
                 ],
             ])

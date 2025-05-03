@@ -137,9 +137,16 @@
     <div class="gallery-grid">
         {% for image in images %}
             <div class="gallery-item item-appear" data-category="{{ image.category|default('all') }}">
-                <img src="{{ asset('images/gallery/' ~ image.filename) }}" alt="{{ image.title }}" class="gallery-image">
+                {% if image.filename is defined %}
+                    <img src="{{ asset('uploads/images/' ~ image.filename) }}" 
+                         alt="{{ image.alt|default(image.title) }}" class="gallery-image">
+                {% else %}
+                    <img src="{{ asset('images/gallery/' ~ image.filename) }}" 
+                         alt="{{ image.title }}" class="gallery-image">
+                {% endif %}
+                
                 <div class="gallery-caption">
-                    <h4 class="gallery-title">{{ image.title }}</h4>
+                    <h4 class="gallery-title">{{ image.title|default(image.alt) }}</h4>
                     {% if image.description %}
                         <p class="gallery-description">{{ image.description }}</p>
                     {% endif %}
@@ -156,7 +163,8 @@
                     {% set categories = ['entrees', 'plats', 'desserts', 'ambiance'] %}
                     {% for i in 1..9 %}
                         <div class="gallery-item item-appear" data-category="{{ categories[i % 4] }}">
-                            <img src="https://source.unsplash.com/random/300x200?food,restaurant,{{ i }}" alt="Plat gastronomique" class="gallery-image">
+                            <img src="https://source.unsplash.com/random/300x200?food,restaurant,{{ i }}" 
+                                 alt="Plat gastronomique" class="gallery-image">
                             <div class="gallery-caption">
                                 <h4 class="gallery-title">Création du Chef #{{ i }}</h4>
                                 <p class="gallery-description">Une délicieuse création du Chef Arnaud Michant</p>

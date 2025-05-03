@@ -7,6 +7,7 @@ use App\Entity\Dish;
 use App\Repository\CategoryRepository;
 use App\Repository\DishRepository;
 use App\Repository\MenuRepository;
+use App\Repository\ImageRepository;
 use App\Service\MenuService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -20,7 +21,8 @@ class MenuController extends AbstractController
         Request $request,
         CategoryRepository $categoryRepository,
         DishRepository $dishRepository,
-        MenuRepository $menuRepository
+        MenuRepository $menuRepository,
+        ImageRepository $imageRepository
     ): Response {
         $categories = $categoryRepository->findBy([], ['position' => 'ASC']);
         
@@ -52,15 +54,52 @@ class MenuController extends AbstractController
             $dishesByCategory[$categoryId]['dishes'][] = $dish;
         }
         
+        // Group dishes by category with associated images
+        $categoriesWithDishes = [];
+        foreach ($dishes as $dish) {
+            $category = $dish->getCategory();
+            if (!$category) continue;
+            
+            $categoryId = $category->getId();
+            if (!isset($categoriesWithDishes[$categoryId])) {
+                $categoriesWithDishes[$categoryId] = [
+                    'category' => $category,
+                    'dishes' => []
+                ];
+            }
+            $categoriesWithDishes[$categoryId]['dishes'][] = $dish;
+        }
+        
         // Get menus
         $menus = $menuRepository->findBy(['isActive' => true]);
+        
+        // Get featured images for each category
+        $categoryImages = [];
+        foreach ($categories as $category) {
+            // Get images tagged with this category's name
+            $categoryName = strtolower($category->getName());
+            $images = $imageRepository->findByCategory($categoryName);
+            if (count($images) > 0) {
+                $categoryImages[$category->getId()] = $images;
+            }
+        }
+        
+        // Get featured menu images
+        $menuImages = $imageRepository->findByCategory('menu');
+        
+        // Get gallery images
+        $galleryImages = $imageRepository->findByCategory('gallery');
         
         return $this->render('menu/index.html.twig', [
             'categories' => $categories,
             'dishesByCategory' => $dishesByCategory,
             'menus' => $menus,
             'activeCategory' => $categoryFilter,
-            'activeAllergen' => $allergenFilter
+            'activeAllergen' => $allergenFilter,
+            'categoriesWithDishes' => $categoriesWithDishes,
+            'categoryImages' => $categoryImages,
+            'menuImages' => $menuImages,
+            'galleryImages' => $galleryImages,
         ]);
     }
     

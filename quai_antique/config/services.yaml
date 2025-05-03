@@ -22,3 +22,16 @@ services:
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
+
+    App\Service\ImageUploader:
+        arguments:
+            $targetDirectory: '%kernel.project_dir%/public/uploads/images'
+            
+    # Pass the project directory to the command
+    App\Command\ImportSampleImagesCommand:
+        arguments:
+            $projectDir: '%kernel.project_dir%'
+            
+    App\Command\FixMappingIssuesCommand:
+        arguments:
+            $projectDir: '%kernel.project_dir%'

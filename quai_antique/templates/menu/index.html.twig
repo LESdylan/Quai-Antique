@@ -1,8 +1,9 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Notre Carte - Le Quai Antique{% endblock %}
+{% block title %}Menu - Le Quai Antique{% endblock %}
 
 {% block stylesheets %}
+{{ parent() }}
 <style>
     .menu-header {
         background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('{{ asset('images/menu-header.jpg') }}') center/cover no-repeat;
@@ -167,6 +168,77 @@
     .menu-item-visible {
         animation: fadeIn 0.5s forwards;
     }
+    
+    .menu-section {
+        margin-bottom: 3rem;
+    }
+    .menu-section-title {
+        border-bottom: 2px solid var(--primary);
+        padding-bottom: 10px;
+        margin-bottom: 20px;
+    }
+    .menu-item {
+        margin-bottom: 20px;
+        transition: transform 0.3s;
+    }
+    .menu-item:hover {
+        transform: translateY(-5px);
+    }
+    .menu-image {
+        height: 180px;
+        width: 100%;
+        object-fit: cover;
+        border-radius: 8px;
+        margin-bottom: 15px;
+    }
+    .menu-item-title {
+        font-family: 'Playfair Display', serif;
+        margin-bottom: 5px;
+    }
+    .menu-item-description {
+        font-size: 0.9rem;
+        margin-bottom: 8px;
+    }
+    .menu-item-price {
+        font-weight: bold;
+        color: var(--primary);
+    }
+    .menu-filter {
+        padding: 20px;
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        margin-bottom: 30px;
+    }
+    .filter-title {
+        font-family: 'Playfair Display', serif;
+        border-bottom: 1px solid #ddd;
+        padding-bottom: 10px;
+        margin-bottom: 15px;
+    }
+    .category-badge {
+        margin-right: 8px;
+        margin-bottom: 8px;
+        text-decoration: none;
+    }
+    .gallery-section {
+        margin-top: 3rem;
+        margin-bottom: 3rem;
+    }
+    .gallery-item {
+        position: relative;
+        overflow: hidden;
+        border-radius: 8px;
+        cursor: pointer;
+    }
+    .gallery-image {
+        transition: transform 0.3s;
+        height: 200px;
+        width: 100%;
+        object-fit: cover;
+    }
+    .gallery-item:hover .gallery-image {
+        transform: scale(1.05);
+    }
 </style>
 {% endblock %}
 
@@ -211,46 +283,58 @@
     <div id="menu-container">
         <h2 class="mb-4">À la Carte</h2>
         
-        <div id="menu-items-container" class="row">
-            {% for categoryWithDishes in categoriesWithDishes %}
-                <div class="col-12 mb-4">
-                    <h3 class="mb-3">{{ categoryWithDishes.category.name }}</h3>
+        {% if menuImages is defined and menuImages|length > 0 %}
+        <div class="gallery-section">
+            <h2 class="text-center mb-4">Découvrez Notre Menu</h2>
+            {% include 'partials/gallery.html.twig' with {'images': menuImages} %}
+        </div>
+        {% endif %}
+        
+        {% if categoriesWithDishes|length > 0 %}
+            {% for categoryId, data in categoriesWithDishes %}
+                <div class="menu-section" id="category-{{ data.category.id }}">
+                    <h2 class="menu-section-title">{{ data.category.name }}</h2>
+                    
+                    {% if categoryImages[data.category.id] is defined %}
+                        <div class="row mb-4">
+                            {% include 'partials/gallery.html.twig' with {'images': categoryImages[data.category.id]|slice(0, 3)} %}
+                        </div>
+                    {% endif %}
+                    
                     <div class="row">
-                        {% for dish in categoryWithDishes.dishes %}
-                            <div class="col-md-6 col-lg-4 menu-item" data-category="{{ dish.category.id }}">
-                                <div class="d-flex flex-column h-100">
-                                    {% if dish.image %}
-                                        <img src="{{ asset('images/dishes/' ~ dish.image) }}" alt="{{ dish.name }}" class="menu-item-image">
-                                    {% else %}
-                                        <img src="{{ asset('images/dish-placeholder.jpg') }}" alt="{{ dish.name }}" class="menu-item-image">
-                                    {% endif %}
-                                    
-                                    <div class="menu-item-content flex-grow-1">
-                                        <h4 class="menu-item-title">{{ dish.name }}</h4>
-                                        <p class="menu-item-description">{{ dish.description }}</p>
-                                        <div>
-                                            <span class="menu-item-price">{{ dish.price|number_format(2, ',', ' ') }} €</span>
-                                            {% if dish.isSeasonal %}
-                                                <span class="menu-item-seasonal">De saison</span>
-                                            {% endif %}
-                                        </div>
-                                        
-                                        {% if dish.allergens.count > 0 %}
-                                            <div class="menu-item-allergens">
-                                                Allergènes: 
-                                                {% for allergen in dish.allergens %}
-                                                    {{ allergen.name }}{% if not loop.last %}, {% endif %}
-                                                {% endfor %}
-                                            </div>
-                                        {% endif %}
+                        {% for dish in data.dishes %}
+                            <div class="col-md-4 menu-item">
+                                {% if dish.getMainImage() %}
+                                    <img src="{{ asset('uploads/images/' ~ dish.getMainImage().filename) }}" 
+                                         alt="{{ dish.getMainImage().alt }}" class="menu-image">
+                                {% elseif dish.image %}
+                                    <img src="{{ asset('images/dishes/' ~ dish.image) }}" 
+                                         alt="{{ dish.name }}" class="menu-image">
+                                {% else %}
+                                    <div class="menu-image bg-light d-flex align-items-center justify-content-center">
+                                        <span class="text-muted">No image</span>
                                     </div>
-                                </div>
+                                {% endif %}
+                                
+                                <h5 class="menu-item-title">{{ dish.name }}</h5>
+                                <p class="menu-item-description">{{ dish.description }}</p>
+                                <p class="menu-item-price">{{ dish.price|number_format(2, ',', ' ') }} €</p>
+                                
+                                {% if dish.isActive %}
+                                    <span class="badge bg-success">Disponible</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">Non disponible</span>
+                                {% endif %}
+                                
+                                {% if dish.isSeasonal %}
+                                    <span class="badge bg-info">De saison</span>
+                                {% endif %}
                             </div>
                         {% endfor %}
                     </div>
                 </div>
             {% endfor %}
-        </div>
+        {% endif %}
         
         <!-- Menus Section -->
         <h2 class="my-5">Nos Menus</h2>

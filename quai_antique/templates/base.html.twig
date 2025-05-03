@@ -122,39 +122,48 @@
                         <li class="nav-item">
                             <a class="nav-link {% if app.request.get('_route') starts with 'app_contact' %}active{% endif %}" href="{{ path('app_contact') }}">Contact</a>
                         </li>
-                    </ul>
-                    <div class="ms-3">
+                        
+                        {% if is_granted('ROLE_ADMIN') %}
+                            <li class="nav-item">
+                                <a class="nav-link {% if app.request.get('_route') starts with 'app_admin' %}active{% endif %}" href="{{ path('app_admin_dashboard') }}">Admin</a>
+                            </li>
+                        {% endif %}
+                        
                         {% if app.user %}
-                            <div class="dropdown">
-                                <button class="btn btn-outline-primary btn-sm dropdown-toggle" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="fas fa-user me-1"></i> 
-                                    {% if app.user.firstName %}
-                                        {{ app.user.firstName }}
-                                    {% else %}
-                                        Mon Compte
-                                    {% endif %}
-                                </button>
-                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    {{ app.user.email }}
+                                </a>
+                                <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
                                     {% if is_granted('ROLE_ADMIN') %}
-                                        <li><a class="dropdown-item" href="{{ path('app_admin_dashboard') }}"><i class="fas fa-tachometer-alt me-2"></i> Tableau de bord</a></li>
+                                        <li><a class="dropdown-item" href="{{ path('app_admin_dashboard') }}">Administration</a></li>
                                         <li><hr class="dropdown-divider"></li>
                                     {% endif %}
-                                    <li><a class="dropdown-item" href="{{ path('app_my_reservations') }}"><i class="fas fa-calendar-alt me-2"></i> Mes réservations</a></li>
-                                    <li><a class="dropdown-item" href="#"><i class="fas fa-user-edit me-2"></i> Mon profil</a></li>
-                                    <li><hr class="dropdown-divider"></li>
-                                    <li><a class="dropdown-item" href="{{ path('app_logout') }}"><i class="fas fa-sign-out-alt me-2"></i> Déconnexion</a></li>
+                                    <li><a class="dropdown-item" href="{{ path('app_logout') }}">Déconnexion</a></li>
                                 </ul>
-                            </div>
+                            </li>
                         {% else %}
-                            <a href="{{ path('app_login') }}" class="btn btn-outline-primary btn-sm">
-                                <i class="fas fa-user me-1"></i> Connexion
-                            </a>
+                            <li class="nav-item">
+                                <a class="nav-link {% if app.request.get('_route') == 'app_login' %}active{% endif %}" href="{{ path('app_login') }}">Connexion</a>
+                            </li>
                         {% endif %}
-                    </div>
+                    </ul>
                 </div>
             </div>
         </nav>
-
+        
+        <!-- Flash messages container -->
+        <div class="container mt-3">
+            {% for label, messages in app.flashes %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ label }} alert-dismissible fade show">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endfor %}
+        </div>
+        
         <!-- Main Content -->
         <main>
             {% block body %}{% endblock %}

@@ -1,0 +1,81 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block page_title %}Add New Image{% endblock %}
+
+{% block admin_content %}
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Add New Image</h5>
+            <a href="{{ path('app_admin_image_index') }}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left"></i> Back to list
+            </a>
+        </div>
+        <div class="card-body">
+            {{ form_start(form) }}
+                <div class="row">
+                    <div class="col-md-6">
+                        {{ form_row(form.upload_method) }}
+                        
+                        <div id="upload-fields" class="mb-3">
+                            {{ form_row(form.file) }}
+                        </div>
+                        
+                        <div id="existing-fields" class="mb-3" style="display: none;">
+                            {{ form_row(form.existing_path) }}
+                        </div>
+                        
+                        {{ form_row(form.alt) }}
+                        {{ form_row(form.title) }}
+                    </div>
+                    <div class="col-md-6">
+                        {{ form_row(form.category) }}
+                        {{ form_row(form.purpose) }}
+                        {{ form_row(form.dish) }}
+                        {{ form_row(form.isActive) }}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-12">
+                        {{ form_row(form.description) }}
+                    </div>
+                </div>
+                
+                <div class="text-center mt-4">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Save Image
+                    </button>
+                </div>
+            {{ form_end(form) }}
+        </div>
+    </div>
+{% endblock %}
+
+{% block admin_javascripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const uploadMethodRadios = document.querySelectorAll('input[name="{{ form.upload_method.vars.full_name }}"]');
+    const uploadFields = document.getElementById('upload-fields');
+    const existingFields = document.getElementById('existing-fields');
+    
+    function updateFieldsVisibility() {
+        const selectedMethod = document.querySelector('input[name="{{ form.upload_method.vars.full_name }}"]:checked').value;
+        
+        if (selectedMethod === 'upload') {
+            uploadFields.style.display = 'block';
+            existingFields.style.display = 'none';
+        } else {
+            uploadFields.style.display = 'none';
+            existingFields.style.display = 'block';
+        }
+    }
+    
+    // Initialize visibility
+    updateFieldsVisibility();
+    
+    // Update on change
+    uploadMethodRadios.forEach(radio => {
+        radio.addEventListener('change', updateFieldsVisibility);
+    });
+});
+</script>
+{% endblock %}

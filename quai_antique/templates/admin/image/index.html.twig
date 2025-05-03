@@ -1,0 +1,211 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block page_title %}Image Management{% endblock %}
+
+{% block admin_content %}
+    {# Initialize variables that might not be provided by the controller #}
+    {% set special_images = special_images|default({}) %}
+    {% set gallery_images = gallery_images|default([]) %}
+    {% set dish_images = dish_images|default([]) %}
+    {% set menu_images = menu_images|default([]) %}
+    {% set interior_images = interior_images|default([]) %}
+    {% set chef_images = chef_images|default([]) %}
+    {% set other_images = other_images|default([]) %}
+    
+    {# If no categorized images exist, but 'images' is provided, use that #}
+    {% if images is defined and (gallery_images|length == 0 and dish_images|length == 0 and menu_images|length == 0) %}
+        {% set gallery_images = images %}
+    {% endif %}
+
+    <div class="d-flex justify-content-between mb-4">
+        <h2>Image Management</h2>
+        <a href="{{ path('app_admin_image_new') }}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Add New Image
+        </a>
+    </div>
+    
+    {% if images is defined %}
+        {% if special_images is not defined %}
+            {# Create empty special_images array if it's not provided #}
+            {% set special_images = {
+                'hero_banner': null,
+                'reservation_page': null,
+                'menu_header': null,
+                'gallery_featured': null,
+                'about_us': null
+            } %}
+        {% endif %}
+        
+        <div class="card mb-5">
+            <div class="card-header bg-primary text-white">
+                <h3 class="mb-0">Special Purpose Images</h3>
+            </div>
+            <div class="card-body">
+                <p class="text-muted">These images are used in specific locations on your website. Set an image's "Special Purpose" when editing to designate it for these locations.</p>
+                
+                {% set special_types = {
+                    'hero_banner': 'Hero Banner',
+                    'reservation_page': 'Reservation Page',
+                    'menu_header': 'Menu Header',
+                    'gallery_featured': 'Gallery Featured',
+                    'about_us': 'About Us Section'
+                } %}
+                
+                <div class="row">
+                    {% for purpose, label in special_types %}
+                        <div class="col-md-4 mb-4">
+                            <div class="card h-100">
+                                <div class="card-header bg-light">
+                                    <h5 class="mb-0">{{ label }}</h5>
+                                </div>
+                                
+                                {% if special_images[purpose] is defined and special_images[purpose] is not null %}
+                                    {% set image = special_images[purpose] %}
+                                    <img src="{{ asset('uploads/images/' ~ image.filename) }}" class="card-img-top" alt="{{ image.alt }}" style="height: 200px; object-fit: cover;">
+                                    <div class="card-body">
+                                        <h6>{{ image.title ?? image.alt }}</h6>
+                                        <p class="text-muted small">{{ image.description|slice(0, 100) }}{{ image.description|length > 100 ? '...' : '' }}</p>
+                                        <div class="d-flex justify-content-between">
+                                            <a href="{{ path('app_admin_image_edit', {'id': image.id}) }}" class="btn btn-sm btn-outline-primary">
+                                                <i class="fas fa-edit"></i> Edit
+                                            </a>
+                                            
+                                            <form method="post" action="{{ path('app_admin_image_toggle_active', {'id': image.id}) }}" class="d-inline">
+                                                <button class="btn btn-sm btn-{{ image.isActive ? 'success' : 'danger' }}">
+                                                    <i class="fas fa-{{ image.isActive ? 'eye' : 'eye-slash' }}"></i> {{ image.isActive ? 'Active' : 'Inactive' }}
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                {% else %}
+                                    <div class="card-body text-center py-5">
+                                        <p class="text-muted">No image assigned for this purpose</p>
+                                        <a href="{{ path('app_admin_image_new') }}" class="btn btn-outline-primary">
+                                            <i class="fas fa-plus"></i> Add Image
+                                        </a>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        
+        <ul class="nav nav-tabs mb-4" id="imagesTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="gallery-tab" data-bs-toggle="tab" data-bs-target="#gallery" type="button">
+                    Gallery Images ({{ gallery_images|length }})
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="dish-tab" data-bs-toggle="tab" data-bs-target="#dish" type="button">
+                    Dish Images ({{ dish_images|length }})
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="menu-tab" data-bs-toggle="tab" data-bs-target="#menu" type="button">
+                    Menu Images ({{ menu_images|length }})
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="interior-tab" data-bs-toggle="tab" data-bs-target="#interior" type="button">
+                    Interior Images ({{ interior_images|length }})
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="chef-tab" data-bs-toggle="tab" data-bs-target="#chef" type="button">
+                    Chef Images ({{ chef_images|length }})
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="other-tab" data-bs-toggle="tab" data-bs-target="#other" type="button">
+                    Other Images ({{ other_images|length }})
+                </button>
+            </li>
+        </ul>
+        
+        <div class="tab-content" id="imagesTabsContent">
+            {% set image_collections = {
+                'gallery': gallery_images,
+                'dish': dish_images,
+                'menu': menu_images,
+                'interior': interior_images,
+                'chef': chef_images,
+                'other': other_images
+            } %}
+            
+            {% for tab_id, images in image_collections %}
+                <div class="tab-pane fade {{ tab_id == 'gallery' ? 'show active' : '' }}" id="{{ tab_id }}">
+                    {% if images|length > 0 %}
+                        <div class="row">
+                            {% for image in images %}
+                                <div class="col-md-3 mb-4">
+                                    <div class="card h-100">
+                                        <img src="{{ asset('uploads/images/' ~ image.filename) }}" class="card-img-top" alt="{{ image.alt }}" style="height: 180px; object-fit: cover;">
+                                        <div class="card-body">
+                                            <h6>{{ image.title ?? image.alt }}</h6>
+                                            <p class="small text-muted mb-2">{{ image.description|slice(0, 50) }}{{ image.description|length > 50 ? '...' : '' }}</p>
+                                            
+                                            <div class="btn-group btn-group-sm w-100">
+                                                <a href="{{ path('app_admin_image_edit', {'id': image.id}) }}" class="btn btn-outline-primary">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                                <a href="{{ path('app_admin_image_show', {'id': image.id}) }}" class="btn btn-outline-info">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                                <form method="post" action="{{ path('app_admin_image_toggle_active', {'id': image.id}) }}" class="d-inline">
+                                                    <button class="btn btn-sm btn-outline-{{ image.isActive ? 'success' : 'danger' }}">
+                                                        <i class="fas fa-{{ image.isActive ? 'eye' : 'eye-slash' }}"></i>
+                                                    </button>
+                                                </form>
+                                                <button class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal{{ image.id }}">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Delete Modal -->
+                                    <div class="modal fade" id="deleteModal{{ image.id }}" tabindex="-1" aria-hidden="true">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title">Confirm Delete</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <p>Are you sure you want to delete this image?</p>
+                                                    <div class="text-center">
+                                                        <img src="{{ asset('uploads/images/' ~ image.filename) }}" alt="{{ image.alt }}" style="max-height: 200px; max-width: 100%;">
+                                                    </div>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                    <form method="post" action="{{ path('app_admin_image_delete', {'id': image.id}) }}">
+                                                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ image.id) }}">
+                                                        <button type="submit" class="btn btn-danger">Delete</button>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle"></i> No images found in this category.
+                            <a href="{{ path('app_admin_image_new') }}" class="btn btn-sm btn-primary ms-3">Add Image</a>
+                        </div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="alert alert-warning">
+            <i class="fas fa-exclamation-triangle"></i> No images are available. Please add some images.
+            <a href="{{ path('app_admin_image_new') }}" class="btn btn-primary ms-3">Add First Image</a>
+        </div>
+    {% endif %}
+{% endblock %}

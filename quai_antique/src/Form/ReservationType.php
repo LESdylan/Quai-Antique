@@ -69,15 +69,15 @@ class ReservationType extends AbstractType
                 ],
             ])
             ->add('guestCount', IntegerType::class, [
-                'label' => 'Nombre de couverts',
-                'attr' => ['min' => 1, 'max' => 10],
+                'label' => 'Nombre de personnes',
                 'constraints' => [
-                    new NotBlank(['message' => 'Veuillez indiquer le nombre de personnes']),
+                    new NotBlank([
+                        'message' => 'Veuillez indiquer le nombre de personnes',
+                    ]),
                     new Range([
-                        'min' => 1, 
-                        'max' => 10, 
-                        'minMessage' => 'Au moins {{ limit }} personne requise',
-                        'maxMessage' => 'Maximum {{ limit }} personnes par réservation en ligne'
+                        'min' => 1,
+                        'max' => 10,
+                        'notInRangeMessage' => 'Le nombre de personnes doit être entre {{ min }} et {{ max }}',
                     ]),
                 ],
             ])

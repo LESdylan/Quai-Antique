@@ -1,0 +1,92 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block page_title %}Image Details{% endblock %}
+
+{% block admin_content %}
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Image Details</h5>
+            <div>
+                <a href="{{ path('app_admin_image_index') }}" class="btn btn-outline-secondary">
+                    <i class="fas fa-list"></i> Back to list
+                </a>
+                <a href="{{ path('app_admin_image_edit', {'id': image.id}) }}" class="btn btn-primary">
+                    <i class="fas fa-edit"></i> Edit
+                </a>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <img src="{{ asset('uploads/images/' ~ image.filename) }}" alt="{{ image.alt }}" class="img-fluid rounded">
+                </div>
+                <div class="col-md-6">
+                    <table class="table table-striped">
+                        <tbody>
+                            <tr>
+                                <th>ID</th>
+                                <td>{{ image.id }}</td>
+                            </tr>
+                            <tr>
+                                <th>Title</th>
+                                <td>{{ image.title ?? 'N/A' }}</td>
+                            </tr>
+                            <tr>
+                                <th>Alt Text</th>
+                                <td>{{ image.alt }}</td>
+                            </tr>
+                            <tr>
+                                <th>Description</th>
+                                <td>{{ image.description ?? 'N/A' }}</td>
+                            </tr>
+                            <tr>
+                                <th>Category</th>
+                                <td>{{ image.category ?? 'Uncategorized' }}</td>
+                            </tr>
+                            <tr>
+                                <th>Special Purpose</th>
+                                <td>
+                                    {% if image.purpose %}
+                                        <span class="badge bg-primary">{{ image.purposeLabel }}</span>
+                                    {% else %}
+                                        General
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Associated Dish</th>
+                                <td>{{ image.dish ? image.dish.name : 'None' }}</td>
+                            </tr>
+                            <tr>
+                                <th>Filename</th>
+                                <td>{{ image.filename }}</td>
+                            </tr>
+                            <tr>
+                                <th>Original Filename</th>
+                                <td>{{ image.originalFilename ?? 'N/A' }}</td>
+                            </tr>
+                            <tr>
+                                <th>MIME Type</th>
+                                <td>{{ image.mimeType ?? 'Unknown' }}</td>
+                            </tr>
+                            <tr>
+                                <th>Created At</th>
+                                <td>{{ image.createdAt|date('Y-m-d H:i:s') }}</td>
+                            </tr>
+                            <tr>
+                                <th>Status</th>
+                                <td>
+                                    {% if image.isActive %}
+                                        <span class="badge bg-success">Active</span>
+                                    {% else %}
+                                        <span class="badge bg-danger">Inactive</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

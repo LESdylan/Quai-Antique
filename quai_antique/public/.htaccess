@@ -1,0 +1,34 @@
+# Use the front controller as index file
+DirectoryIndex index.php
+
+# Disabling MultiViews prevents unwanted negotiation
+<IfModule mod_negotiation.c>
+    Options -MultiViews
+</IfModule>
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Determine the RewriteBase automatically
+    RewriteCond %{REQUEST_URI}::$1 ^(/.+)/(.*)::\2$
+    RewriteRule ^(.*) - [E=BASE:%1]
+
+    # If the requested filename exists, simply serve it
+    RewriteCond %{REQUEST_FILENAME} -f
+    RewriteRule .? - [L]
+
+    # Rewrite all other queries to the front controller
+    RewriteRule .? %{ENV:BASE}/index.php [L]
+</IfModule>
+
+<IfModule !mod_rewrite.c>
+    <IfModule mod_alias.c>
+        # When mod_rewrite is not available, redirect to index.php
+        RedirectMatch 302 ^/$ /index.php/
+    </IfModule>
+</IfModule>
+# Set upload tmp directory
+php_value upload_tmp_dir /home/dlesieur/Documents/Studi/Quai-Antique/quai_antique/var/uploads/temp
+php_value upload_max_filesize 10M
+php_value post_max_size 12M
+php_value memory_limit 256M

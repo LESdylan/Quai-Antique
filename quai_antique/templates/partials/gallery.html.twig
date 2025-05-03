@@ -1,0 +1,37 @@
+{# Display a gallery of images #}
+{% if images|length > 0 %}
+<div class="row gallery-container">
+    {% for image in images %}
+    <div class="col-md-4 mb-4">
+        <div class="gallery-item">
+            <img src="{{ asset('uploads/images/' ~ image.filename) }}" 
+                 alt="{{ image.alt }}" 
+                 class="img-fluid gallery-image" 
+                 data-bs-toggle="modal" 
+                 data-bs-target="#imageModal{{ image.id }}">
+        </div>
+    </div>
+    
+    {# Modal for larger image view #}
+    <div class="modal fade" id="imageModal{{ image.id }}" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">{{ image.alt }}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <img src="{{ asset('uploads/images/' ~ image.filename) }}" 
+                         alt="{{ image.alt }}" 
+                         class="img-fluid">
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="alert alert-info">
+    No images available
+</div>
+{% endif %}

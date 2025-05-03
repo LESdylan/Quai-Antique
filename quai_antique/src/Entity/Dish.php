@@ -53,12 +53,16 @@ class Dish
     #[ORM\Column(nullable: true)]
     private ?int $popularityScore = null;
 
+    #[ORM\OneToMany(mappedBy: 'dish', targetEntity: Image::class, cascade: ['persist'], orphanRemoval: true)]
+    private Collection $images;
+
     public function __construct()
     {
         $this->allergens = new ArrayCollection();
         $this->menus = new ArrayCollection();
         $this->createdAt = new \DateTime();
         $this->updatedAt = new \DateTime();
+        $this->images = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -235,5 +239,54 @@ class Dish
         $this->popularityScore = $popularityScore;
 
         return $this;
+    }
+
+    /**
+     * @return Collection<int, Image>
+     */
+    public function getImages(): Collection
+    {
+        return $this->images;
+    }
+
+    public function addImage(Image $image): static
+    {
+        if (!$this->images->contains($image)) {
+            $this->images->add($image);
+            $image->setDish($this);
+        }
+
+        return $this;
+    }
+
+    public function removeImage(Image $image): static
+    {
+        if ($this->images->removeElement($image)) {
+            // set the owning side to null (unless already changed)
+            if ($image->getDish() === $this) {
+                $image->setDish(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * Get main image or first available image
+     */
+    public function getMainImage(): ?Image
+    {
+        if ($this->images->isEmpty()) {
+            return null;
+        }
+
+        // Return first active image
+        foreach ($this->images as $image) {
+            if ($image->isIsActive()) {
+                return $image;
+            }
+        }
+
+        return $this->images->first();
     }
 }

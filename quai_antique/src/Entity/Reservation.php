@@ -76,7 +76,7 @@ class Reservation
         return $this->date;
     }
 
-    public function setDate(\DateTimeInterface $date): static
+    public function setDate(\DateTimeInterface $date): self
     {
         $this->date = $date;
 
@@ -88,7 +88,7 @@ class Reservation
         return $this->guestCount;
     }
 
-    public function setGuestCount(int $guestCount): static
+    public function setGuestCount(int $guestCount): self
     {
         $this->guestCount = $guestCount;
 
@@ -100,7 +100,7 @@ class Reservation
         return $this->lastName;
     }
 
-    public function setLastName(string $lastName): static
+    public function setLastName(string $lastName): self
     {
         $this->lastName = $lastName;
 
@@ -112,7 +112,7 @@ class Reservation
         return $this->firstName;
     }
 
-    public function setFirstName(?string $firstName): static
+    public function setFirstName(?string $firstName): self
     {
         $this->firstName = $firstName;
 
@@ -124,7 +124,7 @@ class Reservation
         return $this->email;
     }
 
-    public function setEmail(string $email): static
+    public function setEmail(string $email): self
     {
         $this->email = $email;
 
@@ -136,7 +136,7 @@ class Reservation
         return $this->phone;
     }
 
-    public function setPhone(string $phone): static
+    public function setPhone(string $phone): self
     {
         $this->phone = $phone;
 
@@ -148,7 +148,7 @@ class Reservation
         return $this->status;
     }
 
-    public function setStatus(string $status): static
+    public function setStatus(string $status): self
     {
         $this->status = $status;
 
@@ -160,7 +160,7 @@ class Reservation
         return $this->notes;
     }
 
-    public function setNotes(?string $notes): static
+    public function setNotes(?string $notes): self
     {
         $this->notes = $notes;
 
@@ -172,7 +172,7 @@ class Reservation
         return $this->allergies;
     }
 
-    public function setAllergies(?string $allergies): static
+    public function setAllergies(?string $allergies): self
     {
         $this->allergies = $allergies;
 
@@ -184,7 +184,7 @@ class Reservation
         return $this->createdAt;
     }
 
-    public function setCreatedAt(\DateTimeInterface $createdAt): static
+    public function setCreatedAt(\DateTimeInterface $createdAt): self
     {
         $this->createdAt = $createdAt;
 
@@ -196,7 +196,7 @@ class Reservation
         return $this->user;
     }
 
-    public function setUser(?User $user): static
+    public function setUser(?User $user): self
     {
         $this->user = $user;
 
@@ -211,7 +211,7 @@ class Reservation
         return $this->tables;
     }
 
-    public function addTable(Table $table): static
+    public function addTable(Table $table): self
     {
         if (!$this->tables->contains($table)) {
             $this->tables->add($table);
@@ -220,7 +220,7 @@ class Reservation
         return $this;
     }
 
-    public function removeTable(Table $table): static
+    public function removeTable(Table $table): self
     {
         $this->tables->removeElement($table);
 
@@ -232,7 +232,7 @@ class Reservation
         return $this->timeSlot;
     }
 
-    public function setTimeSlot(string $timeSlot): static
+    public function setTimeSlot(string $timeSlot): self
     {
         $this->timeSlot = $timeSlot;
 

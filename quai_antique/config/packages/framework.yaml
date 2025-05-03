@@ -8,6 +8,12 @@ framework:
     #esi: true
     #fragments: true
 
+    assets:
+        packages:
+            gallery:
+                base_path: '/images/gallery'
+                json_manifest_path: '%kernel.project_dir%/public/images/gallery/manifest.json'
+
 when@test:
     framework:
         test: true

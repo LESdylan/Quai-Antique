@@ -1,0 +1,102 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block page_title %}Edit Image{% endblock %}
+
+{% block admin_content %}
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Edit Image</h5>
+            <div>
+                <a href="{{ path('app_admin_image_index') }}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left"></i> Back to list
+                </a>
+                <form method="post" action="{{ path('app_admin_image_delete', {'id': image.id}) }}" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this item?');">
+                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ image.id) }}">
+                    <button class="btn btn-outline-danger"><i class="fas fa-trash"></i> Delete</button>
+                </form>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="row mb-4">
+                <div class="col-md-4">
+                    <div class="card">
+                        <img src="{{ asset('uploads/images/' ~ image.filename) }}" class="img-fluid" alt="{{ image.alt }}">
+                        <div class="card-body">
+                            <h6>Current Image</h6>
+                            <p class="small text-muted mb-0">{{ image.originalFilename ?? image.filename }}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-8">
+                    {{ form_start(form) }}
+                        <div class="row">
+                            <div class="col-md-6">
+                                {{ form_row(form.upload_method) }}
+                                
+                                <div id="upload-fields" class="mb-3">
+                                    {{ form_row(form.file) }}
+                                    <small class="form-text text-muted">Leave empty to keep the current image</small>
+                                </div>
+                                
+                                <div id="existing-fields" class="mb-3" style="display: none;">
+                                    {{ form_row(form.existing_path) }}
+                                    <small class="form-text text-muted">Leave empty to keep the current image</small>
+                                </div>
+                                
+                                {{ form_row(form.alt) }}
+                                {{ form_row(form.title) }}
+                            </div>
+                            <div class="col-md-6">
+                                {{ form_row(form.category) }}
+                                {{ form_row(form.purpose) }}
+                                {{ form_row(form.dish) }}
+                                {{ form_row(form.isActive) }}
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-12">
+                                {{ form_row(form.description) }}
+                            </div>
+                        </div>
+                        
+                        <div class="text-center mt-4">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Update Image
+                            </button>
+                        </div>
+                    {{ form_end(form) }}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block admin_javascripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const uploadMethodRadios = document.querySelectorAll('input[name="{{ form.upload_method.vars.full_name }}"]');
+    const uploadFields = document.getElementById('upload-fields');
+    const existingFields = document.getElementById('existing-fields');
+    
+    function updateFieldsVisibility() {
+        const selectedMethod = document.querySelector('input[name="{{ form.upload_method.vars.full_name }}"]:checked').value;
+        
+        if (selectedMethod === 'upload') {
+            uploadFields.style.display = 'block';
+            existingFields.style.display = 'none';
+        } else {
+            uploadFields.style.display = 'none';
+            existingFields.style.display = 'block';
+        }
+    }
+    
+    // Initialize visibility
+    updateFieldsVisibility();
+    
+    // Update on change
+    uploadMethodRadios.forEach(radio => {
+        radio.addEventListener('change', updateFieldsVisibility);
+    });
+});
+</script>
+{% endblock %}
