@@ -6,6 +6,7 @@ use App\Entity\Hours;
 use App\Entity\HoursException;
 use App\Repository\HoursRepository;
 use App\Repository\HoursExceptionRepository;
+use App\Service\SchemaToolHelper;  // Add this import
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;

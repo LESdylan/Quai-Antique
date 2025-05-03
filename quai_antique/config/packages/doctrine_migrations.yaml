@@ -1,7 +1,4 @@
 doctrine_migrations:
     migrations_paths:
         'DoctrineMigrations': '%kernel.project_dir%/migrations'
-    enable_profiler: false
-    # Use a table prefix to avoid conflicts if needed
-    table_storage:
-        table_name: 'doctrine_migration_versions'
+    enable_profiler: '%kernel.debug%'

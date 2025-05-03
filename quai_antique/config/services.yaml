@@ -4,7 +4,9 @@
 # Put parameters here that don't need to change on each machine where the app is deployed
 # https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
 parameters:
-    uploads_directory: '%kernel.project_dir%/public/uploads/images'
+    uploads_directory: '%kernel.project_dir%/public/uploads'
+    images_directory: '%kernel.project_dir%/public/uploads/images'
+    logos_directory: '%kernel.project_dir%/public/uploads/logos'
     promotions_directory: '%kernel.project_dir%/public/uploads/promotions'
 
 services:
@@ -24,9 +26,17 @@ services:
             - '../src/Migrations/'  # Exclude any migrations in src/
 
     # Explicitly configure migrations from the migrations directory
+    # Replace this entire block with a simpler configuration:
     DoctrineMigrations\:
         resource: '../migrations'
         tags: ['doctrine.migration']
+        exclude: '../migrations/*.php'
+
+    # controllers are imported separately to make sure services can be injected
+    # as action arguments even if you don't extend any base controller class
+    App\Controller\:
+        resource: '../src/Controller/'
+        tags: ['controller.service_arguments']
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
@@ -36,9 +46,15 @@ services:
         autowire: true
         tags: ['twig.extension']
 
+    App\Service\SchemaToolHelper:
+        arguments:
+            $entityManager: '@doctrine.orm.entity_manager'
+
     App\Service\ImageUploader:
         arguments:
-            $targetDirectory: '%uploads_directory%'
+            $targetDirectory: '%images_directory%'
+            $slugger: '@Symfony\Component\String\Slugger\SluggerInterface'
+            $logger: '@logger'
             
     # Pass the project directory to the command
     App\Command\ImportSampleImagesCommand:
@@ -46,5 +62,9 @@ services:
             $projectDir: '%kernel.project_dir%'
             
     App\Command\FixMappingIssuesCommand:
+        arguments:
+            $projectDir: '%kernel.project_dir%'
+            
+    App\Command\FixConfigCommand:
         arguments:
             $projectDir: '%kernel.project_dir%'
