@@ -21,11 +21,11 @@ services:
             - '../src/DependencyInjection/'
             - '../src/Entity/'
             - '../src/Kernel.php'
-            - '../src/Migrations/'  # Add this line to exclude migrations in src/
+            - '../src/Migrations/'  # Exclude any migrations in src/
 
-    # explicitly configure the service
+    # Explicitly configure migrations from the migrations directory
     DoctrineMigrations\:
-        resource: '../migrations/'
+        resource: '../migrations'
         tags: ['doctrine.migration']
 
     # add more service definitions when explicit configuration is needed

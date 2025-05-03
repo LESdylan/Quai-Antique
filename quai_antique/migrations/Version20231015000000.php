@@ -8,7 +8,7 @@ use Doctrine\DBAL\Schema\Schema;
 use Doctrine\Migrations\AbstractMigration;
 
 /**
- * Manual migration to add promotion columns and create hours_exception table
+ * Manual migration to create hours_exception table and add promotion columns
  */
 final class Version20231015000000 extends AbstractMigration
 {
@@ -30,9 +30,9 @@ final class Version20231015000000 extends AbstractMigration
             PRIMARY KEY(id)
         ) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
 
-        // Add missing columns to promotion table
+        // Add columns to promotion table
         $this->addSql('ALTER TABLE promotion ADD COLUMN IF NOT EXISTS image_filename VARCHAR(255) NULL');
-        $this->addSql('ALTER TABLE promotion ADD COLUMN IF NOT EXISTS type VARCHAR(32) DEFAULT \'banner\' NOT NULL');
+        $this->addSql('ALTER TABLE promotion ADD COLUMN IF NOT EXISTS type VARCHAR(32) DEFAULT "banner" NOT NULL');
         $this->addSql('ALTER TABLE promotion ADD COLUMN IF NOT EXISTS button_text VARCHAR(255) NULL');
         $this->addSql('ALTER TABLE promotion ADD COLUMN IF NOT EXISTS button_link VARCHAR(255) NULL');
     }

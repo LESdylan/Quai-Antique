@@ -3,347 +3,118 @@
 {% block page_title %}Image Management{% endblock %}
 
 {% block admin_content %}
-    {# Initialize variables that might not be provided by the controller #}
-    {% set special_images = special_images|default({}) %}
-    {% set gallery_images = gallery_images|default([]) %}
-    {% set dish_images = dish_images|default([]) %}
-    {% set menu_images = menu_images|default([]) %}
-    {% set interior_images = interior_images|default([]) %}
-    {% set chef_images = chef_images|default([]) %}
-    {% set other_images = other_images|default([]) %}
-    
-    {# If no categorized images exist, but 'images' is provided, use that #}
-    {% if images is defined and (gallery_images|length == 0 and dish_images|length == 0 and menu_images|length == 0) %}
-        {% set gallery_images = images %}
-    {% endif %}
-
     <div class="d-flex justify-content-between mb-4">
         <div>
             <h2 class="mb-0">Image Management</h2>
             <p class="text-muted">Manage all images for your restaurant's website</p>
         </div>
         <div>
-            <button class="btn btn-outline-success me-2" data-bs-toggle="modal" data-bs-target="#mediaLibraryModal">
-                <i class="fas fa-photo-video me-2"></i> Media Library
-            </button>
             <a href="{{ path('app_admin_image_new') }}" class="btn btn-primary">
                 <i class="fas fa-plus me-2"></i> Add New Image
             </a>
         </div>
     </div>
-    
-    {% if special_images is defined %}
-        {% if special_images is not defined %}
-            {# Create empty special_images array if it's not provided #}
-            {% set special_images = {
-                'hero_banner': null,
-                'reservation_page': null,
-                'menu_header': null,
-                'gallery_featured': null,
-                'about_us': null
-            } %}
-        {% endif %}
-        
-        <div class="card mb-5">
-            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-                <h3 class="mb-0 h5">Featured Locations</h3>
-                <span class="badge bg-light text-dark">Special Purpose Images</span>
+
+    <div class="card mb-4">
+        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+            <h6 class="m-0 font-weight-bold text-primary">Images</h6>
+            <div class="input-group" style="width: 300px;">
+                <input type="text" id="imageSearch" class="form-control" placeholder="Search images...">
+                <button class="btn btn-outline-secondary" type="button">
+                    <i class="fas fa-search"></i>
+                </button>
             </div>
-            
-            <div class="card-body pb-0">
-                <div class="row">
-                    {% set special_types = {
-                        'hero_banner': {
-                            'name': 'Hero Banner',
-                            'icon': 'fa-image',
-                            'description': 'Main image displayed at the top of your homepage',
-                            'dimensions': '1920×600'
-                        },
-                        'reservation_page': {
-                            'name': 'Reservation Page',
-                            'icon': 'fa-calendar',
-                            'description': 'Background image for your reservation form',
-                            'dimensions': '1000×600'
-                        },
-                        'menu_header': {
-                            'name': 'Menu Header',
-                            'icon': 'fa-utensils',
-                            'description': 'Header image for your restaurant menu',
-                            'dimensions': '1920×400'
-                        },
-                        'gallery_featured': {
-                            'name': 'Gallery Featured',
-                            'icon': 'fa-images',
-                            'description': 'Featured image in your photo gallery',
-                            'dimensions': '800×600'
-                        },
-                        'about_us': {
-                            'name': 'About Us Section',
-                            'icon': 'fa-building',
-                            'description': 'Image displayed in the about section',
-                            'dimensions': '600×800'
-                        }
-                    } %}
-                    
-                    {% for purpose, details in special_types %}
-                        <div class="col-lg-4 col-md-6 mb-4">
-                            <div class="card h-100 special-purpose-card">
-                                <div class="card-header bg-light">
-                                    <div class="d-flex align-items-center">
-                                        <i class="fas {{ details.icon }} text-primary me-2"></i>
-                                        <h5 class="mb-0">{{ details.name }}</h5>
-                                    </div>
-                                </div>
-                                
-                                {% if special_images[purpose] is defined and special_images[purpose] is not null %}
-                                    {% set image = special_images[purpose] %}
-                                    <div class="position-relative">
-                                        <a href="{{ path('app_admin_image_edit', {'id': image.id}) }}">
-                                            <img src="{{ asset('uploads/images/' ~ image.filename) }}" 
-                                                 class="card-img-top purpose-image" 
-                                                 alt="{{ image.alt }}" 
-                                                 style="height: 200px; object-fit: cover;">
-                                            <div class="position-absolute top-0 end-0 p-2">
-                                                <span class="badge bg-{{ image.isActive ? 'success' : 'danger' }}">
-                                                    {{ image.isActive ? 'Active' : 'Inactive' }}
-                                                </span>
-                                            </div>
+        </div>
+        <div class="card-body">
+            {% if images is not empty %}
+                <div class="row" id="imageGallery">
+                    {% for image in images %}
+                        <div class="col-md-3 mb-4 image-item">
+                            <div class="card h-100">
+                                <img src="{{ asset('uploads/images/' ~ image.filename) }}" class="card-img-top" alt="{{ image.alt }}" style="height: 180px; object-fit: cover;">
+                                <div class="card-body">
+                                    <h6 class="image-title">{{ image.title ?? image.alt }}</h6>
+                                    <p class="small text-muted mb-2 image-desc">{{ image.description|slice(0, 50) }}{{ image.description|length > 50 ? '...' : '' }}</p>
+                                    
+                                    <div class="btn-group btn-group-sm w-100">
+                                        <a href="{{ path('app_admin_image_edit', {'id': image.id}) }}" class="btn btn-outline-primary">
+                                            <i class="fas fa-edit"></i>
                                         </a>
-                                    </div>
-                                    <div class="card-body">
-                                        <h6>{{ image.title ?? image.alt }}</h6>
-                                        <p class="text-muted small mb-2">{{ details.description }}</p>
-                                        <p class="small text-primary mb-0">Recommended: {{ details.dimensions }}</p>
-                                    </div>
-                                    <div class="card-footer bg-white">
-                                        <div class="btn-group btn-group-sm w-100">
-                                            <a href="{{ path('app_admin_image_edit', {'id': image.id}) }}" class="btn btn-outline-primary">
-                                                <i class="fas fa-edit me-1"></i> Edit
-                                            </a>
-                                            <button type="button" class="btn btn-outline-secondary change-image-btn" data-purpose="{{ purpose }}">
-                                                <i class="fas fa-exchange-alt me-1"></i> Replace
-                                            </button>
+                                        <a href="{{ path('app_admin_image_show', {'id': image.id}) }}" class="btn btn-outline-info">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        {% if image.isActive is defined %}
                                             <form method="post" action="{{ path('app_admin_image_toggle_active', {'id': image.id}) }}" class="d-inline">
-                                                <button type="submit" class="btn btn-outline-{{ image.isActive ? 'success' : 'danger' }}">
+                                                <button class="btn btn-sm btn-outline-{{ image.isActive ? 'success' : 'danger' }}">
                                                     <i class="fas fa-{{ image.isActive ? 'eye' : 'eye-slash' }}"></i>
                                                 </button>
                                             </form>
-                                        </div>
-                                    </div>
-                                {% else %}
-                                    <div class="card-img-top d-flex align-items-center justify-content-center bg-light" style="height: 200px;">
-                                        <div class="text-center p-4">
-                                            <i class="fas fa-photo-video fa-3x text-muted mb-3"></i>
-                                            <p class="mb-0 text-muted">No image assigned</p>
-                                        </div>
-                                    </div>
-                                    <div class="card-body">
-                                        <p class="text-muted small mb-2">{{ details.description }}</p>
-                                        <p class="small text-primary mb-0">Recommended: {{ details.dimensions }}</p>
-                                    </div>
-                                    <div class="card-footer bg-white">
-                                        <button type="button" class="btn btn-outline-primary btn-sm w-100 assign-image-btn" data-purpose="{{ purpose }}">
-                                            <i class="fas fa-plus-circle me-1"></i> Assign Image
+                                        {% endif %}
+                                        <button class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal{{ image.id }}">
+                                            <i class="fas fa-trash"></i>
                                         </button>
                                     </div>
-                                {% endif %}
+                                </div>
+                            </div>
+                            
+                            <!-- Delete Modal -->
+                            <div class="modal fade" id="deleteModal{{ image.id }}" tabindex="-1" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title">Confirm Delete</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <p>Are you sure you want to delete this image?</p>
+                                            <div class="text-center">
+                                                <img src="{{ asset('uploads/images/' ~ image.filename) }}" alt="{{ image.alt }}" style="max-height: 200px; max-width: 100%;">
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                            <form method="post" action="{{ path('app_admin_image_delete', {'id': image.id}) }}">
+                                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ image.id) }}">
+                                                <button type="submit" class="btn btn-danger">Delete</button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     {% endfor %}
                 </div>
-                
-                <div class="alert alert-info mb-4">
-                    <i class="fas fa-info-circle me-2"></i> 
-                    <strong>Special purpose images</strong> are displayed in specific locations on your website. 
-                    Click "Edit" to modify an image or "Assign Image" to set a new image for each location.
+            {% else %}
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i> No images found. Please add some images.
                 </div>
-            </div>
+            {% endif %}
         </div>
-        
-        <div class="card mb-4">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h3 class="mb-0 h5">All Images</h3>
-                <div>
-                    <div class="input-group">
-                        <input type="text" class="form-control form-control-sm" id="image-search" placeholder="Search...">
-                        <button class="btn btn-sm btn-outline-secondary" id="search-button">
-                            <i class="fas fa-search"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
-            <div class="card-body">
-                <!-- Use Bootstrap Tabs for categories -->
-                <ul class="nav nav-pills nav-fill mb-4" id="imagesTabs" role="tablist">
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link active" id="all-tab" data-bs-toggle="tab" data-bs-target="#all-images" type="button">
-                            All Images <span class="badge bg-secondary">{{ gallery_images|length + dish_images|length + menu_images|length + interior_images|length + chef_images|length + other_images|length }}</span>
-                        </button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="gallery-tab" data-bs-toggle="tab" data-bs-target="#gallery" type="button">
-                            Gallery <span class="badge bg-secondary">{{ gallery_images|length }}</span>
-                        </button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="dish-tab" data-bs-toggle="tab" data-bs-target="#dish" type="button">
-                            Dishes <span class="badge bg-secondary">{{ dish_images|length }}</span>
-                        </button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="menu-tab" data-bs-toggle="tab" data-bs-target="#menu" type="button">
-                            Menu <span class="badge bg-secondary">{{ menu_images|length }}</span>
-                        </button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="interior-tab" data-bs-toggle="tab" data-bs-target="#interior" type="button">
-                            Interior Images ({{ interior_images|length }})
-                        </button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="chef-tab" data-bs-toggle="tab" data-bs-target="#chef" type="button">
-                            Chef Images ({{ chef_images|length }})
-                        </button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="other-tab" data-bs-toggle="tab" data-bs-target="#other" type="button">
-                            Other Images ({{ other_images|length }})
-                        </button>
-                    </li>
-                </ul>
-        
-                <div class="tab-content" id="imagesTabsContent">
-                    {% set image_collections = {
-                        'gallery': gallery_images,
-                        'dish': dish_images,
-                        'menu': menu_images,
-                        'interior': interior_images,
-                        'chef': chef_images,
-                        'other': other_images
-                    } %}
-                    
-                    {% for tab_id, images in image_collections %}
-                        <div class="tab-pane fade {{ tab_id == 'gallery' ? 'show active' : '' }}" id="{{ tab_id }}">
-                            {% if images|length > 0 %}
-                                <div class="row">
-                                    {% for image in images %}
-                                        <div class="col-md-3 mb-4">
-                                            <div class="card h-100">
-                                                <img src="{{ asset('uploads/images/' ~ image.filename) }}" class="card-img-top" alt="{{ image.alt }}" style="height: 180px; object-fit: cover;">
-                                                <div class="card-body">
-                                                    <h6>{{ image.title ?? image.alt }}</h6>
-                                                    <p class="small text-muted mb-2">{{ image.description|slice(0, 50) }}{{ image.description|length > 50 ? '...' : '' }}</p>
-                                                    
-                                                    <div class="btn-group btn-group-sm w-100">
-                                                        <a href="{{ path('app_admin_image_edit', {'id': image.id}) }}" class="btn btn-outline-primary">
-                                                            <i class="fas fa-edit"></i>
-                                                        </a>
-                                                        <a href="{{ path('app_admin_image_show', {'id': image.id}) }}" class="btn btn-outline-info">
-                                                            <i class="fas fa-eye"></i>
-                                                        </a>
-                                                        <form method="post" action="{{ path('app_admin_image_toggle_active', {'id': image.id}) }}" class="d-inline">
-                                                            <button class="btn btn-sm btn-outline-{{ image.isActive ? 'success' : 'danger' }}">
-                                                                <i class="fas fa-{{ image.isActive ? 'eye' : 'eye-slash' }}"></i>
-                                                            </button>
-                                                        </form>
-                                                        <button class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal{{ image.id }}">
-                                                            <i class="fas fa-trash"></i>
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            
-                                            <!-- Delete Modal -->
-                                            <div class="modal fade" id="deleteModal{{ image.id }}" tabindex="-1" aria-hidden="true">
-                                                <div class="modal-dialog">
-                                                    <div class="modal-content">
-                                                        <div class="modal-header">
-                                                            <h5 class="modal-title">Confirm Delete</h5>
-                                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                        </div>
-                                                        <div class="modal-body">
-                                                            <p>Are you sure you want to delete this image?</p>
-                                                            <div class="text-center">
-                                                                <img src="{{ asset('uploads/images/' ~ image.filename) }}" alt="{{ image.alt }}" style="max-height: 200px; max-width: 100%;">
-                                                            </div>
-                                                        </div>
-                                                        <div class="modal-footer">
-                                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                                            <form method="post" action="{{ path('app_admin_image_delete', {'id': image.id}) }}">
-                                                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ image.id) }}">
-                                                                <button type="submit" class="btn btn-danger">Delete</button>
-                                                            </form>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    {% endfor %}
-                                </div>
-                            {% else %}
-                                <div class="alert alert-info">
-                                    <i class="fas fa-info-circle"></i> No images found in this category.
-                                    <a href="{{ path('app_admin_image_new') }}" class="btn btn-sm btn-primary ms-3">Add Image</a>
-                                </div>
-                            {% endif %}
-                        </div>
-                    {% endfor %}
-                </div>
-            </div>
-        </div>
-    {% else %}
-        <div class="alert alert-warning">
-            <i class="fas fa-exclamation-triangle me-2"></i> No images are available. Please add some images.
-            <a href="{{ path('app_admin_image_new') }}" class="btn btn-primary ms-3">Add First Image</a>
-        </div>
-    {% endif %}
-    
-    {% include 'admin/components/media_library_modal.html.twig' %}
+    </div>
 {% endblock %}
 
 {% block admin_javascripts %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     // Image search functionality
-    const searchInput = document.getElementById('image-search');
-    const searchButton = document.getElementById('search-button');
-    const galleryItems = document.querySelectorAll('.col-md-3.mb-4');
-    
-    function performSearch() {
-        const searchTerm = searchInput.value.toLowerCase();
-        
-        galleryItems.forEach(item => {
-            const title = item.querySelector('h6')?.textContent.toLowerCase() || '';
-            const description = item.querySelector('p')?.textContent.toLowerCase() || '';
+    const searchInput = document.getElementById('imageSearch');
+    if (searchInput) {
+        searchInput.addEventListener('keyup', function() {
+            const searchTerm = this.value.toLowerCase();
+            const imageItems = document.querySelectorAll('.image-item');
             
-            if (title.includes(searchTerm) || description.includes(searchTerm)) {
-                item.style.display = '';
-            } else {
-                item.style.display = 'none';
-            }
+            imageItems.forEach(item => {
+                const title = item.querySelector('.image-title')?.textContent.toLowerCase() || '';
+                const desc = item.querySelector('.image-desc')?.textContent.toLowerCase() || '';
+                
+                if (title.includes(searchTerm) || desc.includes(searchTerm)) {
+                    item.style.display = '';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
         });
     }
-    
-    searchButton.addEventListener('click', performSearch);
-    
-    searchInput.addEventListener('keyup', function(event) {
-        if (event.key === 'Enter') {
-            performSearch();
-        }
-    });
-    
-    // Assign and change image functionality
-    const assignButtons = document.querySelectorAll('.assign-image-btn, .change-image-btn');
-    
-    assignButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            const purpose = this.dataset.purpose;
-            // TODO: Show modal to select an image
-            console.log('Assign image for purpose:', purpose);
-            // Redirecting to create new image with purpose pre-selected
-            window.location.href = `{{ path('app_admin_image_new') }}?purpose=${purpose}`;
-        });
-    });
 });
 </script>
 {% endblock %}

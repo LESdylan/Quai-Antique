@@ -20,50 +20,12 @@ class AdminImageController extends AbstractController
     #[Route('/', name: 'app_admin_image_index', methods: ['GET'])]
     public function index(ImageRepository $imageRepository): Response
     {
-        try {
-            // Get special purpose images
-            $specialImages = [
-                'hero_banner' => $imageRepository->findOneBy(['purpose' => 'hero_banner']),
-                'reservation_page' => $imageRepository->findOneBy(['purpose' => 'reservation_page']),
-                'menu_header' => $imageRepository->findOneBy(['purpose' => 'menu_header']),
-                'gallery_featured' => $imageRepository->findOneBy(['purpose' => 'gallery_featured']),
-                'about_us' => $imageRepository->findOneBy(['purpose' => 'about_us']),
-            ];
-            
-            // Get regular images by category
-            $galleryImages = $imageRepository->findBy(['category' => 'gallery', 'purpose' => null]);
-            $dishImages = $imageRepository->findBy(['category' => 'dish', 'purpose' => null]);
-            $menuImages = $imageRepository->findBy(['category' => 'menu', 'purpose' => null]);
-            $interiorImages = $imageRepository->findBy(['category' => 'interior', 'purpose' => null]);
-            $chefImages = $imageRepository->findBy(['category' => 'chef', 'purpose' => null]);
-            
-            // Get other images without a category
-            $otherImages = $imageRepository->findBy([
-                'category' => null, 
-                'purpose' => null
-            ]);
-            
-            return $this->render('admin/image/index.html.twig', [
-                'special_images' => $specialImages,
-                'gallery_images' => $galleryImages,
-                'dish_images' => $dishImages,
-                'menu_images' => $menuImages,
-                'interior_images' => $interiorImages,
-                'chef_images' => $chefImages,
-                'other_images' => $otherImages,
-            ]);
-        } catch (\Exception $e) {
-            // If there was a database error (e.g., missing column), get all images without filtering
-            $this->addFlash('warning', 'Database structure issue detected: ' . $e->getMessage());
-            
-            // Fallback to simple query
-            $allImages = $imageRepository->findAll();
-            
-            return $this->render('admin/image/index.html.twig', [
-                'all_images' => $allImages,
-                'has_error' => true
-            ]);
-        }
+        // Use a simpler approach without relying on special columns
+        $images = $imageRepository->findAll();
+        
+        return $this->render('admin/image/index.html.twig', [
+            'images' => $images,
+        ]);
     }
 
     #[Route('/new', name: 'app_admin_image_new', methods: ['GET', 'POST'])]
