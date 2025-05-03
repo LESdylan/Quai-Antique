@@ -1,0 +1,222 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block page_title %}Promotions Management{% endblock %}
+
+{% block admin_content %}
+<div class="d-flex justify-content-between mb-4">
+    <h2>Promotions Management</h2>
+    <a href="{{ path('app_admin_promotions_new') }}" class="btn btn-primary">
+        <i class="fas fa-plus"></i> Add New Promotion
+    </a>
+</div>
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Active Promotions</h6>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Description</th>
+                        <th>Valid From</th>
+                        <th>Valid Until</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for promotion in promotions %}
+                        <tr>
+                            <td>{{ promotion.title }}</td>
+                            <td>{{ promotion.description|slice(0, 50) }}{% if promotion.description|length > 50 %}...{% endif %}</td>
+                            <td>{{ promotion.startDate|date('d/m/Y') }}</td>
+                            <td>{{ promotion.endDate|date('d/m/Y') }}</td>
+                            <td>
+                                {% if promotion.isIsActive %}
+                                    <span class="badge bg-success">Active</span>
+                                {% else %}
+                                    <span class="badge bg-danger">Inactive</span>
+                                {% endif %}
+                                
+                                {% if promotion.isActiveNow %}
+                                    <span class="badge bg-info">Running</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a href="{{ path('app_admin_promotions_get', {'id': promotion.id}) }}" class="btn btn-sm btn-info">
+                                    <i class="fas fa-eye"></i> View
+                                </a>
+                                <a href="{{ path('app_admin_promotions_edit', {'id': promotion.id}) }}" class="btn btn-sm btn-primary">
+                                    <i class="fas fa-edit"></i> Edit
+                                </a>
+                                <button class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal{{ promotion.id }}">
+                                    <i class="fas fa-trash"></i> Delete
+                                </button>
+                                
+                                <!-- Delete Modal -->
+                                <div class="modal fade" id="deleteModal{{ promotion.id }}" tabindex="-1" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title">Confirm Deletion</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                Are you sure you want to delete the promotion "{{ promotion.title }}"?
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                <form method="post" action="{{ path('app_admin_promotions_delete', {'id': promotion.id}) }}">
+                                                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ promotion.id) }}">
+                                                    <button type="submit" class="btn btn-danger">Delete</button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="6" class="text-center">No promotions found</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Promotions Settings</h6>
+    </div>
+    <div class="card-body">
+        <form id="settingsForm">
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <h5>Banner Position</h5>
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="radio" name="bannerPosition" id="bannerTop" value="top" checked>
+                        <label class="form-check-label" for="bannerTop">
+                            Top of page
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="bannerPosition" id="bannerBottom" value="bottom">
+                        <label class="form-check-label" for="bannerBottom">
+                            Bottom of page
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <h5>Popup Behavior</h5>
+                    <select id="popupBehavior" class="form-select">
+                        <option value="immediate">Show immediately</option>
+                        <option value="delayed">Show after 5 seconds</option>
+                        <option value="scroll">Show after scrolling 50%</option>
+                        <option value="exit">Show on exit intent</option>
+                        <option value="disabled">Disabled</option>
+                    </select>
+                </div>
+            </div>
+            
+            <h5>Display Promotions On:</h5>
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="form-check form-switch mb-3">
+                        <input class="form-check-input" type="checkbox" id="showOnHome" checked>
+                        <label class="form-check-label" for="showOnHome">Home page</label>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-check form-switch mb-3">
+                        <input class="form-check-input" type="checkbox" id="showOnMenu" checked>
+                        <label class="form-check-label" for="showOnMenu">Menu page</label>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-check form-switch mb-3">
+                        <input class="form-check-input" type="checkbox" id="showOnReservation">
+                        <label class="form-check-label" for="showOnReservation">Reservation page</label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="text-center mt-3">
+                <button type="button" id="saveSettings" class="btn btn-success">
+                    <i class="fas fa-save me-2"></i> Save Settings
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block admin_javascripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Toggle promotion status
+    const toggleButtons = document.querySelectorAll('.toggle-promotion');
+    
+    if (toggleButtons) {
+        toggleButtons.forEach(button => {
+            button.addEventListener('change', function() {
+                const promotionId = this.dataset.id;
+                const isActive = this.checked;
+                
+                fetch('{{ path("app_admin_promotions_toggle") }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token("toggle_promotion") }}'
+                    },
+                    body: JSON.stringify({
+                        promotionId: promotionId,
+                        isActive: isActive
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (!data.success) {
+                        // Revert the toggle if there was an error
+                        this.checked = !isActive;
+                        console.error(data.message);
+                    }
+                })
+                .catch(error => {
+                    // Revert the toggle if there was an error
+                    this.checked = !isActive;
+                    console.error('Error:', error);
+                });
+            });
+        });
+    }
+    
+    // Save settings
+    const saveButton = document.getElementById('saveSettings');
+    
+    if (saveButton) {
+        saveButton.addEventListener('click', function() {
+            const settings = {
+                bannerPosition: document.querySelector('input[name="bannerPosition"]:checked').value,
+                popupBehavior: document.getElementById('popupBehavior').value,
+                showOnHome: document.getElementById('showOnHome').checked,
+                showOnMenu: document.getElementById('showOnMenu').checked,
+                showOnReservation: document.getElementById('showOnReservation').checked
+            };
+            
+            // Settings are saved in localStorage for demo purposes
+            // In a real app, you would send this to the server
+            localStorage.setItem('promotionSettings', JSON.stringify(settings));
+            
+            alert('Settings saved successfully!');
+        });
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,187 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block page_title %}Select Media{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .media-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 15px;
+        }
+        
+        .media-item {
+            position: relative;
+            cursor: pointer;
+            border: 2px solid transparent;
+            border-radius: 4px;
+            overflow: hidden;
+            height: 150px;
+            transition: all 0.2s ease;
+        }
+        
+        .media-item:hover {
+            border-color: #adb5bd;
+        }
+        
+        .media-item.selected {
+            border-color: var(--primary);
+        }
+        
+        .media-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .media-item .media-check {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: var(--primary);
+            color: white;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+        
+        .media-item.selected .media-check {
+            opacity: 1;
+        }
+        
+        .selector-header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background-color: white;
+            padding: 10px 0;
+            border-bottom: 1px solid #dee2e6;
+            margin-bottom: 20px;
+        }
+        
+        .selector-footer {
+            position: sticky;
+            bottom: 0;
+            z-index: 100;
+            background-color: white;
+            padding: 10px 0;
+            border-top: 1px solid #dee2e6;
+            margin-top: 20px;
+        }
+    </style>
+{% endblock %}
+
+{% block admin_content %}
+    <div class="selector-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <h4>Select {{ mode == 'multiple' ? 'Images' : 'an Image' }}</h4>
+            <div>
+                <button type="button" class="btn btn-outline-secondary me-2" onclick="window.history.back()">
+                    <i class="fas fa-times"></i> Cancel
+                </button>
+                <button type="button" class="btn btn-primary" id="selectButton" disabled>
+                    <i class="fas fa-check"></i> Select {{ mode == 'multiple' ? 'Images' : 'Image' }}
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="media-grid">
+        {% for image in images %}
+            <div class="media-item" data-id="{{ image.id }}" data-url="{{ asset('uploads/images/' ~ image.filename) }}" data-alt="{{ image.alt }}">
+                <img src="{{ asset('uploads/images/' ~ image.filename) }}" alt="{{ image.alt }}">
+                <div class="media-check">
+                    <i class="fas fa-check"></i>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+    
+    <div class="selector-footer">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <span id="selectionCount">0</span> {{ mode == 'multiple' ? 'images' : 'image' }} selected
+            </div>
+            <div>
+                <a href="{{ path('app_admin_media_upload') }}" class="btn btn-outline-primary">
+                    <i class="fas fa-upload"></i> Upload New
+                </a>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block admin_javascripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const mode = '{{ mode }}';
+        const callback = '{{ callback }}';
+        const targetId = '{{ targetId }}';
+        const mediaItems = document.querySelectorAll('.media-item');
+        const selectButton = document.getElementById('selectButton');
+        const selectionCount = document.getElementById('selectionCount');
+        
+        let selectedItems = [];
+        
+        // Handle media item selection
+        mediaItems.forEach(item => {
+            item.addEventListener('click', function() {
+                const id = this.dataset.id;
+                
+                if (mode === 'single') {
+                    // Deselect all items
+                    mediaItems.forEach(i => i.classList.remove('selected'));
+                    selectedItems = [];
+                    
+                    // Select this item
+                    this.classList.add('selected');
+                    selectedItems.push({
+                        id: id,
+                        url: this.dataset.url,
+                        alt: this.dataset.alt
+                    });
+                } else {
+                    // Toggle selection
+                    if (this.classList.contains('selected')) {
+                        this.classList.remove('selected');
+                        selectedItems = selectedItems.filter(item => item.id !== id);
+                    } else {
+                        this.classList.add('selected');
+                        selectedItems.push({
+                            id: id,
+                            url: this.dataset.url,
+                            alt: this.dataset.alt
+                        });
+                    }
+                }
+                
+                // Update selection count
+                selectionCount.textContent = selectedItems.length;
+                
+                // Enable/disable select button
+                selectButton.disabled = selectedItems.length === 0;
+            });
+        });
+        
+        // Handle selection button click
+        selectButton.addEventListener('click', function() {
+            if (selectedItems.length > 0) {
+                // Find the opener window
+                if (window.opener && window.opener[callback]) {
+                    // Pass selected items to the opener window
+                    window.opener[callback](selectedItems, targetId);
+                    window.close();
+                } else {
+                    alert('Cannot communicate with the parent window. Please try again.');
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}

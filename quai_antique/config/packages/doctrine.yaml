@@ -2,13 +2,20 @@ doctrine:
     dbal:
         # Use a more basic driver setup
         driver: 'pdo_mysql'
-        server_version: '10.11'
+        server_version: '5.7' # Explicitly set MySQL version compatibility
         charset: utf8mb4
         default_table_options:
             charset: utf8mb4
             collate: utf8mb4_unicode_ci
         url: '%env(resolve:DATABASE_URL)%'
         schema_filter: ~^(?!i_c\.)~  # Exclude information_schema tables
+        mapping_types:
+            enum: string
+        # Replace the unsupported driver_options with the supported options parameter
+        options:
+            1002: "SET sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''))"
+        # Add platform_service to use our custom MySQL platform
+        platform_service: App\Doctrine\CustomMySQLPlatform
 
     orm:
         auto_generate_proxy_classes: true

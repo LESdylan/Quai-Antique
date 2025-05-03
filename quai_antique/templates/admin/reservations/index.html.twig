@@ -1,0 +1,259 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block page_title %}Gestion des Réservations{% endblock %}
+
+{% block admin_content %}
+    <div class="d-flex justify-content-between mb-4">
+        <h2>Réservations</h2>
+        
+        <div class="d-flex">
+            <div class="me-2">
+                <form method="get" action="{{ path('app_admin_reservations') }}" class="d-flex">
+                    <input type="date" name="date" class="form-control" value="{{ selected_date|date('Y-m-d') }}" required>
+                    <button type="submit" class="btn btn-primary ms-2">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </form>
+            </div>
+            <div class="btn-group">
+                <a href="{{ path('app_admin_reservations', {date: 'today'}) }}" class="btn btn-outline-secondary {{ selected_date|date('Y-m-d') == 'now'|date('Y-m-d') ? 'active' : '' }}">Aujourd'hui</a>
+                <a href="{{ path('app_admin_reservations', {date: 'tomorrow'}) }}" class="btn btn-outline-secondary {{ selected_date|date('Y-m-d') == 'now+1 day'|date('Y-m-d') ? 'active' : '' }}">Demain</a>
+                <a href="{{ path('app_admin_reservations', {date: 'weekend'}) }}" class="btn btn-outline-secondary {{ is_weekend ? 'active' : '' }}">Week-end</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="card">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">Réservations pour le {{ selected_date|date('d/m/Y') }}</h5>
+        </div>
+        <div class="card-body">
+            {% if reservations|length > 0 %}
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th>Client</th>
+                                <th>Horaire</th>
+                                <th>Convives</th>
+                                <th>Contact</th>
+                                <th>Allergies</th>
+                                <th>Statut</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for reservation in reservations %}
+                                <tr>
+                                    <td>
+                                        <strong>{{ reservation.lastName }} {{ reservation.firstName }}</strong>
+                                        {% if reservation.user %}
+                                            <span class="badge bg-info">Client enregistré</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ reservation.timeSlot }}</td>
+                                    <td>{{ reservation.guestCount }} personnes</td>
+                                    <td>
+                                        <div>{{ reservation.email }}</div>
+                                        <div>{{ reservation.phone }}</div>
+                                    </td>
+                                    <td>
+                                        {% if reservation.allergies %}
+                                            <span class="text-danger">{{ reservation.allergies }}</span>
+                                        {% else %}
+                                            <span class="text-muted">Aucune</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if reservation.status == 'pending' %}
+                                            <span class="badge bg-warning">En attente</span>
+                                        {% elseif reservation.status == 'confirmed' %}
+                                            <span class="badge bg-success">Confirmée</span>
+                                        {% elseif reservation.status == 'cancelled' %}
+                                            <span class="badge bg-danger">Annulée</span>
+                                        {% elseif reservation.status == 'completed' %}
+                                            <span class="badge bg-secondary">Terminée</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="btn-group">
+                                            <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#viewModal{{ reservation.id }}">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            <div class="btn-group">
+                                                <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown">
+                                                    <i class="fas fa-cog"></i>
+                                                </button>
+                                                <ul class="dropdown-menu dropdown-menu-end">
+                                                    {% if reservation.status != 'confirmed' %}
+                                                        <li>
+                                                            <form method="post" action="{{ path('app_admin_reservation_status', {'id': reservation.id, 'status': 'confirmed'}) }}">
+                                                                <input type="hidden" name="_token" value="{{ csrf_token('status' ~ reservation.id) }}">
+                                                                <button type="submit" class="dropdown-item text-success">
+                                                                    <i class="fas fa-check me-2"></i> Confirmer
+                                                                </button>
+                                                            </form>
+                                                        </li>
+                                                    {% endif %}
+                                                    {% if reservation.status != 'cancelled' %}
+                                                        <li>
+                                                            <form method="post" action="{{ path('app_admin_reservation_status', {'id': reservation.id, 'status': 'cancelled'}) }}">
+                                                                <input type="hidden" name="_token" value="{{ csrf_token('status' ~ reservation.id) }}">
+                                                                <button type="submit" class="dropdown-item text-danger">
+                                                                    <i class="fas fa-times me-2"></i> Annuler
+                                                                </button>
+                                                            </form>
+                                                        </li>
+                                                    {% endif %}
+                                                    {% if reservation.status != 'completed' %}
+                                                        <li>
+                                                            <form method="post" action="{{ path('app_admin_reservation_status', {'id': reservation.id, 'status': 'completed'}) }}">
+                                                                <input type="hidden" name="_token" value="{{ csrf_token('status' ~ reservation.id) }}">
+                                                                <button type="submit" class="dropdown-item">
+                                                                    <i class="fas fa-check-double me-2"></i> Marquer comme terminée
+                                                                </button>
+                                                            </form>
+                                                        </li>
+                                                    {% endif %}
+                                                    <li><hr class="dropdown-divider"></li>
+                                                    <li>
+                                                        <a href="mailto:{{ reservation.email }}" class="dropdown-item">
+                                                            <i class="fas fa-envelope me-2"></i> Contacter par email
+                                                        </a>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- View Modal -->
+                                        <div class="modal fade" id="viewModal{{ reservation.id }}" tabindex="-1" aria-hidden="true">
+                                            <div class="modal-dialog">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title">Détails de la réservation</h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <div class="row">
+                                                            <div class="col-6 mb-3">
+                                                                <strong>Client :</strong>
+                                                                <div>{{ reservation.lastName }} {{ reservation.firstName }}</div>
+                                                            </div>
+                                                            <div class="col-6 mb-3">
+                                                                <strong>Date :</strong>
+                                                                <div>{{ reservation.date|date('d/m/Y') }}</div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="row">
+                                                            <div class="col-6 mb-3">
+                                                                <strong>Heure :</strong>
+                                                                <div>{{ reservation.timeSlot }}</div>
+                                                            </div>
+                                                            <div class="col-6 mb-3">
+                                                                <strong>Nombre de personnes :</strong>
+                                                                <div>{{ reservation.guestCount }}</div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="row">
+                                                            <div class="col-6 mb-3">
+                                                                <strong>Email :</strong>
+                                                                <div>{{ reservation.email }}</div>
+                                                            </div>
+                                                            <div class="col-6 mb-3">
+                                                                <strong>Téléphone :</strong>
+                                                                <div>{{ reservation.phone }}</div>
+                                                            </div>
+                                                        </div>
+                                                        {% if reservation.allergies %}
+                                                            <div class="mb-3">
+                                                                <strong>Allergies :</strong>
+                                                                <div class="text-danger">{{ reservation.allergies }}</div>
+                                                            </div>
+                                                        {% endif %}
+                                                        {% if reservation.notes %}
+                                                            <div class="mb-3">
+                                                                <strong>Notes :</strong>
+                                                                <div>{{ reservation.notes }}</div>
+                                                            </div>
+                                                        {% endif %}
+                                                        <div>
+                                                            <strong>Statut :</strong>
+                                                            {% if reservation.status == 'pending' %}
+                                                                <span class="badge bg-warning">En attente</span>
+                                                            {% elseif reservation.status == 'confirmed' %}
+                                                                <span class="badge bg-success">Confirmée</span>
+                                                            {% elseif reservation.status == 'cancelled' %}
+                                                                <span class="badge bg-danger">Annulée</span>
+                                                            {% elseif reservation.status == 'completed' %}
+                                                                <span class="badge bg-secondary">Terminée</span>
+                                                            {% endif %}
+                                                        </div>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i> Aucune réservation pour cette date.
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Calendar Overview Section -->
+    <div class="card mt-4">
+        <div class="card-header">
+            <h5 class="mb-0">Vue du mois</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                {% set days = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'] %}
+                <div class="calendar-header d-flex">
+                    {% for day in days %}
+                        <div class="calendar-cell text-center fw-bold">{{ day }}</div>
+                    {% endfor %}
+                </div>
+                
+                <div class="calendar-grid d-flex flex-wrap">
+                    {% for i in 1..31 %}
+                        <div class="calendar-cell">
+                            <div class="calendar-date">{{ i }}</div>
+                            <div class="calendar-info">
+                                <div class="badge bg-primary">2</div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block admin_javascripts %}
+<style>
+    .calendar-cell {
+        width: calc(100% / 7);
+        height: 80px;
+        border: 1px solid #dee2e6;
+        padding: 5px;
+    }
+    
+    .calendar-date {
+        font-weight: bold;
+    }
+    
+    .calendar-info {
+        font-size: 0.8rem;
+        margin-top: 5px;
+    }
+</style>
+{% endblock %}

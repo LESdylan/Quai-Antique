@@ -1,0 +1,330 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block page_title %}Gestion du Menu{% endblock %}
+
+{% block admin_content %}
+    <div class="d-flex justify-content-between mb-3">
+        <h2>Plats et Menus</h2>
+        <div>
+            <a href="{{ path('app_admin_dish_new') }}" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Ajouter un plat
+            </a>
+            <a href="{{ path('app_admin_menu_new') }}" class="btn btn-success">
+                <i class="fas fa-plus"></i> Créer un menu
+            </a>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-3">
+                    <label for="category" class="form-label">Catégorie</label>
+                    <select id="category" name="category" class="form-select">
+                        <option value="">Toutes les catégories</option>
+                        {% for category in categories %}
+                            <option value="{{ category.id }}" {% if app.request.get('category') == category.id|string %}selected{% endif %}>{{ category.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="status" class="form-label">Statut</label>
+                    <select id="status" name="status" class="form-select">
+                        <option value="">Tous</option>
+                        <option value="1" {% if app.request.get('status') == '1' %}selected{% endif %}>Actif</option>
+                        <option value="0" {% if app.request.get('status') == '0' %}selected{% endif %}>Inactif</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label for="search" class="form-label">Recherche</label>
+                    <input type="text" id="search" name="search" class="form-control" placeholder="Nom du plat..." value="{{ app.request.get('search') }}">
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-filter"></i> Filtrer
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Dishes List -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="mb-0">Plats ({{ dishes|length }})</h5>
+        </div>
+        <div class="card-body">
+            {% if dishes|length > 0 %}
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead>
+                            <tr>
+                                <th style="width: 80px;">Image</th>
+                                <th>Nom</th>
+                                <th>Catégorie</th>
+                                <th>Prix</th>
+                                <th>Statut</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="sortable">
+                            {% for dish in dishes %}
+                                <tr data-id="{{ dish.id }}">
+                                    <td>
+                                        {% if dish.getMainImage() %}
+                                            <img src="{{ asset('uploads/images/' ~ dish.getMainImage().filename) }}" 
+                                                alt="{{ dish.name }}" class="img-thumbnail" style="width: 60px; height: 60px; object-fit: cover;">
+                                        {% else %}
+                                            <div class="bg-light d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+                                                <i class="fas fa-image text-muted"></i>
+                                            </div>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <strong>{{ dish.name }}</strong>
+                                        {% if dish.isFeatured %}
+                                            <span class="badge bg-info ms-1">En Vedette</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ dish.category.name }}</td>
+                                    <td>{{ dish.price|number_format(2, ',', ' ') }} €</td>
+                                    <td>
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input toggle-status" type="checkbox" 
+                                                data-id="{{ dish.id }}" 
+                                                {% if dish.isActive %}checked{% endif %}>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group">
+                                            <a href="{{ path('app_admin_dish_edit', {'id': dish.id}) }}" class="btn btn-sm btn-outline-primary">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal{{ dish.id }}">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                        
+                                        <!-- Delete Modal -->
+                                        <div class="modal fade" id="deleteModal{{ dish.id }}" tabindex="-1" aria-hidden="true">
+                                            <div class="modal-dialog">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title">Confirmer la suppression</h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <p>Êtes-vous sûr de vouloir supprimer le plat "{{ dish.name }}" ?</p>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                                                        <form method="post" action="{{ path('app_admin_dish_delete', {'id': dish.id}) }}">
+                                                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ dish.id) }}">
+                                                            <button type="submit" class="btn btn-danger">Supprimer</button>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="alert alert-info">
+                    Aucun plat trouvé. <a href="{{ path('app_admin_dish_new') }}">Ajouter un plat</a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Menus List -->
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">Menus ({{ menus|length }})</h5>
+        </div>
+        <div class="card-body">
+            {% if menus|length > 0 %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Titre</th>
+                                <th>Description</th>
+                                <th>Prix</th>
+                                <th>Statut</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for menu in menus %}
+                                <tr>
+                                    <td><strong>{{ menu.title }}</strong></td>
+                                    <td>{{ menu.description|slice(0, 100) }}{% if menu.description|length > 100 %}...{% endif %}</td>
+                                    <td>{{ menu.price|number_format(2, ',', ' ') }} €</td>
+                                    <td>
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input toggle-menu-status" type="checkbox" 
+                                                data-id="{{ menu.id }}" 
+                                                {% if menu.isActive %}checked{% endif %}>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group">
+                                            <a href="{{ path('app_admin_menu_edit', {'id': menu.id}) }}" class="btn btn-sm btn-outline-primary">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteMenuModal{{ menu.id }}">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                        
+                                        <!-- Delete Modal -->
+                                        <div class="modal fade" id="deleteMenuModal{{ menu.id }}" tabindex="-1" aria-hidden="true">
+                                            <div class="modal-dialog">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title">Confirmer la suppression</h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <p>Êtes-vous sûr de vouloir supprimer le menu "{{ menu.title }}" ?</p>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                                                        <form method="post" action="{{ path('app_admin_menu_delete', {'id': menu.id}) }}">
+                                                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ menu.id) }}">
+                                                            <button type="submit" class="btn btn-danger">Supprimer</button>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="alert alert-info">
+                    Aucun menu trouvé. <a href="{{ path('app_admin_menu_new') }}">Créer un menu</a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}
+
+{% block admin_javascripts %}
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Enable drag and drop reordering
+    const sortable = new Sortable(document.querySelector('.sortable'), {
+        animation: 150,
+        ghostClass: 'bg-light',
+        onEnd: function(evt) {
+            const itemEl = evt.item;
+            const dishId = itemEl.dataset.id;
+            const newIndex = evt.newIndex;
+            
+            // Send the new order to the server
+            fetch('{{ path("app_admin_dish_reorder") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token("dish_reorder") }}'
+                },
+                body: JSON.stringify({
+                    dishId: dishId,
+                    newPosition: newIndex
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Show success message
+                } else {
+                    // Show error and revert
+                    console.error(data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+    });
+    
+    // Toggle dish status
+    const toggleStatusBtns = document.querySelectorAll('.toggle-status');
+    toggleStatusBtns.forEach(btn => {
+        btn.addEventListener('change', function() {
+            const dishId = this.dataset.id;
+            const isActive = this.checked;
+            
+            fetch('{{ path("app_admin_dish_toggle_status") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token("dish_toggle_status") }}'
+                },
+                body: JSON.stringify({
+                    dishId: dishId,
+                    isActive: isActive
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (!data.success) {
+                    // Revert toggle if failed
+                    this.checked = !isActive;
+                    console.error(data.message);
+                }
+            })
+            .catch(error => {
+                // Revert toggle if error
+                this.checked = !isActive;
+                console.error('Error:', error);
+            });
+        });
+    });
+    
+    // Toggle menu status
+    const toggleMenuStatusBtns = document.querySelectorAll('.toggle-menu-status');
+    toggleMenuStatusBtns.forEach(btn => {
+        btn.addEventListener('change', function() {
+            const menuId = this.dataset.id;
+            const isActive = this.checked;
+            
+            fetch('{{ path("app_admin_menu_toggle_status") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token("menu_toggle_status") }}'
+                },
+                body: JSON.stringify({
+                    menuId: menuId,
+                    isActive: isActive
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (!data.success) {
+                    // Revert toggle if failed
+                    this.checked = !isActive;
+                    console.error(data.message);
+                }
+            })
+            .catch(error => {
+                // Revert toggle if error
+                this.checked = !isActive;
+                console.error('Error:', error);
+            });
+        });
+    });
+});
+</script>
+{% endblock %}

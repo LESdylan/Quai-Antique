@@ -1,0 +1,235 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block page_title %}Paramètres du Restaurant{% endblock %}
+
+{% block admin_content %}
+<div class="row">
+    <div class="col-12">
+        <ul class="nav nav-tabs mb-4">
+            <li class="nav-item">
+                <a class="nav-link active" aria-current="page" href="{{ path('app_admin_settings') }}">
+                    <i class="fas fa-info-circle"></i> Informations générales
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{{ path('app_admin_hours') }}">
+                    <i class="fas fa-clock"></i> Horaires d'ouverture
+                </a>
+            </li>
+        </ul>
+    </div>
+</div>
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+        <h6 class="m-0 font-weight-bold text-primary">Informations du Restaurant</h6>
+    </div>
+    <div class="card-body">
+        {{ form_start(restaurant_form, {'attr': {'class': 'needs-validation'}}) }}
+            <div class="row mb-4">
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">Logo</h5>
+                        </div>
+                        <div class="card-body text-center">
+                            {% if restaurant.logoFilename %}
+                                <img src="{{ asset('uploads/logos/' ~ restaurant.logoFilename) }}" alt="{{ restaurant.name }}" class="img-fluid mb-3" style="max-height: 150px;">
+                            {% else %}
+                                <div class="bg-light py-5 mb-3 d-flex align-items-center justify-content-center">
+                                    <span class="text-muted">Pas de logo</span>
+                                </div>
+                            {% endif %}
+                            {{ form_row(restaurant_form.logoFile) }}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-8">
+                    <div class="card h-100">
+                        <div class="card-header">
+                            <h5 class="mb-0">Informations de base</h5>
+                        </div>
+                        <div class="card-body">
+                            {{ form_row(restaurant_form.name) }}
+                            {{ form_row(restaurant_form.description) }}
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    {{ form_row(restaurant_form.averagePriceLunch) }}
+                                </div>
+                                <div class="col-md-6">
+                                    {{ form_row(restaurant_form.averagePriceDinner) }}
+                                </div>
+                            </div>
+                            
+                            <div class="form-check mt-3">
+                                {{ form_widget(restaurant_form.displayOpeningHours) }}
+                                {{ form_label(restaurant_form.displayOpeningHours) }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="card h-100">
+                        <div class="card-header">
+                            <h5 class="mb-0">Coordonnées</h5>
+                        </div>
+                        <div class="card-body">
+                            {{ form_row(restaurant_form.address) }}
+                            
+                            <div class="row">
+                                <div class="col-md-4">
+                                    {{ form_row(restaurant_form.zipCode) }}
+                                </div>
+                                <div class="col-md-8">
+                                    {{ form_row(restaurant_form.city) }}
+                                </div>
+                            </div>
+                            
+                            {{ form_row(restaurant_form.phone) }}
+                            {{ form_row(restaurant_form.email) }}
+                            {{ form_row(restaurant_form.website) }}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card h-100">
+                        <div class="card-header">
+                            <h5 class="mb-0">Emplacement sur la carte</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle"></i> Vous pouvez obtenir les coordonnées en cherchant votre adresse sur 
+                                <a href="https://www.google.com/maps" target="_blank">Google Maps</a>, puis en cliquant droit sur votre emplacement et en sélectionnant "Qu'y a-t-il ici ?"
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    {{ form_row(restaurant_form.latitude) }}
+                                </div>
+                                <div class="col-md-6">
+                                    {{ form_row(restaurant_form.longitude) }}
+                                </div>
+                            </div>
+                            
+                            {% if restaurant.latitude and restaurant.longitude %}
+                                <div class="mt-3">
+                                    <div class="ratio ratio-16x9">
+                                        <iframe src="{{ restaurant.mapUrl }}" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Réseaux sociaux</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            {{ form_row(restaurant_form.facebookUrl) }}
+                        </div>
+                        <div class="col-md-4">
+                            {{ form_row(restaurant_form.instagramUrl) }}
+                        </div>
+                        <div class="col-md-4">
+                            {{ form_row(restaurant_form.tripadvisorUrl) }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="text-center">
+                <button type="submit" class="btn btn-primary btn-lg px-5">
+                    <i class="fas fa-save me-2"></i> Enregistrer les modifications
+                </button>
+            </div>
+        {{ form_end(restaurant_form) }}
+    </div>
+</div>
+
+<div class="card shadow">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Prévisualisation</h6>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ restaurant.name }}</h5>
+                        <p class="card-text">{{ restaurant.description|nl2br }}</p>
+                        <ul class="list-unstyled">
+                            {% if restaurant.address %}
+                                <li><i class="fas fa-map-marker-alt me-2"></i> {{ restaurant.fullAddress }}</li>
+                            {% endif %}
+                            {% if restaurant.phone %}
+                                <li><i class="fas fa-phone me-2"></i> {{ restaurant.phone }}</li>
+                            {% endif %}
+                            {% if restaurant.email %}
+                                <li><i class="fas fa-envelope me-2"></i> {{ restaurant.email }}</li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Prix moyens</h5>
+                        {% if restaurant.averagePriceLunch or restaurant.averagePriceDinner %}
+                            <ul class="list-unstyled">
+                                {% if restaurant.averagePriceLunch %}
+                                    <li><i class="fas fa-sun me-2"></i> Déjeuner: {{ restaurant.averagePriceLunch|number_format(2, ',', ' ') }} €</li>
+                                {% endif %}
+                                {% if restaurant.averagePriceDinner %}
+                                    <li><i class="fas fa-moon me-2"></i> Dîner: {{ restaurant.averagePriceDinner|number_format(2, ',', ' ') }} €</li>
+                                {% endif %}
+                            </ul>
+                        {% else %}
+                            <p class="text-muted">Aucun prix moyen renseigné</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Réseaux sociaux</h5>
+                        {% if restaurant.facebookUrl or restaurant.instagramUrl or restaurant.tripadvisorUrl %}
+                            <div class="d-flex">
+                                {% if restaurant.facebookUrl %}
+                                    <a href="{{ restaurant.facebookUrl }}" target="_blank" class="btn btn-outline-primary me-2">
+                                        <i class="fab fa-facebook-f"></i>
+                                    </a>
+                                {% endif %}
+                                {% if restaurant.instagramUrl %}
+                                    <a href="{{ restaurant.instagramUrl }}" target="_blank" class="btn btn-outline-primary me-2">
+                                        <i class="fab fa-instagram"></i>
+                                    </a>
+                                {% endif %}
+                                {% if restaurant.tripadvisorUrl %}
+                                    <a href="{{ restaurant.tripadvisorUrl }}" target="_blank" class="btn btn-outline-primary me-2">
+                                        <i class="fab fa-tripadvisor"></i>
+                                    </a>
+                                {% endif %}
+                            </div>
+                        {% else %}
+                            <p class="text-muted">Aucun réseau social renseigné</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

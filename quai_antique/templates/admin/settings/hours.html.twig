@@ -1,0 +1,153 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block page_title %}Horaires d'ouverture{% endblock %}
+
+{% block admin_content %}
+<div class="row">
+    <div class="col-12">
+        <ul class="nav nav-tabs mb-4">
+            <li class="nav-item">
+                <a class="nav-link" href="{{ path('app_admin_settings') }}">
+                    <i class="fas fa-info-circle"></i> Informations générales
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link active" aria-current="page" href="{{ path('app_admin_hours') }}">
+                    <i class="fas fa-clock"></i> Horaires d'ouverture
+                </a>
+            </li>
+        </ul>
+    </div>
+</div>
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+        <h6 class="m-0 font-weight-bold text-primary">Horaires d'ouverture</h6>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Jour</th>
+                        <th>Déjeuner</th>
+                        <th>Dîner</th>
+                        <th>Statut</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for hour in hours %}
+                        <tr>
+                            <td>{{ hour.dayName }}</td>
+                            <td>
+                                {% if hour.isClosed %}
+                                    <span class="text-danger">Fermé</span>
+                                {% else %}
+                                    {% if hour.lunchOpeningTime %}
+                                        {{ hour.lunchOpeningTime|date('H:i') }} - {{ hour.lunchClosingTime|date('H:i') }}
+                                    {% else %}
+                                        <span class="text-muted">Non défini</span>
+                                    {% endif %}
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if hour.isClosed %}
+                                    <span class="text-danger">Fermé</span>
+                                {% else %}
+                                    {% if hour.dinnerOpeningTime %}
+                                        {{ hour.dinnerOpeningTime|date('H:i') }} - {{ hour.dinnerClosingTime|date('H:i') }}
+                                    {% else %}
+                                        <span class="text-muted">Non défini</span>
+                                    {% endif %}
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if hour.isClosed %}
+                                    <span class="badge bg-danger">Fermé</span>
+                                {% else %}
+                                    <span class="badge bg-success">Ouvert</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a href="{{ path('app_admin_hours_edit', {'id': hour.id}) }}" class="btn btn-sm btn-primary">
+                                    <i class="fas fa-edit"></i> Modifier
+                                </a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="card shadow">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Exceptions d'horaires (jours fériés, etc.)</h6>
+    </div>
+    <div class="card-body">
+        <div class="alert alert-info">
+            <i class="fas fa-info-circle me-2"></i> Vous pouvez définir des exceptions d'horaires pour les jours fériés ou autres occasions spéciales.
+        </div>
+        
+        {% if hours_exceptions is defined and hours_exceptions|length > 0 %}
+            <div class="table-responsive">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Description</th>
+                            <th>Statut</th>
+                            <th>Horaires</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for exception in hours_exceptions %}
+                            <tr>
+                                <td>{{ exception.date|date('d/m/Y') }}</td>
+                                <td>{{ exception.description }}</td>
+                                <td>
+                                    {% if exception.isClosed %}
+                                        <span class="badge bg-danger">Fermé</span>
+                                    {% else %}
+                                        <span class="badge bg-success">Horaires spéciaux</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if exception.isClosed %}
+                                        <span class="text-danger">Fermé</span>
+                                    {% else %}
+                                        {{ exception.openingTime }} - {{ exception.closingTime }}
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <a href="{{ path('app_admin_hours_exception_edit', {'id': exception.id}) }}" class="btn btn-sm btn-primary">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <form method="post" action="{{ path('app_admin_hours_exception_delete', {'id': exception.id}) }}" class="d-inline" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette exception ?');">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ exception.id) }}">
+                                        <button class="btn btn-sm btn-danger">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <p class="text-center py-3">Aucune exception définie</p>
+        {% endif %}
+        
+        <div class="text-center">
+            <a href="{{ path('app_admin_hours_exception_new') }}" class="btn btn-success">
+                <i class="fas fa-plus"></i> Ajouter une exception
+            </a>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

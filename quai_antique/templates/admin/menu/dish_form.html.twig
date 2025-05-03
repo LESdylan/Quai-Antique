@@ -1,0 +1,413 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block page_title %}{{ dish is defined ? 'Modifier le plat' : 'Ajouter un nouveau plat' }}{% endblock %}
+
+{% block admin_content %}
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">
+                {{ dish is defined ? 'Modifier "' ~ dish.name ~ '"' : 'Ajouter un nouveau plat' }}
+            </h5>
+            <a href="{{ path('app_admin_menu') }}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left"></i> Retour au menu
+            </a>
+        </div>
+        <div class="card-body">
+            {{ form_start(form, {'attr': {'id': 'dish-form', 'novalidate': 'novalidate', 'class': 'needs-validation'}}) }}
+            
+            <div class="row">
+                <!-- Left column: Basic Information -->
+                <div class="col-md-8">
+                    <div class="card mb-3">
+                        <div class="card-header">
+                            <h5 class="mb-0">Informations de base</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-8 mb-3">
+                                    {{ form_row(form.name) }}
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    {{ form_row(form.price) }}
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    {{ form_row(form.category) }}
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    {{ form_row(form.allergens) }}
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                {{ form_row(form.description) }}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card mb-3">
+                        <div class="card-header">
+                            <h5 class="mb-0">Images du plat</h5>
+                        </div>
+                        <div class="card-body">
+                            <!-- Media selector button -->
+                            <div class="mb-3">
+                                <button type="button" class="btn btn-outline-primary" id="openMediaSelector">
+                                    <i class="fas fa-images me-1"></i> Sélectionner depuis la médiathèque
+                                </button>
+                                <span class="ms-2 text-muted">ou</span>
+                            </div>
+                            
+                            <!-- Traditional file upload -->
+                            {{ form_row(form.newImages) }}
+                            <small class="form-text text-muted">Vous pouvez sélectionner plusieurs images à la fois.</small>
+                            
+                            <!-- Selected images container -->
+                            <div id="selectedImages" class="row mt-3">
+                                <!-- Images selected from Media Library will appear here -->
+                            </div>
+                            
+                            <!-- Hidden field to store selected image IDs -->
+                            {{ form_widget(form.selectedMediaIds) }}
+                            
+                            {% if dish is defined and dish.images|length > 0 %}
+                                <div class="mt-3">
+                                    <h6>Images actuelles</h6>
+                                    <div class="row">
+                                        {% for image in dish.images %}
+                                            <div class="col-md-3 mb-3">
+                                                <div class="card h-100">
+                                                    <img src="{{ asset('uploads/images/' ~ image.filename) }}" 
+                                                         class="img-fluid" alt="{{ image.alt }}">
+                                                    <div class="card-body p-2">
+                                                        <div class="d-flex justify-content-between">
+                                                            <button type="button" class="btn btn-sm btn-outline-danger remove-image" 
+                                                                    data-id="{{ image.id }}" data-csrf="{{ csrf_token('remove_image') }}">
+                                                                <i class="fas fa-trash"></i>
+                                                            </button>
+                                                            <button type="button" class="btn btn-sm btn-outline-primary set-main-image" 
+                                                                    data-id="{{ image.id }}" data-dish="{{ dish.id }}" 
+                                                                    data-csrf="{{ csrf_token('set_main_image') }}">
+                                                                <i class="fas fa-star"></i>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Right column: Status and Options -->
+                <div class="col-md-4">
+                    <div class="card mb-3">
+                        <div class="card-header">
+                            <h5 class="mb-0">Statut</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-check form-switch mb-3">
+                                {{ form_widget(form.isActive) }}
+                                {{ form_label(form.isActive) }}
+                            </div>
+                            
+                            <div class="form-check form-switch mb-3">
+                                {{ form_widget(form.isSeasonal) }}
+                                {{ form_label(form.isSeasonal) }}
+                            </div>
+                            
+                            <div class="form-check form-switch mb-3">
+                                {{ form_widget(form.isFeatured) }}
+                                {{ form_label(form.isFeatured) }}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">Options spéciales</h5>
+                        </div>
+                        <div class="card-body">
+                            {% if form.isVegetarian is defined %}
+                            <div class="form-check form-switch mb-2">
+                                {{ form_widget(form.isVegetarian) }}
+                                {{ form_label(form.isVegetarian) }}
+                            </div>
+                            {% endif %}
+                            
+                            {% if form.isVegan is defined %}
+                            <div class="form-check form-switch mb-2">
+                                {{ form_widget(form.isVegan) }}
+                                {{ form_label(form.isVegan) }}
+                            </div>
+                            {% endif %}
+                            
+                            {% if form.isGlutenFree is defined %}
+                            <div class="form-check form-switch mb-2">
+                                {{ form_widget(form.isGlutenFree) }}
+                                {{ form_label(form.isGlutenFree) }}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Submit buttons -->
+            <div class="d-flex justify-content-center mt-4">
+                <input type="hidden" name="_token" value="{{ csrf_token('save_dish') }}">
+                <button type="submit" class="btn btn-primary btn-lg px-5">
+                    <i class="fas fa-save me-2"></i> {{ dish is defined ? 'Mettre à jour' : 'Enregistrer' }}
+                </button>
+            </div>
+            {{ form_end(form) }}
+        </div>
+    </div>
+    
+    {% if dish is defined %}
+    <div class="card border-danger mt-4">
+        <div class="card-header bg-danger text-white">
+            <h5 class="mb-0">Zone de danger</h5>
+        </div>
+        <div class="card-body">
+            <p>La suppression d'un plat est définitive et ne peut être annulée.</p>
+            <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteDishModal">
+                <i class="fas fa-trash"></i> Supprimer ce plat
+            </button>
+            
+            <!-- Delete Modal -->
+            <div class="modal fade" id="deleteDishModal" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Confirmer la suppression</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <p>Êtes-vous sûr de vouloir supprimer le plat "{{ dish.name }}" ?</p>
+                            <p class="text-danger">Cette action est irréversible.</p>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                            <form method="post" action="{{ path('app_admin_dish_delete', {'id': dish.id}) }}">
+                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ dish.id) }}">
+                                <button type="submit" class="btn btn-danger">Supprimer</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+{% endblock %}
+
+{% block admin_javascripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Form validation
+    const dishForm = document.getElementById('dish-form');
+    if (dishForm) {
+        dishForm.addEventListener('submit', function(event) {
+            console.log('Form submission attempted');
+            
+            let isValid = true;
+            const requiredFields = dishForm.querySelectorAll('[required]');
+            
+            requiredFields.forEach(field => {
+                if (!field.value.trim()) {
+                    isValid = false;
+                    field.classList.add('is-invalid');
+                    
+                    // Create error message if it doesn't exist
+                    let feedback = field.nextElementSibling;
+                    if (!feedback || !feedback.classList.contains('invalid-feedback')) {
+                        feedback = document.createElement('div');
+                        feedback.className = 'invalid-feedback';
+                        feedback.textContent = 'Ce champ est requis';
+                        field.parentNode.appendChild(feedback);
+                    }
+                } else {
+                    field.classList.remove('is-invalid');
+                    field.classList.add('is-valid');
+                }
+            });
+            
+            if (!isValid) {
+                event.preventDefault();
+                event.stopPropagation();
+                console.log('Form validation failed');
+                
+                // Scroll to first invalid field
+                const firstInvalid = dishForm.querySelector('.is-invalid');
+                if (firstInvalid) {
+                    firstInvalid.scrollIntoView({behavior: 'smooth', block: 'center'});
+                    firstInvalid.focus();
+                }
+            } else {
+                console.log('Form validation passed, submitting...');
+            }
+        });
+    }
+    
+    // Image deletion
+    const removeButtons = document.querySelectorAll('.remove-image');
+    
+    removeButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            if (confirm('Êtes-vous sûr de vouloir supprimer cette image ?')) {
+                const imageId = this.dataset.id;
+                const csrfToken = this.dataset.csrf;
+                
+                fetch('{{ path("app_admin_dish_remove_image") }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken
+                    },
+                    body: JSON.stringify({
+                        imageId: imageId
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Remove the image card from DOM
+                        this.closest('.col-md-3').remove();
+                    } else {
+                        alert('Erreur lors de la suppression de l\'image.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Une erreur est survenue lors de la suppression.');
+                });
+            }
+        });
+    });
+    
+    // Set main image
+    const mainImageButtons = document.querySelectorAll('.set-main-image');
+    mainImageButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const imageId = this.dataset.id;
+            const dishId = this.dataset.dish;
+            const csrfToken = this.dataset.csrf;
+            
+            fetch('{{ path("app_admin_dish_set_main_image") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken
+                },
+                body: JSON.stringify({
+                    imageId: imageId,
+                    dishId: dishId
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Highlight the selected image
+                    mainImageButtons.forEach(btn => {
+                        btn.classList.remove('btn-primary');
+                        btn.classList.add('btn-outline-primary');
+                    });
+                    this.classList.remove('btn-outline-primary');
+                    this.classList.add('btn-primary');
+                } else {
+                    alert('Erreur lors de la définition de l\'image principale.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Une erreur est survenue.');
+            });
+        });
+    });
+    
+    // Media selector
+    const openMediaSelectorBtn = document.getElementById('openMediaSelector');
+    const selectedImagesContainer = document.getElementById('selectedImages');
+    const selectedMediaIdsField = document.getElementById('dish_selectedMediaIds');
+    
+    let selectedImageIds = [];
+    
+    // Initialize from existing hidden field value if any
+    if (selectedMediaIdsField.value) {
+        selectedImageIds = selectedMediaIdsField.value.split(',');
+    }
+    
+    // Define the callback function that will be called from the selector modal
+    window.handleSelectedImages = function(images, targetId) {
+        console.log('Selected images:', images);
+        
+        // Add selected images to the container
+        images.forEach(image => {
+            // Create a card for each selected image
+            const imageCard = document.createElement('div');
+            imageCard.className = 'col-md-3 mb-3';
+            imageCard.dataset.id = image.id;
+            
+            imageCard.innerHTML = `
+                <div class="card h-100">
+                    <img src="${image.url}" class="img-fluid" alt="${image.alt}">
+                    <div class="card-body p-2">
+                        <div class="d-flex justify-content-between">
+                            <button type="button" class="btn btn-sm btn-outline-danger remove-selected-image">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Add event listener to remove button
+            const removeButton = imageCard.querySelector('.remove-selected-image');
+            removeButton.addEventListener('click', function() {
+                // Remove from DOM
+                imageCard.remove();
+                
+                // Remove from selected IDs
+                selectedImageIds = selectedImageIds.filter(id => id !== image.id);
+                selectedMediaIdsField.value = selectedImageIds.join(',');
+            });
+            
+            // Add to DOM
+            selectedImagesContainer.appendChild(imageCard);
+            
+            // Add to selected IDs
+            if (!selectedImageIds.includes(image.id)) {
+                selectedImageIds.push(image.id);
+            }
+        });
+        
+        // Update hidden field
+        selectedMediaIdsField.value = selectedImageIds.join(',');
+        console.log('Updated hidden field value:', selectedMediaIdsField.value);
+    };
+    
+    // Open media selector when button is clicked
+    if (openMediaSelectorBtn) {
+        openMediaSelectorBtn.addEventListener('click', function() {
+            // Open the media selector in a new window
+            const width = 900;
+            const height = 600;
+            const left = (window.innerWidth - width) / 2;
+            const top = (window.innerHeight - height) / 2;
+            
+            window.open(
+                '{{ path("app_admin_media_selector") }}?mode=multiple&callback=handleSelectedImages', 
+                'mediaSelector',
+                `width=${width},height=${height},top=${top},left=${left}`
+            );
+        });
+    }
+});
+</script>
+{% endblock %}

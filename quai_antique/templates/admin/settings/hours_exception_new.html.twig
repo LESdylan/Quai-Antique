@@ -1,0 +1,78 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block page_title %}Nouvelle exception d'horaires{% endblock %}
+
+{% block admin_content %}
+<div class="row">
+    <div class="col-12 mb-4">
+        <a href="{{ path('app_admin_hours') }}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left me-2"></i> Retour aux horaires
+        </a>
+    </div>
+</div>
+
+<div class="card shadow">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Nouvelle exception d'horaires</h6>
+    </div>
+    <div class="card-body">
+        {{ form_start(form) }}
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    {{ form_row(form.date) }}
+                </div>
+                <div class="col-md-6">
+                    {{ form_row(form.description) }}
+                </div>
+            </div>
+            
+            <div class="form-group mb-4">
+                <div class="form-check mb-3">
+                    {{ form_widget(form.isClosed) }}
+                    {{ form_label(form.isClosed) }}
+                </div>
+            </div>
+            
+            <div id="hours-fields">
+                <div class="row">
+                    <div class="col-md-6">
+                        {{ form_row(form.openingTime) }}
+                    </div>
+                    <div class="col-md-6">
+                        {{ form_row(form.closingTime) }}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="text-center mt-4">
+                <button type="submit" class="btn btn-success">
+                    <i class="fas fa-save me-2"></i> Enregistrer l'exception
+                </button>
+            </div>
+        {{ form_end(form) }}
+    </div>
+</div>
+{% endblock %}
+
+{% block admin_javascripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const isClosedCheckbox = document.getElementById('{{ form.isClosed.vars.id }}');
+        const hoursFields = document.getElementById('hours-fields');
+        
+        function updateHoursVisibility() {
+            if (isClosedCheckbox.checked) {
+                hoursFields.style.display = 'none';
+            } else {
+                hoursFields.style.display = 'block';
+            }
+        }
+        
+        // Initialize visibility
+        updateHoursVisibility();
+        
+        // Update when checkbox changes
+        isClosedCheckbox.addEventListener('change', updateHoursVisibility);
+    });
+</script>
+{% endblock %}

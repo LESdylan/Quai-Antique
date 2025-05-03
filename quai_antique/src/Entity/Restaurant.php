@@ -7,8 +7,11 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: RestaurantRepository::class)]
+#[ORM\HasLifecycleCallbacks]
 class Restaurant
 {
+    use UpdateTimestampsTrait;
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -20,20 +23,63 @@ class Restaurant
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $description = null;
 
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(length: 255, nullable: true)]
     private ?string $address = null;
+
+    #[ORM\Column(length: 64, nullable: true)]
+    private ?string $city = null;
+
+    #[ORM\Column(length: 10, nullable: true)]
+    private ?string $zipCode = null;
 
     #[ORM\Column(length: 20, nullable: true)]
     private ?string $phone = null;
 
-    #[ORM\Column(length: 180, nullable: true)]
+    #[ORM\Column(length: 255, nullable: true)]
     private ?string $email = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $website = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $facebookUrl = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $instagramUrl = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $tripadvisorUrl = null;
+
+    #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 2, nullable: true)]
+    private ?string $averagePriceLunch = null;
+
+    #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 2, nullable: true)]
+    private ?string $averagePriceDinner = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $longitude = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $latitude = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $logoFilename = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?bool $displayOpeningHours = true;
 
     #[ORM\Column]
     private ?int $maxGuests = 50;
 
-    #[ORM\Column(type: Types::DATE_MUTABLE)]
-    private ?\DateTime $update_date = null;
+    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
+    private ?\DateTimeInterface $update_date = null;
+
+    public function __construct()
+    {
+        // Initialize timestamps
+        $now = new \DateTime();
+        $this->update_date = $now;
+    }
 
     public function getId(): ?int
     {
@@ -69,9 +115,33 @@ class Restaurant
         return $this->address;
     }
 
-    public function setAddress(string $address): static
+    public function setAddress(?string $address): static
     {
         $this->address = $address;
+
+        return $this;
+    }
+
+    public function getCity(): ?string
+    {
+        return $this->city;
+    }
+
+    public function setCity(?string $city): static
+    {
+        $this->city = $city;
+
+        return $this;
+    }
+
+    public function getZipCode(): ?string
+    {
+        return $this->zipCode;
+    }
+
+    public function setZipCode(?string $zipCode): static
+    {
+        $this->zipCode = $zipCode;
 
         return $this;
     }
@@ -100,27 +170,158 @@ class Restaurant
         return $this;
     }
 
-    public function getMaxGuests(): ?int
+    public function getWebsite(): ?string
     {
-        return $this->maxGuests;
+        return $this->website;
     }
 
-    public function setMaxGuests(int $maxGuests): static
+    public function setWebsite(?string $website): static
     {
-        $this->maxGuests = $maxGuests;
+        $this->website = $website;
 
         return $this;
     }
 
-    public function getUpdateDate(): ?\DateTime
+    public function getFacebookUrl(): ?string
+    {
+        return $this->facebookUrl;
+    }
+
+    public function setFacebookUrl(?string $facebookUrl): static
+    {
+        $this->facebookUrl = $facebookUrl;
+
+        return $this;
+    }
+
+    public function getInstagramUrl(): ?string
+    {
+        return $this->instagramUrl;
+    }
+
+    public function setInstagramUrl(?string $instagramUrl): static
+    {
+        $this->instagramUrl = $instagramUrl;
+
+        return $this;
+    }
+
+    public function getTripadvisorUrl(): ?string
+    {
+        return $this->tripadvisorUrl;
+    }
+
+    public function setTripadvisorUrl(?string $tripadvisorUrl): static
+    {
+        $this->tripadvisorUrl = $tripadvisorUrl;
+
+        return $this;
+    }
+
+    public function getAveragePriceLunch(): ?string
+    {
+        return $this->averagePriceLunch;
+    }
+
+    public function setAveragePriceLunch(?string $averagePriceLunch): static
+    {
+        $this->averagePriceLunch = $averagePriceLunch;
+
+        return $this;
+    }
+
+    public function getAveragePriceDinner(): ?string
+    {
+        return $this->averagePriceDinner;
+    }
+
+    public function setAveragePriceDinner(?string $averagePriceDinner): static
+    {
+        $this->averagePriceDinner = $averagePriceDinner;
+
+        return $this;
+    }
+
+    public function getLongitude(): ?string
+    {
+        return $this->longitude;
+    }
+
+    public function setLongitude(?string $longitude): static
+    {
+        $this->longitude = $longitude;
+
+        return $this;
+    }
+
+    public function getLatitude(): ?string
+    {
+        return $this->latitude;
+    }
+
+    public function setLatitude(?string $latitude): static
+    {
+        $this->latitude = $latitude;
+
+        return $this;
+    }
+
+    public function getLogoFilename(): ?string
+    {
+        return $this->logoFilename;
+    }
+
+    public function setLogoFilename(?string $logoFilename): static
+    {
+        $this->logoFilename = $logoFilename;
+
+        return $this;
+    }
+
+    public function isDisplayOpeningHours(): ?bool
+    {
+        return $this->displayOpeningHours;
+    }
+
+    public function setDisplayOpeningHours(?bool $displayOpeningHours): static
+    {
+        $this->displayOpeningHours = $displayOpeningHours;
+
+        return $this;
+    }
+
+    public function getUpdateDate(): ?\DateTimeInterface
     {
         return $this->update_date;
     }
 
-    public function setUpdateDate(\DateTime $update_date): static
+    public function setUpdateDate(\DateTimeInterface $update_date): static
     {
         $this->update_date = $update_date;
 
         return $this;
+    }
+
+    public function getFullAddress(): string
+    {
+        $parts = [];
+
+        if ($this->address) $parts[] = $this->address;
+        if ($this->zipCode && $this->city) $parts[] = $this->zipCode . ' ' . $this->city;
+        elseif ($this->city) $parts[] = $this->city;
+
+        return implode(', ', $parts);
+    }
+
+    public function getMapUrl(): ?string
+    {
+        if ($this->latitude && $this->longitude) {
+            return "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2794.3218692058825!2d{$this->longitude}!3d{$this->latitude}!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMzLCsDU4JzA3LjYiTiA5NsKwMTUnMDcuMiJF!5e0!3m2!1sen!2sfr!4v1665404142330!5m2!1sen!2sfr";
+        } elseif ($this->address) {
+            $address = urlencode($this->getFullAddress());
+            return "https://maps.google.com/maps?q={$address}&t=&z=15&ie=UTF8&iwloc=&output=embed";
+        }
+
+        return null;
     }
 }

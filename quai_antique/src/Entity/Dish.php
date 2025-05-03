@@ -9,8 +9,11 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: DishRepository::class)]
+#[ORM\HasLifecycleCallbacks]
 class Dish
 {
+    use UpdateTimestampsTrait;
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -52,6 +55,9 @@ class Dish
 
     #[ORM\Column(nullable: true)]
     private ?int $popularityScore = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?bool $isFeatured = false;
 
     #[ORM\OneToMany(mappedBy: 'dish', targetEntity: Image::class, cascade: ['persist'], orphanRemoval: true)]
     private Collection $images;
@@ -237,6 +243,18 @@ class Dish
     public function setPopularityScore(?int $popularityScore): static
     {
         $this->popularityScore = $popularityScore;
+
+        return $this;
+    }
+
+    public function isIsFeatured(): ?bool
+    {
+        return $this->isFeatured;
+    }
+
+    public function setIsFeatured(?bool $isFeatured): static
+    {
+        $this->isFeatured = $isFeatured;
 
         return $this;
     }

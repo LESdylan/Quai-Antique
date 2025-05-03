@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\ImageRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -55,9 +57,25 @@ class Image
 
     private $file;
 
+    /**
+     * @var Collection<int, Tag>
+     */
+    #[ORM\ManyToMany(targetEntity: Tag::class, inversedBy: 'images')]
+    private Collection $tags;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $focalPoint = '50% 50%';
+
+    #[ORM\Column(nullable: true)]
+    private ?int $fileSize = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $dimensions = null;
+
     public function __construct()
     {
         $this->createdAt = new \DateTimeImmutable();
+        $this->tags = new ArrayCollection();
     }
 
     #[ORM\PreUpdate]
@@ -216,6 +234,81 @@ class Image
     }
 
     /**
+     * @return Collection<int, Tag>
+     */
+    public function getTags(): Collection
+    {
+        return $this->tags;
+    }
+
+    public function addTag(Tag $tag): self
+    {
+        if (!$this->tags->contains($tag)) {
+            $this->tags->add($tag);
+        }
+
+        return $this;
+    }
+
+    public function removeTag(Tag $tag): self
+    {
+        $this->tags->removeElement($tag);
+
+        return $this;
+    }
+
+    public function getFocalPoint(): ?string
+    {
+        return $this->focalPoint;
+    }
+
+    public function setFocalPoint(?string $focalPoint): self
+    {
+        $this->focalPoint = $focalPoint;
+
+        return $this;
+    }
+
+    public function getFileSize(): ?int
+    {
+        return $this->fileSize;
+    }
+
+    public function setFileSize(?int $fileSize): self
+    {
+        $this->fileSize = $fileSize;
+
+        return $this;
+    }
+
+    public function getDimensions(): ?string
+    {
+        return $this->dimensions;
+    }
+
+    public function setDimensions(?string $dimensions): self
+    {
+        $this->dimensions = $dimensions;
+
+        return $this;
+    }
+
+    /**
+     * Get formatted file size
+     */
+    public function getFormattedFileSize(): string
+    {
+        if (!$this->fileSize) {
+            return 'Unknown';
+        }
+        
+        $sizes = ['B', 'KB', 'MB', 'GB'];
+        $factor = floor((strlen((string) $this->fileSize) - 1) / 3);
+        
+        return sprintf("%.2f %s", $this->fileSize / (1024 ** $factor), $sizes[$factor]);
+    }
+
+    /**
      * Get human-readable purpose name
      */
     public function getPurposeLabel(): string
@@ -226,7 +319,7 @@ class Image
             'menu_header' => 'Menu Header',
             'gallery_featured' => 'Gallery Featured',
             'about_us' => 'About Us Section',
-            default => $this->purpose ?? 'General',
+            default => $this->purpose ?? 'General'
         };
     }
 }

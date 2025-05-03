@@ -1,0 +1,42 @@
+liip_imagine:
+    # configure resolvers
+    resolvers:
+        default:
+            web_path:
+                web_root: '%kernel.project_dir%/public'
+                cache_prefix: 'media/cache'
+
+    # configure cache
+    cache: default
+    
+    # configure filter sets
+    filter_sets:
+        # thumbnail for admin panel
+        admin_thumbnail:
+            quality: 85
+            filters:
+                thumbnail: { size: [200, 150], mode: outbound }
+                
+        # medium size for gallery
+        medium:
+            quality: 85
+            filters:
+                thumbnail: { size: [600, 400], mode: outbound }
+                
+        # large size for full view
+        large:
+            quality: 90
+            filters:
+                thumbnail: { size: [1200, 800], mode: inset }
+                
+        # square thumbnail 
+        square_thumbnail:
+            quality: 80
+            filters:
+                thumbnail: { size: [300, 300], mode: outbound }
+                
+        # hero size for banners
+        hero:
+            quality: 90
+            filters:
+                thumbnail: { size: [1920, 600], mode: outbound }

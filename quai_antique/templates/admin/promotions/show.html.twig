@@ -1,0 +1,111 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block page_title %}Promotion Details{% endblock %}
+
+{% block admin_content %}
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="m-0">Promotion Details</h5>
+        <div>
+            <a href="{{ path('app_admin_promotions_edit', {'id': promotion.id}) }}" class="btn btn-primary">
+                <i class="fas fa-edit me-1"></i> Edit
+            </a>
+            <form method="post" action="{{ path('app_admin_promotions_delete', {'id': promotion.id}) }}" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this promotion?');">
+                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ promotion.id) }}">
+                <button class="btn btn-danger">
+                    <i class="fas fa-trash me-1"></i> Delete
+                </button>
+            </form>
+            <a href="{{ path('app_admin_promotions') }}" class="btn btn-secondary ms-2">
+                <i class="fas fa-arrow-left me-1"></i> Back to List
+            </a>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-8">
+                <table class="table table-striped">
+                    <tbody>
+                        <tr>
+                            <th>ID</th>
+                            <td>{{ promotion.id }}</td>
+                        </tr>
+                        <tr>
+                            <th>Title</th>
+                            <td>{{ promotion.title }}</td>
+                        </tr>
+                        <tr>
+                            <th>Description</th>
+                            <td>{{ promotion.description|nl2br }}</td>
+                        </tr>
+                        <tr>
+                            <th>Type</th>
+                            <td>
+                                {% if promotion.type == 'banner' %}
+                                    <span class="badge bg-info">Banner</span>
+                                {% elseif promotion.type == 'popup' %}
+                                    <span class="badge bg-warning">Popup</span>
+                                {% else %}
+                                    <span class="badge bg-success">Featured</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Date Range</th>
+                            <td>{{ promotion.startDate|date('d/m/Y') }} - {{ promotion.endDate|date('d/m/Y') }}</td>
+                        </tr>
+                        <tr>
+                            <th>Status</th>
+                            <td>
+                                {% if promotion.isIsActive %}
+                                    <span class="badge bg-success">Active</span>
+                                {% else %}
+                                    <span class="badge bg-danger">Inactive</span>
+                                {% endif %}
+                                
+                                {% if promotion.isActiveNow %}
+                                    <span class="badge bg-info">Currently Running</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% if promotion.buttonText %}
+                            <tr>
+                                <th>Button</th>
+                                <td>
+                                    {{ promotion.buttonText }} 
+                                    {% if promotion.buttonLink %}
+                                        <a href="{{ promotion.buttonLink }}" target="_blank">({{ promotion.buttonLink }})</a>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endif %}
+                        <tr>
+                            <th>Created</th>
+                            <td>{{ promotion.createdAt|date('d/m/Y H:i') }}</td>
+                        </tr>
+                        <tr>
+                            <th>Last Updated</th>
+                            <td>{{ promotion.updatedAt|date('d/m/Y H:i') }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="col-md-4">
+                {% if promotion.imageFilename %}
+                    <div class="card">
+                        <div class="card-header">Promotion Image</div>
+                        <div class="card-body text-center">
+                            <img src="{{ asset('uploads/promotions/' ~ promotion.imageFilename) }}" 
+                                 class="img-fluid" alt="{{ promotion.title }}">
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle me-2"></i> No image attached to this promotion
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

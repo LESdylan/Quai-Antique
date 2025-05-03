@@ -1,0 +1,105 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ page.metaTitle ?? page.title }} - Le Quai Antique{% endblock %}
+
+{% block stylesheets %}
+<style>
+    .page-header {
+        background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('{{ asset('images/page-header.jpg') }}') center/cover no-repeat;
+        height: 25vh;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        margin-bottom: 3rem;
+    }
+    
+    .page-header h1 {
+        font-size: 3rem;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    }
+    
+    .page-content {
+        background: white;
+        padding: 2rem;
+        border-radius: 5px;
+        box-shadow: 0 3px 15px rgba(0, 0, 0, 0.05);
+        margin-bottom: 3rem;
+    }
+    
+    .page-content h2 {
+        color: var(--primary);
+        margin-top: 2rem;
+        margin-bottom: 1rem;
+    }
+    
+    .page-content h3 {
+        color: var(--secondary);
+        margin-top: 1.5rem;
+        margin-bottom: 1rem;
+    }
+    
+    .page-content p {
+        margin-bottom: 1rem;
+        line-height: 1.6;
+    }
+    
+    .page-content img {
+        max-width: 100%;
+        height: auto;
+        border-radius: 5px;
+        margin: 1rem 0;
+    }
+    
+    .page-content ul, .page-content ol {
+        margin-bottom: 1rem;
+        padding-left: 1.5rem;
+    }
+    
+    .page-content blockquote {
+        border-left: 4px solid var(--primary);
+        padding-left: 1rem;
+        font-style: italic;
+        margin: 1rem 0;
+        color: #666;
+    }
+    
+    .page-meta {
+        margin-top: 2rem;
+        padding-top: 1rem;
+        border-top: 1px solid #eee;
+        font-size: 0.9rem;
+        color: #777;
+    }
+    
+    .page-updated {
+        font-style: italic;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<!-- Page Header -->
+<header class="page-header">
+    <div class="container">
+        <h1>{{ page.title }}</h1>
+    </div>
+</header>
+
+<div class="container">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <article class="page-content">
+                {{ page.content|raw }}
+                
+                {% if page.updatedAt %}
+                <div class="page-meta">
+                    <div class="page-updated">Dernière mise à jour: {{ page.updatedAt|date('d/m/Y') }}</div>
+                </div>
+                {% endif %}
+            </article>
+        </div>
+    </div>
+</div>
+{% endblock %}

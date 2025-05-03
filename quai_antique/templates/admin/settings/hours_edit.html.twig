@@ -1,0 +1,88 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block page_title %}Modifier les horaires - {{ hour.dayName }}{% endblock %}
+
+{% block admin_content %}
+<div class="row">
+    <div class="col-12 mb-4">
+        <a href="{{ path('app_admin_hours') }}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left me-2"></i> Retour aux horaires
+        </a>
+    </div>
+</div>
+
+<div class="card shadow">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Modifier les horaires - {{ hour.dayName }}</h6>
+    </div>
+    <div class="card-body">
+        <form method="post" action="{{ path('app_admin_hours_edit', {'id': hour.id}) }}">
+            <div class="form-group mb-3">
+                <div class="form-check mb-3">
+                    <input class="form-check-input" type="checkbox" name="is_closed" id="is_closed" {% if hour.isClosed %}checked{% endif %}>
+                    <label class="form-check-label" for="is_closed">
+                        Le restaurant est fermé ce jour
+                    </label>
+                </div>
+            </div>
+
+            <div id="hours-fields" {% if hour.isClosed %}style="display: none;"{% endif %}>
+                <h5 class="mb-3">Déjeuner</h5>
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="lunch_opening">Horaire d'ouverture</label>
+                            <input type="time" class="form-control" id="lunch_opening" name="lunch_opening" value="{{ hour.lunchOpeningTime ? hour.lunchOpeningTime|date('H:i') : '' }}">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="lunch_closing">Horaire de fermeture</label>
+                            <input type="time" class="form-control" id="lunch_closing" name="lunch_closing" value="{{ hour.lunchClosingTime ? hour.lunchClosingTime|date('H:i') : '' }}">
+                        </div>
+                    </div>
+                </div>
+
+                <h5 class="mb-3">Dîner</h5>
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="dinner_opening">Horaire d'ouverture</label>
+                            <input type="time" class="form-control" id="dinner_opening" name="dinner_opening" value="{{ hour.dinnerOpeningTime ? hour.dinnerOpeningTime|date('H:i') : '' }}">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="dinner_closing">Horaire de fermeture</label>
+                            <input type="time" class="form-control" id="dinner_closing" name="dinner_closing" value="{{ hour.dinnerClosingTime ? hour.dinnerClosingTime|date('H:i') : '' }}">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save me-2"></i> Enregistrer les modifications
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block admin_javascripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const isClosedCheckbox = document.getElementById('is_closed');
+        const hoursFields = document.getElementById('hours-fields');
+        
+        isClosedCheckbox.addEventListener('change', function() {
+            if (this.checked) {
+                hoursFields.style.display = 'none';
+            } else {
+                hoursFields.style.display = 'block';
+            }
+        });
+    });
+</script>
+{% endblock %}

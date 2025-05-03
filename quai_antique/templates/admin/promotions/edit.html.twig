@@ -1,0 +1,135 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block page_title %}Edit Promotion{% endblock %}
+
+{% block admin_content %}
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="m-0">Edit Promotion</h5>
+        <div>
+            <form method="post" action="{{ path('app_admin_promotions_delete', {'id': promotion.id}) }}" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this promotion?');">
+                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ promotion.id) }}">
+                <button class="btn btn-danger">
+                    <i class="fas fa-trash me-1"></i> Delete
+                </button>
+            </form>
+            <a href="{{ path('app_admin_promotions') }}" class="btn btn-secondary ms-2">
+                <i class="fas fa-arrow-left me-1"></i> Back to List
+            </a>
+        </div>
+    </div>
+    <div class="card-body">
+        {{ form_start(form) }}
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="mb-3">
+                        {{ form_label(form.title) }}
+                        {{ form_widget(form.title) }}
+                        {{ form_errors(form.title) }}
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form_label(form.description) }}
+                        {{ form_widget(form.description) }}
+                        {{ form_errors(form.description) }}
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form_label(form.type) }}
+                        {{ form_widget(form.type) }}
+                        {{ form_errors(form.type) }}
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                {{ form_label(form.startDate) }}
+                                {{ form_widget(form.startDate) }}
+                                {{ form_errors(form.startDate) }}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                {{ form_label(form.endDate) }}
+                                {{ form_widget(form.endDate) }}
+                                {{ form_errors(form.endDate) }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    {% if promotion.imageFilename %}
+                        <div class="mb-3">
+                            <label>Current Image:</label>
+                            <div class="mb-2">
+                                <img src="{{ asset('uploads/promotions/' ~ promotion.imageFilename) }}" 
+                                     class="img-thumbnail" alt="{{ promotion.title }}" style="max-height: 200px;">
+                            </div>
+                        </div>
+                    {% endif %}
+
+                    <div class="mb-3">
+                        {{ form_label(form.imageFile) }}
+                        {{ form_widget(form.imageFile) }}
+                        {{ form_help(form.imageFile) }}
+                        {{ form_errors(form.imageFile) }}
+                        <div id="image-preview" class="mt-2"></div>
+                    </div>
+
+                    <div class="mb-3" id="buttonFields">
+                        {{ form_row(form.buttonText) }}
+                        {{ form_row(form.buttonLink) }}
+                    </div>
+                    
+                    <div class="form-check mb-3">
+                        {{ form_widget(form.isActive) }}
+                        {{ form_label(form.isActive) }}
+                        {{ form_help(form.isActive) }}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="text-center mt-3">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save me-1"></i> Update Promotion
+                </button>
+            </div>
+        {{ form_end(form) }}
+    </div>
+</div>
+{% endblock %}
+
+{% block admin_javascripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Image preview
+    const imageInput = document.querySelector('#{{ form.imageFile.vars.id }}');
+    const previewDiv = document.getElementById('image-preview');
+    
+    imageInput.addEventListener('change', function() {
+        if (this.files && this.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                previewDiv.innerHTML = `<img src="${e.target.result}" class="img-fluid img-thumbnail" style="max-height: 200px;">`;
+            };
+            reader.readAsDataURL(this.files[0]);
+        }
+    });
+    
+    // Show/hide button fields based on promotion type
+    const typeSelect = document.querySelector('#{{ form.type.vars.id }}');
+    const buttonFields = document.getElementById('buttonFields');
+    
+    function toggleButtonFields() {
+        if (typeSelect.value === 'banner') {
+            buttonFields.style.display = 'none';
+        } else {
+            buttonFields.style.display = 'block';
+        }
+    }
+    
+    typeSelect.addEventListener('change', toggleButtonFields);
+    toggleButtonFields(); // Initial state
+});
+</script>
+{% endblock %}

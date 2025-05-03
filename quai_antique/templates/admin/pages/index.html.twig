@@ -1,0 +1,115 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block page_title %}Gestion des Pages{% endblock %}
+
+{% block admin_content %}
+    <div class="d-flex justify-content-between mb-4">
+        <h2>Pages & Contenu</h2>
+        <a href="{{ path('app_admin_page_new') }}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Nouvelle Page
+        </a>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            {% if pages|length > 0 %}
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Titre</th>
+                                <th>URL</th>
+                                <th>Dernière mise à jour</th>
+                                <th>Statut</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for page in pages %}
+                                <tr>
+                                    <td>{{ page.title }}</td>
+                                    <td>
+                                        <code>/{{ page.slug }}</code>
+                                        <a href="{{ path('app_page_show', {'slug': page.slug}) }}" target="_blank" class="ms-2 text-muted">
+                                            <i class="fas fa-external-link-alt"></i>
+                                        </a>
+                                    </td>
+                                    <td>{{ page.updatedAt|date('d/m/Y H:i') }}</td>
+                                    <td>
+                                        <span class="badge bg-{{ page.isPublished ? 'success' : 'warning' }}">
+                                            {{ page.isPublished ? 'Publiée' : 'Brouillon' }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group">
+                                            <a href="{{ path('app_admin_page_edit', {'id': page.id}) }}" class="btn btn-sm btn-outline-primary">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <form method="post" action="{{ path('app_admin_page_toggle', {'id': page.id}) }}" class="d-inline">
+                                                <button type="submit" class="btn btn-sm btn-outline-{{ page.isPublished ? 'warning' : 'success' }}">
+                                                    <i class="fas fa-{{ page.isPublished ? 'eye-slash' : 'eye' }}"></i>
+                                                </button>
+                                            </form>
+                                            <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal{{ page.id }}">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                        
+                                        <!-- Delete Modal -->
+                                        <div class="modal fade" id="deleteModal{{ page.id }}" tabindex="-1" aria-hidden="true">
+                                            <div class="modal-dialog">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title">Confirmer la suppression</h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <p>Êtes-vous sûr de vouloir supprimer la page "{{ page.title }}" ?</p>
+                                                        <p class="text-danger">Cette action est irréversible.</p>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                                                        <form method="post" action="{{ path('app_admin_page_delete', {'id': page.id}) }}">
+                                                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ page.id) }}">
+                                                            <button type="submit" class="btn btn-danger">Supprimer</button>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="text-center p-5">
+                    <i class="fas fa-file-alt fa-3x mb-3 text-muted"></i>
+                    <p class="lead">Aucune page créée pour le moment</p>
+                    <a href="{{ path('app_admin_page_new') }}" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Créer une page
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <div class="card mt-4">
+        <div class="card-header">
+            <h5 class="mb-0">Section d'aide</h5>
+        </div>
+        <div class="card-body">
+            <h6>À quoi servent les pages ?</h6>
+            <p>Les pages vous permettent de créer du contenu statique pour votre site, comme :</p>
+            <ul>
+                <li>Une page "À propos"</li>
+                <li>Mentions légales</li>
+                <li>Politique de confidentialité</li>
+                <li>FAQ</li>
+                <li>Etc.</li>
+            </ul>
+            <p>Chaque page créée sera accessible à l'URL : <code>https://votresite.com/page/<i>nom-de-la-page</i></code></p>
+        </div>
+    </div>
+{% endblock %}

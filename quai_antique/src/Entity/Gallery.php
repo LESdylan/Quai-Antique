@@ -2,13 +2,17 @@
 
 namespace App\Entity;
 
+use App\Entity\UpdateTimestampsTrait;
 use App\Repository\GalleryRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: GalleryRepository::class)]
+#[ORM\HasLifecycleCallbacks]
 class Gallery
 {
+    use UpdateTimestampsTrait;
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]

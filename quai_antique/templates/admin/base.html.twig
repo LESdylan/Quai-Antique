@@ -60,14 +60,38 @@
                     <a class="nav-link {% if app.request.attributes.get('_route') == 'app_admin_dashboard' %}active{% endif %}" href="{{ path('app_admin_dashboard') }}">
                         <i class="fas fa-tachometer-alt"></i> Tableau de bord
                     </a>
+                    <a class="nav-link {% if app.request.attributes.get('_route') starts with 'app_admin_menu' %}active{% endif %}" href="{{ path('app_admin_menu') }}">
+                        <i class="fas fa-utensils"></i> Menu & Plats
+                    </a>
+                    <a class="nav-link {% if app.request.attributes.get('_route') starts with 'app_admin_category' %}active{% endif %}" href="{{ path('app_admin_category') }}">
+                        <i class="fas fa-tags"></i> Catégories
+                    </a>
+                    <a class="nav-link {% if app.request.attributes.get('_route') starts with 'app_admin_images' %}active{% endif %}" href="{{ path('app_admin_images') }}">
+                        <i class="fas fa-images"></i> Galerie Photos
+                    </a>
                     <a class="nav-link {% if app.request.attributes.get('_route') starts with 'app_admin_reservations' %}active{% endif %}" href="{{ path('app_admin_reservations') }}">
                         <i class="fas fa-calendar-alt"></i> Réservations
                     </a>
-                    <a class="nav-link {% if app.request.attributes.get('_route') starts with 'app_admin_menu' %}active{% endif %}" href="{{ path('app_admin_menu') }}">
-                        <i class="fas fa-utensils"></i> Menu
+                    <a class="nav-link {% if app.request.attributes.get('_route') starts with 'app_admin_hours' %}active{% endif %}" href="{{ path('app_admin_hours') }}">
+                        <i class="fas fa-clock"></i> Horaires d'ouverture
                     </a>
-                    <a class="nav-link {% if app.request.attributes.get('_route') starts with 'app_admin_images' %}active{% endif %}" href="{{ path('app_admin_images') }}">
-                        <i class="fas fa-images"></i> Images
+                    <a class="nav-link {% if app.request.attributes.get('_route') starts with 'app_admin_promotions' %}active{% endif %}" href="{{ path('app_admin_promotions') }}">
+                        <i class="fas fa-bullhorn"></i> Promotions
+                    </a>
+                    <a class="nav-link {% if app.request.attributes.get('_route') starts with 'app_admin_pages' %}active{% endif %}" href="{{ path('app_admin_pages') }}">
+                        <i class="fas fa-file-alt"></i> Pages & Contenu
+                    </a>
+                    <a class="nav-link {% if app.request.attributes.get('_route') starts with 'app_admin_messages' %}active{% endif %}" href="{{ path('app_admin_messages') }}">
+                        <i class="fas fa-envelope"></i> Messages
+                        <span class="badge bg-danger float-end">3</span> {# Dynamic count here #}
+                    </a>
+                    <a class="nav-link {% if app.request.attributes.get('_route') starts with 'app_admin_media' %}active{% endif %}" href="{{ path('app_admin_media') }}">
+                        <i class="fas fa-photo-video"></i> Media Library
+                    </a>
+                    {# Temporarily disable Users link until route is created #}
+                    <a class="nav-link disabled" href="#">
+                        <i class="fas fa-users"></i> Utilisateurs
+                        <span class="badge bg-secondary">Soon</span>
                     </a>
                     <a class="nav-link {% if app.request.attributes.get('_route') starts with 'app_admin_settings' %}active{% endif %}" href="{{ path('app_admin_settings') }}">
                         <i class="fas fa-cog"></i> Paramètres

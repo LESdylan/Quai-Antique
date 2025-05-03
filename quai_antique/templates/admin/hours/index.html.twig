@@ -1,0 +1,296 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block page_title %}Horaires d'ouverture{% endblock %}
+
+{% block admin_content %}
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Horaires réguliers</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" action="{{ path('app_admin_hours_update') }}">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Jour</th>
+                                    <th>Déjeuner</th>
+                                    <th>Dîner</th>
+                                    <th>Fermé</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% set days = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'] %}
+                                {% for i, day in days %}
+                                    <tr>
+                                        <td>{{ day }}</td>
+                                        <td>
+                                            <div class="row g-2">
+                                                <div class="col">
+                                                    <div class="input-group input-group-sm">
+                                                        <span class="input-group-text">De</span>
+                                                        <input type="time" name="hours[{{ i }}][lunch_start]" 
+                                                            class="form-control" 
+                                                            value="{{ openingHours[i].lunch_start|default('12:00') }}"
+                                                            {% if openingHours[i].is_closed|default(false) %}disabled{% endif %}>
+                                                    </div>
+                                                </div>
+                                                <div class="col">
+                                                    <div class="input-group input-group-sm">
+                                                        <span class="input-group-text">À</span>
+                                                        <input type="time" name="hours[{{ i }}][lunch_end]" 
+                                                            class="form-control" 
+                                                            value="{{ openingHours[i].lunch_end|default('14:00') }}"
+                                                            {% if openingHours[i].is_closed|default(false) %}disabled{% endif %}>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="row g-2">
+                                                <div class="col">
+                                                    <div class="input-group input-group-sm">
+                                                        <span class="input-group-text">De</span>
+                                                        <input type="time" name="hours[{{ i }}][dinner_start]" 
+                                                            class="form-control" 
+                                                            value="{{ openingHours[i].dinner_start|default('19:00') }}"
+                                                            {% if openingHours[i].is_closed|default(false) %}disabled{% endif %}>
+                                                    </div>
+                                                </div>
+                                                <div class="col">
+                                                    <div class="input-group input-group-sm">
+                                                        <span class="input-group-text">À</span>
+                                                        <input type="time" name="hours[{{ i }}][dinner_end]" 
+                                                            class="form-control" 
+                                                            value="{{ openingHours[i].dinner_end|default('22:00') }}"
+                                                            {% if openingHours[i].is_closed|default(false) %}disabled{% endif %}>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="text-center">
+                                            <div class="form-check form-check-inline">
+                                                <input class="form-check-input day-closed" type="checkbox" 
+                                                    id="closed{{ i }}" name="hours[{{ i }}][is_closed]" 
+                                                    {{ openingHours[i].is_closed|default(false) ? 'checked' : '' }} 
+                                                    value="1"
+                                                    data-day="{{ i }}">
+                                                <label class="form-check-label" for="closed{{ i }}">Fermé</label>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                        
+                        <div class="d-grid gap-2 col-6 mx-auto mt-3">
+                            <button type="submit" class="btn btn-primary">Enregistrer les horaires</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4">
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Exceptions</h5>
+                    <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#addExceptionModal">
+                        <i class="fas fa-plus"></i> Ajouter
+                    </button>
+                </div>
+                <div class="card-body">
+                    {% if exceptions|length > 0 %}
+                        <div class="list-group">
+                            {% for exception in exceptions %}
+                                <div class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="mb-1">{{ exception.date|date('d/m/Y') }}</h6>
+                                        <p class="mb-1">{{ exception.description }}</p>
+                                        <small class="text-muted">
+                                            {% if exception.isClosed %}
+                                                <span class="badge bg-danger">Fermé</span>
+                                            {% else %}
+                                                {{ exception.openingTime }} - {{ exception.closingTime }}
+                                            {% endif %}
+                                        </small>
+                                    </div>
+                                    <div>
+                                        <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteExceptionModal{{ exception.id }}">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <!-- Delete Exception Modal -->
+                                <div class="modal fade" id="deleteExceptionModal{{ exception.id }}" tabindex="-1" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title">Confirmer la suppression</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <p>Êtes-vous sûr de vouloir supprimer cette exception d'horaire?</p>
+                                                <p><strong>Date:</strong> {{ exception.date|date('d/m/Y') }}</p>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                                                <form method="post" action="{{ path('app_admin_hours_exception_delete', {'id': exception.id}) }}">
+                                                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ exception.id) }}">
+                                                    <button type="submit" class="btn btn-danger">Supprimer</button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle"></i> Aucune exception d'horaire définie.
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Affichage des horaires</h5>
+                </div>
+                <div class="card-body">
+                    <div class="form-check form-switch mb-3">
+                        <input class="form-check-input" type="checkbox" id="displayHomepage" 
+                            {{ displaySettings.homepage|default(true) ? 'checked' : '' }}>
+                        <label class="form-check-label" for="displayHomepage">Afficher sur la page d'accueil</label>
+                    </div>
+                    <div class="form-check form-switch mb-3">
+                        <input class="form-check-input" type="checkbox" id="displayFooter" 
+                            {{ displaySettings.footer|default(true) ? 'checked' : '' }}>
+                        <label class="form-check-label" for="displayFooter">Afficher dans le pied de page</label>
+                    </div>
+                    <div class="form-check form-switch mb-3">
+                        <input class="form-check-input" type="checkbox" id="displayReservation" 
+                            {{ displaySettings.reservation|default(true) ? 'checked' : '' }}>
+                        <label class="form-check-label" for="displayReservation">Afficher sur la page réservation</label>
+                    </div>
+                    
+                    <button type="button" id="saveDisplaySettings" class="btn btn-primary btn-sm w-100 mt-2">
+                        Enregistrer les préférences d'affichage
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Add Exception Modal -->
+    <div class="modal fade" id="addExceptionModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Ajouter une exception d'horaire</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form method="post" action="{{ path('app_admin_hours_exception_add') }}">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="exception_date" class="form-label">Date</label>
+                            <input type="date" id="exception_date" name="date" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="exception_description" class="form-label">Description</label>
+                            <input type="text" id="exception_description" name="description" class="form-control" 
+                                placeholder="Ex: Jour férié, événement spécial, etc." required>
+                        </div>
+                        <div class="mb-3">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="is_closed" name="is_closed" value="1">
+                                <label class="form-check-label" for="is_closed">Restaurant fermé ce jour-là</label>
+                            </div>
+                        </div>
+                        <div id="custom-hours-container">
+                            <div class="row mb-3">
+                                <div class="col-6">
+                                    <label for="opening_time" class="form-label">Heure d'ouverture</label>
+                                    <input type="time" id="opening_time" name="opening_time" class="form-control" value="12:00">
+                                </div>
+                                <div class="col-6">
+                                    <label for="closing_time" class="form-label">Heure de fermeture</label>
+                                    <input type="time" id="closing_time" name="closing_time" class="form-control" value="22:00">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                        <button type="submit" class="btn btn-primary">Ajouter</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block admin_javascripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Toggle time inputs based on "closed" checkbox
+    const dayClosedCheckboxes = document.querySelectorAll('.day-closed');
+    
+    dayClosedCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            const dayIndex = this.dataset.day;
+            const timeInputs = document.querySelectorAll(`input[name^="hours[${dayIndex}]"][type="time"]`);
+            
+            timeInputs.forEach(input => {
+                input.disabled = this.checked;
+            });
+        });
+    });
+    
+    // Exception modal - toggle custom hours visibility
+    const isClosedCheckbox = document.getElementById('is_closed');
+    const customHoursContainer = document.getElementById('custom-hours-container');
+    
+    isClosedCheckbox.addEventListener('change', function() {
+        customHoursContainer.style.display = this.checked ? 'none' : 'block';
+    });
+    
+    // Save display settings
+    const saveDisplaySettingsBtn = document.getElementById('saveDisplaySettings');
+    
+    saveDisplaySettingsBtn.addEventListener('click', function() {
+        const displayHomepage = document.getElementById('displayHomepage').checked;
+        const displayFooter = document.getElementById('displayFooter').checked;
+        const displayReservation = document.getElementById('displayReservation').checked;
+        
+        fetch('{{ path("app_admin_hours_display_settings") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token("hours_display_settings") }}'
+            },
+            body: JSON.stringify({
+                homepage: displayHomepage,
+                footer: displayFooter,
+                reservation: displayReservation
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Show success message - could use Bootstrap toast
+                alert('Préférences d\'affichage enregistrées');
+            } else {
+                alert('Erreur: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Une erreur est survenue');
+        });
+    });
+});
+</script>
+{% endblock %}

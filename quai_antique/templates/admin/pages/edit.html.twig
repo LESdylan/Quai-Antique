@@ -1,0 +1,100 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block page_title %}Modifier la Page{% endblock %}
+
+{% block admin_content %}
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Modifier "{{ page.title }}"</h5>
+            <div>
+                <a href="{{ path('app_admin_pages') }}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left"></i> Retour à la liste
+                </a>
+                <a href="{{ path('app_page_show', {'slug': page.slug}) }}" target="_blank" class="btn btn-outline-info">
+                    <i class="fas fa-eye"></i> Voir la page
+                </a>
+            </div>
+        </div>
+        <div class="card-body">
+            {{ form_start(form) }}
+                <div class="row">
+                    <div class="col-md-8 mb-3">
+                        {{ form_row(form.title) }}
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        {{ form_row(form.isPublished) }}
+                    </div>
+                </div>
+                
+                {{ form_row(form.content) }}
+                
+                <div class="accordion mt-4 mb-4" id="seoAccordion">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="headingSeo">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSeo" aria-expanded="false" aria-controls="collapseSeo">
+                                Options SEO (référencement)
+                            </button>
+                        </h2>
+                        <div id="collapseSeo" class="accordion-collapse collapse" aria-labelledby="headingSeo" data-bs-parent="#seoAccordion">
+                            <div class="accordion-body">
+                                <div class="row">
+                                    <div class="col-md-12 mb-3">
+                                        {{ form_row(form.metaTitle) }}
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        {{ form_row(form.metaDescription) }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Mettre à jour
+                    </button>
+                </div>
+            {{ form_end(form) }}
+        </div>
+    </div>
+    
+    <div class="mt-4">
+        <div class="card border-danger">
+            <div class="card-header bg-danger text-white">
+                <h5 class="mb-0">Zone de danger</h5>
+            </div>
+            <div class="card-body">
+                <p>La suppression d'une page est définitive et ne peut être annulée.</p>
+                <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deletePageModal">
+                    <i class="fas fa-trash"></i> Supprimer cette page
+                </button>
+                
+                <!-- Delete Modal -->
+                <div class="modal fade" id="deletePageModal" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Confirmer la suppression</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <p>Êtes-vous sûr de vouloir supprimer la page "{{ page.title }}" ?</p>
+                                <p class="text-danger">Cette action est irréversible.</p>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                                <form method="post" action="{{ path('app_admin_page_delete', {'id': page.id}) }}">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ page.id) }}">
+                                    <button type="submit" class="btn btn-danger">Supprimer</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

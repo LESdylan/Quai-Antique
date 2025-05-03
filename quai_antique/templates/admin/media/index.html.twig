@@ -1,0 +1,381 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block page_title %}Media Library{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .media-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 16px;
+        }
+        
+        .media-item {
+            position: relative;
+            border-radius: 4px;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            transition: all 0.2s ease;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .media-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        
+        .media-image {
+            position: relative;
+            overflow: hidden;
+            height: 160px;
+            background-color: #f8f9fa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .media-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .media-type-icon {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.5);
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .media-content {
+            padding: 10px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .media-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .media-meta {
+            font-size: 0.8rem;
+            color: #6c757d;
+            margin-bottom: 8px;
+        }
+        
+        .media-actions {
+            margin-top: auto;
+            display: flex;
+            gap: 5px;
+        }
+        
+        .media-filters {
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+        }
+        
+        .media-upload-zone {
+            border: 2px dashed #dee2e6;
+            border-radius: 4px;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 20px;
+            background-color: #f8f9fa;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .media-upload-zone:hover {
+            background-color: #e9ecef;
+            border-color: #adb5bd;
+        }
+        
+        .media-pagination {
+            margin-top: 20px;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+    </style>
+{% endblock %}
+
+{% block admin_content %}
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="fas fa-images me-2"></i> Media Library</h2>
+        <a href="{{ path('app_admin_media_upload') }}" class="btn btn-primary">
+            <i class="fas fa-upload me-1"></i> Upload New Media
+        </a>
+    </div>
+    
+    <div class="media-filters">
+        {{ form_start(searchForm) }}
+        <div class="row align-items-end">
+            <div class="col-md-3 mb-2 mb-md-0">
+                {{ form_row(searchForm.search) }}
+            </div>
+            <div class="col-md-2 mb-2 mb-md-0">
+                {{ form_row(searchForm.category) }}
+            </div>
+            <div class="col-md-2 mb-2 mb-md-0">
+                {{ form_row(searchForm.tag) }}
+            </div>
+            <div class="col-md-3 mb-2 mb-md-0">
+                {{ form_row(searchForm.isActive) }}
+            </div>
+            <div class="col-md-2 mb-2 mb-md-0">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="fas fa-search me-1"></i> Filter
+                </button>
+            </div>
+        </div>
+        {{ form_end(searchForm) }}
+    </div>
+    
+    <div class="media-upload-zone" id="dropzone">
+        <i class="fas fa-cloud-upload-alt fa-2x mb-2"></i>
+        <h5>Drag & Drop Files Here</h5>
+        <p class="mb-0">or click to select files</p>
+        <input type="file" id="fileInput" class="d-none" multiple accept="image/*">
+    </div>
+    
+    {% if images|length > 0 %}
+        <div class="media-grid">
+            {% for image in images %}
+                <div class="media-item">
+                    <div class="media-image">
+                        {% if image.mimeType starts with 'image/' %}
+                            <img src="{{ asset('uploads/images/' ~ image.filename) }}" alt="{{ image.alt }}">
+                            <span class="media-type-icon">
+                                <i class="fas fa-image"></i>
+                            </span>
+                        {% else %}
+                            <div class="d-flex flex-column align-items-center justify-content-center h-100">
+                                <i class="fas fa-file fa-2x mb-2"></i>
+                                <span>{{ image.mimeType }}</span>
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="media-content">
+                        <div class="media-title" title="{{ image.title ?? image.alt }}">
+                            {{ image.title ?? image.alt }}
+                        </div>
+                        <div class="media-meta">
+                            {{ image.dimensions ?? 'Unknown' }} • {{ image.formattedFileSize }}
+                        </div>
+                        
+                        {% if image.tags|length > 0 %}
+                            <div class="mb-2">
+                                {% for tag in image.tags %}
+                                    <span class="badge bg-{{ tag.color|default('secondary') }}">
+                                        {{ tag.name }}
+                                    </span>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        
+                        <div class="media-actions">
+                            <a href="{{ path('app_admin_media_show', {'id': image.id}) }}" 
+                               class="btn btn-sm btn-outline-primary">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                            <a href="{{ path('app_admin_media_edit', {'id': image.id}) }}" 
+                               class="btn btn-sm btn-outline-secondary">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <button type="button" class="btn btn-sm btn-outline-danger"
+                                    data-bs-toggle="modal" 
+                                    data-bs-target="#deleteModal{{ image.id }}">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Delete Modal -->
+                <div class="modal fade" id="deleteModal{{ image.id }}" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Delete Image</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <p>Are you sure you want to delete this image?</p>
+                                <div class="text-center my-3">
+                                    <img src="{{ asset('uploads/images/' ~ image.filename) }}" 
+                                         style="max-height: 200px; max-width: 100%;" alt="{{ image.alt }}">
+                                </div>
+                                <p class="mb-0 text-danger">
+                                    <i class="fas fa-exclamation-triangle me-1"></i> 
+                                    This action cannot be undone.
+                                </p>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                <form action="{{ path('app_admin_media_delete', {'id': image.id}) }}" method="post">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ image.id) }}">
+                                    <button type="submit" class="btn btn-danger">Delete</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+        
+        <!-- Pagination -->
+        {% if pagination.totalPages > 1 %}
+            <div class="media-pagination">
+                <nav>
+                    <ul class="pagination justify-content-center">
+                        {% if pagination.currentPage > 1 %}
+                            <li class="page-item">
+                                <a class="page-link" href="{{ path('app_admin_media', {'page': pagination.currentPage - 1}) }}">
+                                    Previous
+                                </a>
+                            </li>
+                        {% else %}
+                            <li class="page-item disabled">
+                                <span class="page-link">Previous</span>
+                            </li>
+                        {% endif %}
+                        
+                        {% for i in 1..pagination.totalPages %}
+                            <li class="page-item {{ i == pagination.currentPage ? 'active' : '' }}">
+                                <a class="page-link" href="{{ path('app_admin_media', {'page': i}) }}">
+                                    {{ i }}
+                                </a>
+                            </li>
+                        {% endfor %}
+                        
+                        {% if pagination.currentPage < pagination.totalPages %}
+                            <li class="page-item">
+                                <a class="page-link" href="{{ path('app_admin_media', {'page': pagination.currentPage + 1}) }}">
+                                    Next
+                                </a>
+                            </li>
+                        {% else %}
+                            <li class="page-item disabled">
+                                <span class="page-link">Next</span>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            </div>
+        {% endif %}
+    {% else %}
+        <div class="empty-state">
+            <i class="fas fa-image fa-3x mb-3 text-muted"></i>
+            <h4>No Images Found</h4>
+            <p class="text-muted">Upload your first image to get started.</p>
+            <a href="{{ path('app_admin_media_upload') }}" class="btn btn-primary">
+                <i class="fas fa-upload me-1"></i> Upload Now
+            </a>
+        </div>
+    {% endif %}
+{% endblock %}
+
+{% block admin_javascripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Handle file drop zone
+        const dropzone = document.getElementById('dropzone');
+        const fileInput = document.getElementById('fileInput');
+        
+        // Open file dialog when clicking on dropzone
+        dropzone.addEventListener('click', function() {
+            fileInput.click();
+        });
+        
+        // Handle file selection
+        fileInput.addEventListener('change', function() {
+            if (this.files.length > 0) {
+                handleFiles(this.files);
+            }
+        });
+        
+        // Handle drag and drop
+        dropzone.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            dropzone.classList.add('bg-light');
+        });
+        
+        dropzone.addEventListener('dragleave', function() {
+            dropzone.classList.remove('bg-light');
+        });
+        
+        dropzone.addEventListener('drop', function(e) {
+            e.preventDefault();
+            dropzone.classList.remove('bg-light');
+            
+            if (e.dataTransfer.files.length > 0) {
+                handleFiles(e.dataTransfer.files);
+            }
+        });
+        
+        function handleFiles(files) {
+            // Show loading state
+            dropzone.innerHTML = '<i class="fas fa-spinner fa-spin fa-2x mb-2"></i><h5>Uploading...</h5>';
+            
+            // Create FormData
+            const formData = new FormData();
+            
+            // Add each file
+            for (let i = 0; i < files.length; i++) {
+                formData.append('file_' + i, files[i]);
+                
+                // Add basic metadata
+                formData.append('alt_' + i, files[i].name.split('.')[0]);
+            }
+            
+            // Add CSRF token
+            formData.append('_token', '{{ csrf_token("upload_images") }}');
+            
+            // Send to server
+            fetch('{{ path("app_admin_media_upload") }}', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Reload page to show new images
+                    window.location.reload();
+                } else {
+                    dropzone.innerHTML = '<i class="fas fa-exclamation-triangle fa-2x mb-2 text-danger"></i>' +
+                                        '<h5 class="text-danger">Upload Failed</h5>' +
+                                        '<p>' + (data.message || 'Please try again') + '</p>';
+                }
+            })
+            .catch(error => {
+                dropzone.innerHTML = '<i class="fas fa-exclamation-triangle fa-2x mb-2 text-danger"></i>' +
+                                    '<h5 class="text-danger">Upload Failed</h5>' +
+                                    '<p>An error occurred. Please try again.</p>';
+                console.error('Error:', error);
+            });
+        }
+    });
+</script>
+{% endblock %}

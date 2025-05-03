@@ -5,9 +5,19 @@ namespace App\Service;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\Tools\SchemaTool;
+use App\Entity\HoursException;
 
 class SchemaToolHelper
 {
+    private $entityManager;
+
+    public function __construct(EntityManagerInterface $entityManager)
+    {
+        $this->entityManager = $entityManager;
+    }
+
     // Tables required for the application
     private $requiredTables = [
         'user' => [
@@ -306,6 +316,104 @@ class SchemaToolHelper
                     $io->warning("Error checking constraint '{$rel['constraint_name']}': " . $e->getMessage());
                 }
             }
+        }
+    }
+
+    /**
+     * Check if the hours_exception table exists
+     */
+    public function hoursExceptionTableExists(): bool
+    {
+        $connection = $this->entityManager->getConnection();
+        $schemaManager = $connection->createSchemaManager();
+        
+        try {
+            return $schemaManager->tablesExist(['hours_exception']);
+        } catch (\Exception $e) {
+            return false;
+        }
+    }
+    
+    /**
+     * Create the hours_exception table
+     */
+    public function createHoursExceptionTable(): void
+    {
+        if (!$this->hoursExceptionTableExists()) {
+            $metadataFactory = $this->entityManager->getMetadataFactory();
+            $metadata = $metadataFactory->getMetadataFor(HoursException::class);
+            
+            $schemaTool = new SchemaTool($this->entityManager);
+            $schemaTool->createSchema([$metadata]);
+        }
+    }
+    
+    /**
+     * Verify and update the database schema for a list of entities
+     * This is useful for ensuring specific tables exist
+     * 
+     * @param array $entityClassNames Array of fully qualified entity class names
+     */
+    public function updateSchemaForEntities(array $entityClassNames): void
+    {
+        $metadataFactory = $this->entityManager->getMetadataFactory();
+        $metadatas = [];
+        
+        foreach ($entityClassNames as $entityClassName) {
+            if (class_exists($entityClassName)) {
+                $metadatas[] = $metadataFactory->getMetadataFor($entityClassName);
+            }
+        }
+        
+        if (!empty($metadatas)) {
+            $schemaTool = new SchemaTool($this->entityManager);
+            $sqlStatements = $schemaTool->getUpdateSchemaSql($metadatas, true);
+            
+            if (!empty($sqlStatements)) {
+                $connection = $this->entityManager->getConnection();
+                foreach ($sqlStatements as $sql) {
+                    try {
+                        $connection->executeStatement($sql);
+                    } catch (\Exception $e) {
+                        // Log the error but continue with other statements
+                        error_log('Error executing schema update: ' . $e->getMessage());
+                    }
+                }
+            }
+        }
+    }
+    
+    /**
+     * Manually fix the missing hours_exception table
+     */
+    public function fixHoursExceptionTable(): void
+    {
+        try {
+            $connection = $this->entityManager->getConnection();
+            
+            // Check if table already exists
+            $schemaManager = $connection->createSchemaManager();
+            if ($schemaManager->tablesExist(['hours_exception'])) {
+                return;
+            }
+            
+            // SQL to create the hours_exception table
+            $sql = "
+                CREATE TABLE hours_exception (
+                    id INT AUTO_INCREMENT NOT NULL,
+                    date DATE NOT NULL,
+                    description VARCHAR(255) NOT NULL,
+                    is_closed TINYINT(1) NOT NULL,
+                    opening_time VARCHAR(5) DEFAULT NULL,
+                    closing_time VARCHAR(5) DEFAULT NULL,
+                    PRIMARY KEY(id)
+                ) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB
+            ";
+            
+            $connection->executeStatement($sql);
+            
+        } catch (\Exception $e) {
+            throw new \Exception('Failed to create hours_exception table: ' . $e->getMessage());
         }
     }
 }

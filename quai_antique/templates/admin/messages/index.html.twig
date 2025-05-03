@@ -1,0 +1,132 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block page_title %}{{ unreadOnly is defined and unreadOnly ? 'Messages non lus' : 'Tous les messages' }}{% endblock %}
+
+{% block admin_content %}
+    <div class="d-flex justify-content-between mb-4">
+        <div class="btn-group">
+            <a href="{{ path('app_admin_messages') }}" class="btn btn{{ not (unreadOnly is defined and unreadOnly) ? '-primary' : '-outline-primary' }}">
+                Tous les messages
+            </a>
+            <a href="{{ path('app_admin_messages_unread') }}" class="btn btn{{ (unreadOnly is defined and unreadOnly) ? '-primary' : '-outline-primary' }}">
+                Non lus <span class="badge bg-danger ms-1">{{ unreadCount }}</span>
+            </a>
+        </div>
+        
+        <div class="btn-group">
+            <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteAllModal">
+                <i class="fas fa-trash"></i> Supprimer les messages lus
+            </button>
+        </div>
+    </div>
+    
+    <div class="card">
+        <div class="card-body">
+            {% if messages|length > 0 %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th style="width: 50px"></th>
+                                <th style="width: 20%">Expéditeur</th>
+                                <th>Sujet</th>
+                                <th style="width: 160px">Date</th>
+                                <th style="width: 120px">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for message in messages %}
+                                <tr class="{{ not message.isRead ? 'table-active fw-bold' : '' }}">
+                                    <td class="text-center">
+                                        {% if message.isRead %}
+                                            <i class="fas fa-envelope-open text-muted"></i>
+                                        {% else %}
+                                            <i class="fas fa-envelope text-primary"></i>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div>{{ message.name }}</div>
+                                        <div class="small text-muted">{{ message.email }}</div>
+                                    </td>
+                                    <td>
+                                        <a href="{{ path('app_admin_message_show', {'id': message.id}) }}" class="text-decoration-none">
+                                            {{ message.subject }}
+                                        </a>
+                                    </td>
+                                    <td>{{ message.createdAt|date('d/m/Y H:i') }}</td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm">
+                                            <a href="{{ path('app_admin_message_show', {'id': message.id}) }}" class="btn btn-outline-primary">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            <form method="post" action="{{ path('app_admin_message_toggle_read', {'id': message.id}) }}" class="d-inline">
+                                                <button type="submit" class="btn btn-outline-{{ message.isRead ? 'warning' : 'success' }}">
+                                                    <i class="fas fa-{{ message.isRead ? 'envelope' : 'check' }}"></i>
+                                                </button>
+                                            </form>
+                                            <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal{{ message.id }}">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                        
+                                        <!-- Delete Modal -->
+                                        <div class="modal fade" id="deleteModal{{ message.id }}" tabindex="-1" aria-hidden="true">
+                                            <div class="modal-dialog">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title">Confirmer la suppression</h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <p>Êtes-vous sûr de vouloir supprimer ce message ?</p>
+                                                        <p><strong>De:</strong> {{ message.name }}</p>
+                                                        <p><strong>Sujet:</strong> {{ message.subject }}</p>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                                                        <form method="post" action="{{ path('app_admin_message_delete', {'id': message.id}) }}">
+                                                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ message.id) }}">
+                                                            <button type="submit" class="btn btn-danger">Supprimer</button>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="text-center p-5">
+                    <i class="fas fa-inbox fa-3x mb-3 text-muted"></i>
+                    <p class="lead">Aucun message {{ (unreadOnly is defined and unreadOnly) ? 'non lu' : '' }}</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Delete All Read Messages Modal -->
+    <div class="modal fade" id="deleteAllModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Confirmer la suppression</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Êtes-vous sûr de vouloir supprimer tous les messages lus ?</p>
+                    <p>Cette action est irréversible.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <form method="post" action="{{ path('app_admin_messages_delete_read') }}">
+                        <input type="hidden" name="_token" value="{{ csrf_token('delete_read_messages') }}">
+                        <button type="submit" class="btn btn-danger">Supprimer les messages lus</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

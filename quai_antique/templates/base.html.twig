@@ -174,30 +174,71 @@
             <div class="container">
                 <div class="row">
                     <div class="col-md-4 mb-4 mb-md-0">
-                        <h5 class="text-white mb-4">Le Quai Antique</h5>
-                        <p>Une expérience gastronomique unique à Chambéry, proposant une cuisine authentique et raffinée mettant en valeur les produits savoyards.</p>
+                        <h5 class="text-white mb-4">{{ restaurant.name|default('Le Quai Antique') }}</h5>
+                        <p>{{ restaurant.description|default('Une expérience gastronomique unique à Chambéry, proposant une cuisine authentique et raffinée mettant en valeur les produits savoyards.')|nl2br }}</p>
+                        
+                        {% if restaurant.facebookUrl or restaurant.instagramUrl or restaurant.tripadvisorUrl %}
+                            <div class="mt-3">
+                                {% if restaurant.facebookUrl %}
+                                    <a href="{{ restaurant.facebookUrl }}" class="text-white me-3" target="_blank"><i class="fab fa-facebook-f"></i></a>
+                                {% endif %}
+                                {% if restaurant.instagramUrl %}
+                                    <a href="{{ restaurant.instagramUrl }}" class="text-white me-3" target="_blank"><i class="fab fa-instagram"></i></a>
+                                {% endif %}
+                                {% if restaurant.tripadvisorUrl %}
+                                    <a href="{{ restaurant.tripadvisorUrl }}" class="text-white" target="_blank"><i class="fab fa-tripadvisor"></i></a>
+                                {% endif %}
+                            </div>
+                        {% endif %}
                     </div>
+                    
                     <div class="col-md-4 mb-4 mb-md-0">
                         <h5 class="text-white mb-4">Horaires d'ouverture</h5>
-                        <ul class="list-unstyled">
-                            <li>Mardi au Dimanche</li>
-                            <li>Déjeuner: 12h00 - 14h00</li>
-                            <li>Dîner: 19h00 - 22h00</li>
-                            <li>Fermé le Lundi</li>
-                        </ul>
+                        {% if hours is defined and hours|length > 0 and restaurant.displayOpeningHours|default(true) %}
+                            <ul class="list-unstyled">
+                                {% for hour in hours %}
+                                    <li>
+                                        <strong>{{ hour.dayName }}:</strong> 
+                                        {% if hour.isClosed %}
+                                            <span class="text-danger">Fermé</span>
+                                        {% else %}
+                                            {% if hour.lunchOpeningTime %}
+                                                {{ hour.lunchOpeningTime|date('H:i') }} - {{ hour.lunchClosingTime|date('H:i') }}
+                                            {% endif %}
+                                            {% if hour.lunchOpeningTime and hour.dinnerOpeningTime %} / {% endif %}
+                                            {% if hour.dinnerOpeningTime %}
+                                                {{ hour.dinnerOpeningTime|date('H:i') }} - {{ hour.dinnerClosingTime|date('H:i') }}
+                                            {% endif %}
+                                        {% endif %}
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        {% else %}
+                            <ul class="list-unstyled">
+                                <li>Mardi au Dimanche</li>
+                                <li>Déjeuner: 12h00 - 14h00</li>
+                                <li>Dîner: 19h00 - 22h00</li>
+                                <li>Fermé le Lundi</li>
+                            </ul>
+                        {% endif %}
                     </div>
+                    
                     <div class="col-md-4">
                         <h5 class="text-white mb-4">Contact</h5>
                         <ul class="list-unstyled">
-                            <li><i class="fas fa-map-marker-alt me-2"></i> 12 Quai des Allobroges, Chambéry</li>
-                            <li><i class="fas fa-phone me-2"></i> 04 79 85 XX XX</li>
-                            <li><i class="fas fa-envelope me-2"></i> contact@quaiantique.fr</li>
+                            <li><i class="fas fa-map-marker-alt me-2"></i> {{ restaurant.fullAddress|default('12 Quai des Allobroges, Chambéry') }}</li>
+                            <li><i class="fas fa-phone me-2"></i> {{ restaurant.phone|default('04 79 85 XX XX') }}</li>
+                            <li><i class="fas fa-envelope me-2"></i> {{ restaurant.email|default('contact@quaiantique.fr') }}</li>
+                            {% if restaurant.averagePriceLunch or restaurant.averagePriceDinner %}
+                                <li>
+                                    <i class="fas fa-euro-sign me-2"></i> 
+                                    Prix moyen: 
+                                    {% if restaurant.averagePriceLunch %}Midi {{ restaurant.averagePriceLunch }}€{% endif %}
+                                    {% if restaurant.averagePriceLunch and restaurant.averagePriceDinner %} / {% endif %}
+                                    {% if restaurant.averagePriceDinner %}Soir {{ restaurant.averagePriceDinner }}€{% endif %}
+                                </li>
+                            {% endif %}
                         </ul>
-                        <div class="mt-3">
-                            <a href="#" class="text-white me-3"><i class="fab fa-facebook-f"></i></a>
-                            <a href="#" class="text-white me-3"><i class="fab fa-instagram"></i></a>
-                            <a href="#" class="text-white"><i class="fab fa-tripadvisor"></i></a>
-                        </div>
                     </div>
                 </div>
                 <div class="row mt-4">

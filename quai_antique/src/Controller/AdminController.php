@@ -52,24 +52,8 @@ class AdminController extends AbstractController
     #[Route('/settings', name: 'app_admin_settings')]
     public function settings(Request $request): Response
     {
-        $restaurant = $this->entityManager->getRepository(Restaurant::class)->findOneBy([]) 
-            ?? new Restaurant();
-        
-        $form = $this->createForm(RestaurantSettingsType::class, $restaurant);
-        $form->handleRequest($request);
-        
-        if ($form->isSubmitted() && $form->isValid()) {
-            $this->entityManager->persist($restaurant);
-            $this->entityManager->flush();
-            
-            $this->addFlash('success', 'Les paramètres du restaurant ont été mis à jour.');
-            
-            return $this->redirectToRoute('app_admin_settings');
-        }
-        
-        return $this->render('admin/settings.html.twig', [
-            'form' => $form->createView(),
-        ]);
+        // Redirect to the dedicated settings controller
+        return $this->redirectToRoute('app_admin_settings');
     }
 
     #[Route('/reservations', name: 'app_admin_reservations')]

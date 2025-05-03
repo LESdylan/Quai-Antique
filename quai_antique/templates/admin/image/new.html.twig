@@ -2,6 +2,93 @@
 
 {% block page_title %}Add New Image{% endblock %}
 
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.9.3/min/dropzone.min.css">
+    <style>
+        .upload-container {
+            background-color: #f8f9fa;
+            border: 2px dashed #dee2e6;
+            border-radius: 10px;
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .upload-container:hover, .upload-container.dz-drag-hover {
+            background-color: #e9ecef;
+            border-color: #adb5bd;
+        }
+        
+        .upload-icon {
+            font-size: 3rem;
+            color: #6c757d;
+            margin-bottom: 1rem;
+        }
+        
+        .file-preview {
+            max-height: 300px;
+            margin-top: 1rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .preview-container {
+            margin-top: 1.5rem;
+            text-align: center;
+        }
+        
+        .purpose-preview {
+            border: 1px solid #dee2e6;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+        }
+        
+        .purpose-preview .preview-title {
+            background-color: #f8f9fa;
+            padding: 0.75rem;
+            border-bottom: 1px solid #dee2e6;
+            font-weight: 600;
+        }
+        
+        .purpose-preview .preview-image {
+            height: 200px;
+            background-color: #e9ecef;
+            background-position: center;
+            background-size: cover;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .purpose-preview .preview-image span {
+            background-color: rgba(0,0,0,0.5);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+        }
+        
+        .tab-content {
+            padding-top: 1.5rem;
+        }
+        
+        .tab-buttons {
+            margin-bottom: 1.5rem;
+        }
+        
+        .tab-buttons .btn {
+            border-radius: 30px;
+        }
+        
+        .image-source-tabs .nav-link {
+            border-radius: 0.5rem 0.5rem 0 0;
+            padding: 0.75rem 1.25rem;
+        }
+    </style>
+{% endblock %}
+
 {% block admin_content %}
     <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center">
@@ -11,71 +98,464 @@
             </a>
         </div>
         <div class="card-body">
-            {{ form_start(form) }}
-                <div class="row">
-                    <div class="col-md-6">
-                        {{ form_row(form.upload_method) }}
+            <!-- Display validation errors at the top of the form -->
+            {% if not form.vars.valid and form.vars.submitted %}
+                <div class="alert alert-danger">
+                    <h5><i class="fas fa-exclamation-triangle"></i> Please correct the following errors:</h5>
+                    <ul class="mb-0">
+                        {% for error in form.vars.errors %}
+                            <li>{{ error.message }}</li>
+                        {% endfor %}
                         
-                        <div id="upload-fields" class="mb-3">
-                            {{ form_row(form.file) }}
+                        {% if form.file.vars.errors|length > 0 %}
+                            {% for error in form.file.vars.errors %}
+                                <li>File: {{ error.message }}</li>
+                            {% endfor %}
+                        {% endif %}
+                        
+                        {% if form.existing_path.vars.errors|length > 0 %}
+                            {% for error in form.existing_path.vars.errors %}
+                                <li>Path: {{ error.message }}</li>
+                            {% endfor %}
+                        {% endif %}
+                    </ul>
+                </div>
+            {% endif %}
+            
+            <!-- Image source tabs -->
+            <ul class="nav nav-tabs image-source-tabs mb-4" id="imageSourceTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <a class="nav-link active" id="upload-tab" data-bs-toggle="tab" href="#upload-content" role="tab">
+                        <i class="fas fa-upload me-2"></i> Upload New
+                    </a>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <a class="nav-link" id="library-tab" data-bs-toggle="tab" href="#library-content" role="tab">
+                        <i class="fas fa-photo-video me-2"></i> Select from Library
+                    </a>
+                </li>
+            </ul>
+            
+            {{ form_start(form, {'attr': {'enctype': 'multipart/form-data', 'id': 'image-form'}}) }}
+                
+                <div class="tab-content">
+                    <!-- Upload Tab -->
+                    <div class="tab-pane fade show active" id="upload-content" role="tabpanel">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="upload-container" id="dropzone">
+                                    <i class="fas fa-cloud-upload-alt upload-icon"></i>
+                                    <h5>Drag & Drop Image Here</h5>
+                                    <p class="text-muted">or</p>
+                                    <button type="button" class="btn btn-primary" id="browseFiles">
+                                        <i class="fas fa-folder-open me-2"></i> Browse Files
+                                    </button>
+                                    <input type="file" id="file-input" style="display: none" accept="image/*">
+                                    <div class="preview-container" id="preview-container" style="display: none;">
+                                        <img src="" alt="Preview" class="img-fluid file-preview" id="file-preview">
+                                        <div class="mt-2">
+                                            <button type="button" class="btn btn-sm btn-danger" id="remove-file">
+                                                <i class="fas fa-trash me-1"></i> Remove
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                {{ form_widget(form.file, {'attr': {'class': 'd-none'}}) }}
+                                {{ form_widget(form.upload_method, {'attr': {'class': 'd-none'}}) }}
+                                
+                                <div class="form-text mt-2">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    Accepted formats: JPEG, PNG, GIF, WEBP. Maximum file size: 5MB.
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <h5 class="mb-3">Image Information</h5>
+                                
+                                <div class="mb-3">
+                                    {{ form_label(form.title) }}
+                                    {{ form_widget(form.title, {'attr': {'class': 'form-control', 'placeholder': 'Enter a descriptive title'}}) }}
+                                    {{ form_errors(form.title) }}
+                                </div>
+                                
+                                <div class="mb-3">
+                                    {{ form_label(form.alt) }}
+                                    {{ form_widget(form.alt, {'attr': {'class': 'form-control', 'placeholder': 'Alternative text for accessibility and SEO'}}) }}
+                                    {{ form_errors(form.alt) }}
+                                    <div class="form-text">This text is used by screen readers and search engines.</div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    {{ form_label(form.description) }}
+                                    {{ form_widget(form.description, {'attr': {'class': 'form-control', 'rows': '3', 'placeholder': 'Optional description of this image'}}) }}
+                                    {{ form_errors(form.description) }}
+                                </div>
+                            </div>
                         </div>
-                        
-                        <div id="existing-fields" class="mb-3" style="display: none;">
-                            {{ form_row(form.existing_path) }}
-                        </div>
-                        
-                        {{ form_row(form.alt) }}
-                        {{ form_row(form.title) }}
                     </div>
-                    <div class="col-md-6">
-                        {{ form_row(form.category) }}
-                        {{ form_row(form.purpose) }}
-                        {{ form_row(form.dish) }}
-                        {{ form_row(form.isActive) }}
+                    
+                    <!-- Library Tab -->
+                    <div class="tab-pane fade" id="library-content" role="tabpanel">
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            Click on an image below to select it from your media library.
+                        </div>
+                        
+                        <div class="text-center py-5" id="loading-library">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                            <p>Loading media library...</p>
+                        </div>
+                        
+                        <div class="row g-3" id="media-library-container" style="max-height: 400px; overflow-y: auto;">
+                            <!-- Media items will be loaded here via JavaScript -->
+                        </div>
+                        
+                        <div class="alert alert-warning" id="no-media-message" style="display: none;">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            No images found in your media library. Please upload new images.
+                        </div>
                     </div>
                 </div>
+                
+                <hr class="my-4">
+                
                 <div class="row">
-                    <div class="col-12">
-                        {{ form_row(form.description) }}
+                    <div class="col-md-6">
+                        <h5 class="mb-3">Usage Settings</h5>
+                        
+                        <div class="mb-3">
+                            {{ form_label(form.category) }}
+                            {{ form_widget(form.category, {'attr': {'class': 'form-select'}}) }}
+                            {{ form_errors(form.category) }}
+                            <div class="form-text">Categorize your image for easier organization.</div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            {{ form_label(form.purpose) }}
+                            {{ form_widget(form.purpose, {'attr': {'class': 'form-select', 'id': 'image-purpose'}}) }}
+                            {{ form_errors(form.purpose) }}
+                            <div class="form-text">Assign this image to a specific location on your website.</div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            {{ form_label(form.dish) }}
+                            {{ form_widget(form.dish, {'attr': {'class': 'form-select'}}) }}
+                            {{ form_errors(form.dish) }}
+                            <div class="form-text">Associate this image with a specific dish (optional).</div>
+                        </div>
+                        
+                        <div class="form-check form-switch mb-3">
+                            {{ form_widget(form.isActive, {'attr': {'class': 'form-check-input'}}) }}
+                            {{ form_label(form.isActive, null, {'label_attr': {'class': 'form-check-label'}}) }}
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <h5 class="mb-3">Preview</h5>
+                        
+                        <div class="purpose-previews">
+                            <!-- Hero Banner Preview -->
+                            <div class="purpose-preview" data-purpose="hero_banner">
+                                <div class="preview-title">Hero Banner</div>
+                                <div class="preview-image" id="preview-hero_banner">
+                                    <span>No image selected</span>
+                                </div>
+                            </div>
+                            
+                            <!-- Reservation Page Preview -->
+                            <div class="purpose-preview" data-purpose="reservation_page" style="display:none">
+                                <div class="preview-title">Reservation Page</div>
+                                <div class="preview-image" id="preview-reservation_page">
+                                    <span>No image selected</span>
+                                </div>
+                            </div>
+                            
+                            <!-- Menu Header Preview -->
+                            <div class="purpose-preview" data-purpose="menu_header" style="display:none">
+                                <div class="preview-title">Menu Header</div>
+                                <div class="preview-image" id="preview-menu_header">
+                                    <span>No image selected</span>
+                                </div>
+                            </div>
+                            
+                            <!-- Gallery Featured Preview -->
+                            <div class="purpose-preview" data-purpose="gallery_featured" style="display:none">
+                                <div class="preview-title">Gallery Featured</div>
+                                <div class="preview-image" id="preview-gallery_featured">
+                                    <span>No image selected</span>
+                                </div>
+                            </div>
+                            
+                            <!-- About Us Preview -->
+                            <div class="purpose-preview" data-purpose="about_us" style="display:none">
+                                <div class="preview-title">About Us Section</div>
+                                <div class="preview-image" id="preview-about_us">
+                                    <span>No image selected</span>
+                                </div>
+                            </div>
+                            
+                            <!-- Generic Preview -->
+                            <div class="purpose-preview" data-purpose="generic" style="display:none">
+                                <div class="preview-title">Image Preview</div>
+                                <div class="preview-image" id="preview-generic">
+                                    <span>No image selected</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 
                 <div class="text-center mt-4">
-                    <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-save"></i> Save Image
+                    <button type="submit" class="btn btn-primary btn-lg">
+                        <i class="fas fa-save me-2"></i> Save Image
                     </button>
                 </div>
+                
+                <!-- Hidden field for selected library image -->
+                <input type="hidden" id="selected-library-image" name="selected_library_image">
             {{ form_end(form) }}
         </div>
     </div>
+
+    <!-- Include media library modal -->
+    {% include 'admin/components/media_library_modal.html.twig' %}
 {% endblock %}
 
 {% block admin_javascripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.9.3/min/dropzone.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const uploadMethodRadios = document.querySelectorAll('input[name="{{ form.upload_method.vars.full_name }}"]');
-    const uploadFields = document.getElementById('upload-fields');
-    const existingFields = document.getElementById('existing-fields');
+    // File input handling
+    const fileInput = document.getElementById('file-input');
+    const browseBtn = document.getElementById('browseFiles');
+    const dropzone = document.getElementById('dropzone');
+    const previewContainer = document.getElementById('preview-container');
+    const filePreview = document.getElementById('file-preview');
+    const removeBtn = document.getElementById('remove-file');
+    const formFileInput = document.querySelector('{{ form.file.vars.id }}');
+    const uploadMethodRadio = document.querySelector('input[name="{{ form.upload_method.vars.full_name }}"][value="upload"]');
+
+    // Set upload method
+    uploadMethodRadio.checked = true;
     
-    function updateFieldsVisibility() {
-        const selectedMethod = document.querySelector('input[name="{{ form.upload_method.vars.full_name }}"]:checked').value;
+    browseBtn.addEventListener('click', function() {
+        fileInput.click();
+    });
+    
+    fileInput.addEventListener('change', function() {
+        handleFileSelect(this.files[0]);
+    });
+    
+    // Drag and drop
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        dropzone.addEventListener(eventName, preventDefaults, false);
+    });
+    
+    ['dragenter', 'dragover'].forEach(eventName => {
+        dropzone.addEventListener(eventName, highlight, false);
+    });
+    
+    ['dragleave', 'drop'].forEach(eventName => {
+        dropzone.addEventListener(eventName, unhighlight, false);
+    });
+    
+    dropzone.addEventListener('drop', handleDrop, false);
+    
+    removeBtn.addEventListener('click', function() {
+        resetFileInput();
+    });
+    
+    function preventDefaults(e) {
+        e.preventDefault();
+        e.stopPropagation();
+    }
+    
+    function highlight() {
+        dropzone.classList.add('dz-drag-hover');
+    }
+    
+    function unhighlight() {
+        dropzone.classList.remove('dz-drag-hover');
+    }
+    
+    function handleDrop(e) {
+        const dt = e.dataTransfer;
+        const files = dt.files;
         
-        if (selectedMethod === 'upload') {
-            uploadFields.style.display = 'block';
-            existingFields.style.display = 'none';
-        } else {
-            uploadFields.style.display = 'none';
-            existingFields.style.display = 'block';
+        if (files.length) {
+            handleFileSelect(files[0]);
         }
     }
     
-    // Initialize visibility
-    updateFieldsVisibility();
+    function handleFileSelect(file) {
+        // Check if it's an image
+        if (!file.type.match('image.*')) {
+            alert('Please select an image file.');
+            return;
+        }
+        
+        // Show preview
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            filePreview.src = e.target.result;
+            previewContainer.style.display = 'block';
+            
+            // Update purpose previews
+            updatePurposePreview(e.target.result);
+        };
+        reader.readAsDataURL(file);
+        
+        // Update form's file input
+        const dataTransfer = new DataTransfer();
+        dataTransfer.items.add(file);
+        formFileInput.files = dataTransfer.files;
+        
+        // Show preview in all preview containers
+        updateAllPreviewContainers(URL.createObjectURL(file));
+    }
     
-    // Update on change
-    uploadMethodRadios.forEach(radio => {
-        radio.addEventListener('change', updateFieldsVisibility);
+    function resetFileInput() {
+        fileInput.value = '';
+        formFileInput.value = '';
+        previewContainer.style.display = 'none';
+        filePreview.src = '';
+        
+        // Reset preview containers
+        document.querySelectorAll('.preview-image').forEach(container => {
+            container.style.backgroundImage = '';
+            container.querySelector('span').style.display = 'block';
+        });
+    }
+    
+    // Purpose dropdown handling
+    const purposeSelect = document.getElementById('image-purpose');
+    const purposePreviews = document.querySelectorAll('.purpose-preview');
+    
+    purposeSelect.addEventListener('change', function() {
+        const selectedPurpose = this.value;
+        
+        // Hide all previews first
+        purposePreviews.forEach(preview => {
+            preview.style.display = 'none';
+        });
+        
+        // Show the selected purpose preview or generic preview
+        const selectedPreview = document.querySelector(`.purpose-preview[data-purpose="${selectedPurpose}"]`);
+        if (selectedPreview) {
+            selectedPreview.style.display = 'block';
+        } else {
+            document.querySelector('.purpose-preview[data-purpose="generic"]').style.display = 'block';
+        }
     });
+    
+    function updatePurposePreview(imageUrl) {
+        // Update all preview containers
+        document.querySelectorAll('.preview-image').forEach(container => {
+            container.style.backgroundImage = `url('${imageUrl}')`;
+            container.querySelector('span').style.display = 'none';
+        });
+    }
+    
+    // Initialize based on current purpose value
+    const currentPurpose = purposeSelect.value;
+    if (currentPurpose) {
+        const targetPreview = document.querySelector(`.purpose-preview[data-purpose="${currentPurpose}"]`);
+        if (targetPreview) {
+            targetPreview.style.display = 'block';
+        } else {
+            document.querySelector('.purpose-preview[data-purpose="generic"]').style.display = 'block';
+        }
+    } else {
+        document.querySelector('.purpose-preview[data-purpose="generic"]').style.display = 'block';
+    }
+    
+    // Media Library handling
+    let selectedMediaItem = null;
+    
+    function loadMediaLibrary() {
+        const libraryContainer = document.getElementById('media-library-container');
+        const loadingIndicator = document.getElementById('loading-library');
+        const noMediaMessage = document.getElementById('no-media-message');
+        
+        // Show loading indicator
+        libraryContainer.innerHTML = '';
+        loadingIndicator.style.display = 'block';
+        noMediaMessage.style.display = 'none';
+        
+        // Fetch images from API
+        fetch('/admin/api/media')
+            .then(response => response.json())
+            .then(data => {
+                loadingIndicator.style.display = 'none';
+                
+                if (data.length === 0) {
+                    noMediaMessage.style.display = 'block';
+                    return;
+                }
+                
+                // Render media items
+                data.forEach(item => {
+                    const mediaItem = document.createElement('div');
+                    mediaItem.className = 'col-md-3 media-item';
+                    mediaItem.dataset.id = item.id;
+                    
+                    mediaItem.innerHTML = `
+                        <div class="card h-100 media-card">
+                            <img src="/uploads/images/${item.filename}" class="card-img-top" style="height: 150px; object-fit: cover;">
+                            <div class="card-body">
+                                <h6 class="card-title text-truncate">${item.title || item.alt}</h6>
+                                <p class="card-text small text-muted">${item.category || 'Uncategorized'}</p>
+                            </div>
+                        </div>
+                    `;
+                    
+                    mediaItem.addEventListener('click', function() {
+                        // Remove selection from all items
+                        document.querySelectorAll('.media-card').forEach(card => {
+                            card.classList.remove('border-primary');
+                        });
+                        
+                        // Mark this item as selected
+                        this.querySelector('.media-card').classList.add('border-primary');
+                        selectedMediaItem = item;
+                        
+                        // Update preview
+                        updatePurposePreview(`/uploads/images/${item.filename}`);
+                        
+                        // Set the selected image in the hidden field
+                        document.getElementById('selected-library-image').value = item.id;
+                    });
+                    
+                    libraryContainer.appendChild(mediaItem);
+                });
+            })
+            .catch(error => {
+                loadingIndicator.style.display = 'none';
+                libraryContainer.innerHTML = `
+                    <div class="col-12">
+                        <div class="alert alert-danger">
+                            Failed to load media library. Please try again later.
+                        </div>
+                    </div>
+                `;
+                console.error('Error loading media library:', error);
+            });
+    }
+    
+    // Load media library when tab is selected
+    document.getElementById('library-tab').addEventListener('click', function() {
+        loadMediaLibrary();
+    });
+    
+    function updateAllPreviewContainers(imageUrl) {
+        document.querySelectorAll('.preview-image').forEach(container => {
+            container.style.backgroundImage = `url('${imageUrl}')`;
+            container.querySelector('span').style.display = 'none';
+        });
+    }
 });
 </script>
 {% endblock %}
