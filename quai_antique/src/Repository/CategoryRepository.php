@@ -8,6 +8,11 @@ use Doctrine\Persistence\ManagerRegistry;
 
 /**
  * @extends ServiceEntityRepository<Category>
+ *
+ * @method Category|null find($id, $lockMode = null, $lockVersion = null)
+ * @method Category|null findOneBy(array $criteria, array $orderBy = null)
+ * @method Category[]    findAll()
+ * @method Category[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
 class CategoryRepository extends ServiceEntityRepository
 {
@@ -34,14 +39,16 @@ class CategoryRepository extends ServiceEntityRepository
         }
     }
 
-    // Example of a fixed query method that was causing errors
-    public function findAllWithDishes(): array
+    /**
+     * Find active categories with their menu items
+     */
+    public function findWithMenuItems(): array
     {
         return $this->createQueryBuilder('c')
-            // Use the actual column name from your database instead of 'name'
-            // For example, if the column is actually called 'title' in the database:
-            ->select('c.id', 'c.title', 'c.description', 'c.position') 
-            ->orderBy('c.position', 'ASC')
+            ->leftJoin('c.menuItems', 'i')
+            ->where('i.isActive = :active')
+            ->setParameter('active', true)
+            ->orderBy('c.name', 'ASC')
             ->getQuery()
             ->getResult();
     }

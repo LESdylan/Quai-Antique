@@ -1,0 +1,90 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Ajouter un menu{% endblock %}
+
+{% block body %}
+    <div class="container-fluid px-4">
+        <h1 class="mt-4">Ajouter un menu</h1>
+        
+        <div class="card mb-4">
+            <div class="card-header">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <i class="fas fa-utensils me-1"></i>
+                        Nouveau menu
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                {{ form_start(form) }}
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="mb-3">
+                                {{ form_label(form.title) }}
+                                {{ form_widget(form.title, {'attr': {'class': 'form-control'}}) }}
+                                {{ form_errors(form.title) }}
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                {{ form_label(form.price) }}
+                                <div class="input-group">
+                                    {{ form_widget(form.price, {'attr': {'class': 'form-control'}}) }}
+                                    <span class="input-group-text">€</span>
+                                </div>
+                                {{ form_errors(form.price) }}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form_label(form.description) }}
+                        {{ form_widget(form.description, {'attr': {'class': 'form-control', 'rows': 4}}) }}
+                        {{ form_errors(form.description) }}
+                    </div>
+                    
+                    {% if form.category is defined %}
+                    <div class="mb-3">
+                        {{ form_label(form.category) }}
+                        {{ form_widget(form.category, {'attr': {'class': 'form-select'}}) }}
+                        {{ form_errors(form.category) }}
+                    </div>
+                    {% endif %}
+                    
+                    {% if form.position is defined %}
+                    <div class="mb-3">
+                        {{ form_label(form.position) }}
+                        {{ form_widget(form.position, {'attr': {'class': 'form-control'}}) }}
+                        {{ form_errors(form.position) }}
+                        <small class="form-text text-muted">Position d'affichage du menu (ordre croissant)</small>
+                    </div>
+                    {% endif %}
+                    
+                    {% if form.isActive is defined %}
+                    <div class="mb-3">
+                        <div class="form-check">
+                            {{ form_widget(form.isActive, {'attr': {'class': 'form-check-input'}}) }}
+                            {{ form_label(form.isActive, null, {'label_attr': {'class': 'form-check-label'}}) }}
+                        </div>
+                        {{ form_errors(form.isActive) }}
+                    </div>
+                    {% endif %}
+                    
+                    {% if form.image is defined %}
+                        {# Include the media selector component #}
+                        {% include 'admin/menu/_media_selector.html.twig' %}
+                    {% endif %}
+                    
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ path('admin_menu_index') }}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-1"></i> Retour à la liste
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-1"></i> Enregistrer
+                        </button>
+                    </div>
+                {{ form_end(form) }}
+            </div>
+        </div>
+    </div>
+{% endblock %}

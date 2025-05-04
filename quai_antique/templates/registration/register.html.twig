@@ -4,125 +4,792 @@
 
 {% block stylesheets %}
 <style>
+    /* Modern registration form styling */
+    .register-container {
+        min-height: 100vh;
+        background: linear-gradient(135deg, #f8f5f2 0%, #fff 100%);
+        padding: 2rem 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .register-card {
+        background-color: white;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+        width: 100%;
+        max-width: 900px;
+        display: flex;
+        flex-direction: column;
+        position: relative;
+    }
+    
     .register-header {
-        background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('{{ asset('images/register-header.jpg') }}') center/cover no-repeat;
-        height: 30vh;
+        background-color: var(--primary);
+        padding: 2rem;
+        color: white;
+        text-align: center;
+        border-bottom: 5px solid var(--accent);
+    }
+    
+    .register-header h1 {
+        font-family: 'Playfair Display', serif;
+        font-size: 2.2rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .register-header p {
+        font-size: 1.1rem;
+        opacity: 0.9;
+    }
+    
+    .register-body {
+        padding: 2.5rem;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    /* Multi-step form styling */
+    .step-container {
+        display: flex;
+        width: 300%;
+        transition: transform 0.5s ease-in-out;
+    }
+    
+    .step {
+        width: 33.333%;
+        padding: 0 1rem;
+        opacity: 0;
+        transform: translateY(20px);
+        transition: opacity 0.5s, transform 0.5s;
+    }
+    
+    .step.active {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    
+    .step-title {
+        font-family: 'Playfair Display', serif;
+        font-size: 1.5rem;
+        color: var(--primary);
+        margin-bottom: 1.5rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+    }
+    
+    .step-title .step-number {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background-color: var(--primary);
         color: white;
         display: flex;
         align-items: center;
         justify-content: center;
-        text-align: center;
-        margin-bottom: 3rem;
+        margin-right: 12px;
+        font-size: 1rem;
+        font-family: sans-serif;
     }
     
-    .register-header h1 {
-        font-size: 3rem;
-        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-    }
-    
-    .register-form {
-        background-color: white;
-        padding: 2.5rem;
-        border-radius: 8px;
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-        margin-bottom: 2rem;
-    }
-    
-    .form-section {
-        margin-bottom: 2rem;
-    }
-    
-    .section-title {
-        border-bottom: 2px solid var(--primary);
-        padding-bottom: 0.5rem;
+    /* Form controls */
+    .form-group {
         margin-bottom: 1.5rem;
-        font-family: 'Playfair Display', serif;
+        position: relative;
     }
     
-    .login-link {
-        text-align: center;
+    .form-control {
+        width: 100%;
+        padding: 14px 16px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        font-size: 1rem;
+        transition: all 0.3s;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.03);
+    }
+    
+    .form-control:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(166, 124, 82, 0.15);
+        outline: none;
+    }
+    
+    .form-control.is-invalid {
+        border-color: #dc3545;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='none' stroke='%23dc3545' viewBox='0 0 12 12'%3e%3ccircle cx='6' cy='6' r='5.5'/%3e%3cpath stroke-linecap='round' d='M6 3.5v3'/%3e%3cpath stroke-linecap='round' d='M6 8.5v.001'/%3e%3c/svg%3e");
+        background-repeat: no-repeat;
+        background-position: right 12px center;
+        background-size: 24px 24px;
+    }
+    
+    label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+        font-size: 0.95rem;
+        color: #444;
+    }
+    
+    .invalid-feedback {
+        color: #dc3545;
+        font-size: 0.875em;
+        margin-top: 0.25rem;
+    }
+    
+    /* Navigation buttons */
+    .step-buttons {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 2rem;
+    }
+    
+    .btn {
+        padding: 12px 24px;
+        border-radius: 8px;
+        font-weight: 600;
+        border: none;
+        cursor: pointer;
+        transition: all 0.3s;
+        font-size: 1rem;
+    }
+    
+    .btn-primary {
+        background-color: var(--primary);
+        color: white;
+    }
+    
+    .btn-primary:hover {
+        background-color: var(--accent);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(166, 124, 82, 0.3);
+    }
+    
+    .btn-secondary {
+        background-color: #f1f1f1;
+        color: #444;
+    }
+    
+    .btn-secondary:hover {
+        background-color: #e5e5e5;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.07);
+    }
+    
+    /* Progress bar */
+    .progress-container {
+        padding: 1rem 2.5rem;
+        background-color: #f8f8f8;
+    }
+    
+    .progress-bar {
+        height: 8px;
+        background-color: #e5e5e5;
+        border-radius: 4px;
+        overflow: hidden;
+    }
+    
+    .progress-fill {
+        height: 100%;
+        background-color: var(--primary);
+        transition: width 0.5s ease;
+        width: 33.333%;
+    }
+    
+    /* Social login */
+    .social-login {
         margin-top: 1.5rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid #eee;
+    }
+    
+    .social-login-title {
+        text-align: center;
+        margin-bottom: 1.2rem;
+        font-size: 0.95rem;
+        color: #777;
+        position: relative;
+    }
+    
+    .social-login-title::before,
+    .social-login-title::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        width: 30%;
+        height: 1px;
+        background-color: #eee;
+    }
+    
+    .social-login-title::before {
+        left: 0;
+    }
+    
+    .social-login-title::after {
+        right: 0;
+    }
+    
+    .social-buttons {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+    }
+    
+    .social-button {
+        width: 48px;
+        height: 48px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.2rem;
+        transition: all 0.3s;
+        cursor: pointer;
+        border: none;
+    }
+    
+    .social-button:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    
+    .social-button.google {
+        background-color: #DB4437;
+    }
+    
+    .social-button.facebook {
+        background-color: #3b5998;
+    }
+    
+    .social-button.apple {
+        background-color: #000;
+    }
+    
+    /* Allergy & diet selection */
+    .preferences-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+        gap: 12px;
+        margin-top: 1rem;
+    }
+    
+    .preference-item {
+        position: relative;
+    }
+    
+    .preference-input {
+        position: absolute;
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+    
+    .preference-label {
+        display: flex;
+        align-items: center;
+        padding: 12px 15px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.2s;
+        background-color: white;
+    }
+    
+    .preference-icon {
+        margin-right: 8px;
+        color: #999;
+        transition: color 0.2s;
+    }
+    
+    .preference-input:checked + .preference-label {
+        border-color: var(--primary);
+        background-color: rgba(166, 124, 82, 0.1);
+    }
+    
+    .preference-input:checked + .preference-label .preference-icon {
+        color: var(--primary);
+    }
+    
+    .preference-input:focus + .preference-label {
+        box-shadow: 0 0 0 3px rgba(166, 124, 82, 0.15);
+    }
+    
+    /* Terms and conditions */
+    .terms-container {
+        margin-top: 1.5rem;
+    }
+    
+    .terms-checkbox {
+        display: flex;
+        align-items: flex-start;
+    }
+    
+    .terms-checkbox input[type="checkbox"] {
+        margin-top: 0.25rem;
+        margin-right: 10px;
+    }
+    
+    /* Modal for social login reminders */
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0,0,0,0.4);
+        opacity: 0;
+        transition: opacity 0.3s;
+    }
+    
+    .modal.show {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 1;
+    }
+    
+    .modal-content {
+        background-color: white;
+        margin: auto;
+        border-radius: 12px;
+        max-width: 500px;
+        width: 90%;
+        padding: 2rem;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        transform: translateY(20px);
+        opacity: 0;
+        transition: all 0.3s;
+    }
+    
+    .modal.show .modal-content {
+        transform: translateY(0);
+        opacity: 1;
+    }
+    
+    .modal-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 1rem;
+    }
+    
+    .modal-title {
+        font-family: 'Playfair Display', serif;
+        font-size: 1.5rem;
+        color: var(--primary);
+        margin: 0;
+    }
+    
+    .modal-close {
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        cursor: pointer;
+        color: #777;
+    }
+    
+    .modal-body {
+        margin-bottom: 1.5rem;
+    }
+    
+    .modal-footer {
+        display: flex;
+        justify-content: flex-end;
+        gap: 1rem;
+    }
+    
+    /* Animations */
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .animated {
+        animation: fadeIn 0.5s forwards;
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .register-card {
+            margin: 0 1rem;
+        }
+        
+        .register-body {
+            padding: 1.5rem;
+        }
+        
+        .preferences-grid {
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        }
     }
 </style>
 {% endblock %}
 
 {% block body %}
-<!-- Register Header -->
-<header class="register-header">
-    <div class="container">
-        <h1>Créer un compte</h1>
-        <p class="lead">Rejoignez la communauté Le Quai Antique</p>
-    </div>
-</header>
-
-<div class="container mb-5">
-    <div class="row">
-        <div class="col-lg-8 mx-auto">
-            {% for label, messages in app.flashes %}
-                {% for message in messages %}
-                    <div class="alert alert-{{ label }} alert-dismissible fade show" role="alert">
-                        {{ message }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                {% endfor %}
-            {% endfor %}
-            
-            <div class="register-form">
-                <h2 class="mb-4">Inscription</h2>
-                
-                {{ form_start(registrationForm) }}
-                
-                <div class="form-section">
-                    <h4 class="section-title">Informations personnelles</h4>
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            {{ form_row(registrationForm.lastName) }}
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            {{ form_row(registrationForm.firstName) }}
-                        </div>
-                    </div>
-                    <div class="mb-3">
-                        {{ form_row(registrationForm.email) }}
-                    </div>
-                </div>
-                
-                <div class="form-section">
-                    <h4 class="section-title">Préférences de réservation</h4>
-                    <div class="mb-3">
-                        {{ form_row(registrationForm.defaultGuestCount) }}
-                        <small class="form-text text-muted">Ce nombre sera automatiquement renseigné lors de vos réservations.</small>
-                    </div>
-                    <div class="mb-3">
-                        {{ form_row(registrationForm.allergies) }}
-                        <small class="form-text text-muted">Ces informations nous aideront à mieux vous servir lors de vos visites.</small>
-                    </div>
-                </div>
-                
-                <div class="form-section">
-                    <h4 class="section-title">Sécurité du compte</h4>
-                    <div class="mb-4">
-                        {{ form_row(registrationForm.plainPassword) }}
-                        <small class="form-text text-muted">Votre mot de passe doit comporter au moins 6 caractères.</small>
-                    </div>
-                    <div class="mb-3">
-                        {{ form_row(registrationForm.agreeTerms) }}
-                    </div>
-                </div>
-                
-                <div class="d-grid">
-                    <button type="submit" class="btn btn-primary btn-lg">
-                        <i class="fas fa-user-plus me-2"></i> Créer mon compte
-                    </button>
-                </div>
-                
-                <div class="login-link">
-                    <p>Déjà un compte ? <a href="{{ path('app_login') }}">Se connecter</a></p>
-                </div>
-                
-                {{ form_end(registrationForm) }}
+<div class="register-container">
+    <div class="register-card">
+        <div class="register-header">
+            <h1>Créer un compte</h1>
+            <p>Rejoignez-nous pour profiter d'une expérience gastronomique personnalisée</p>
+        </div>
+        
+        <div class="progress-container">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
             </div>
+        </div>
+        
+        {{ form_start(registrationForm, {'attr': {'id': 'registrationForm', 'novalidate': 'novalidate'}}) }}
+            <div class="register-body">
+                <div class="step-container" id="stepContainer">
+                    <!-- Step 1: Account Info -->
+                    <div class="step active" id="step1">
+                        <div class="step-title">
+                            <span class="step-number">1</span>
+                            <span>Informations du compte</span>
+                        </div>
+                        
+                        <div class="form-group">
+                            {{ form_label(registrationForm.email) }}
+                            {{ form_widget(registrationForm.email, {'attr': {'class': 'form-control' ~ (form_errors(registrationForm.email) ? ' is-invalid' : '')}}) }}
+                            {{ form_errors(registrationForm.email) }}
+                        </div>
+                        
+                        <div class="form-group">
+                            {{ form_label(registrationForm.plainPassword) }}
+                            {{ form_widget(registrationForm.plainPassword, {'attr': {'class': 'form-control' ~ (form_errors(registrationForm.plainPassword) ? ' is-invalid' : '')}}) }}
+                            {{ form_errors(registrationForm.plainPassword) }}
+                            <small class="form-text text-muted">Votre mot de passe doit contenir au moins 8 caractères, incluant des lettres et des chiffres.</small>
+                        </div>
+                        
+                        <div class="social-login">
+                            <div class="social-login-title">Ou inscrivez-vous avec</div>
+                            <div class="social-buttons">
+                                <button type="button" class="social-button google" id="googleLogin">
+                                    <i class="fab fa-google"></i>
+                                </button>
+                                <button type="button" class="social-button facebook" id="facebookLogin">
+                                    <i class="fab fa-facebook-f"></i>
+                                </button>
+                                <button type="button" class="social-button apple" id="appleLogin">
+                                    <i class="fab fa-apple"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="step-buttons">
+                            <div></div>
+                            <button type="button" class="btn btn-primary next-step" data-step="1">Continuer</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Step 2: Allergies & Dietary Preferences -->
+                    <div class="step" id="step2">
+                        <div class="step-title">
+                            <span class="step-number">2</span>
+                            <span>Allergies & Préférences</span>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Allergies</label>
+                            <p class="text-muted">Sélectionnez toutes les allergies applicables :</p>
+                            <div class="preferences-grid">
+                                <div class="preference-item">
+                                    <input type="checkbox" id="allergy_gluten" class="preference-input" name="allergies[]" value="gluten">
+                                    <label for="allergy_gluten" class="preference-label">
+                                        <span class="preference-icon"><i class="fas fa-bread-slice"></i></span>
+                                        Gluten
+                                    </label>
+                                </div>
+                                
+                                <div class="preference-item">
+                                    <input type="checkbox" id="allergy_lactose" class="preference-input" name="allergies[]" value="lactose">
+                                    <label for="allergy_lactose" class="preference-label">
+                                        <span class="preference-icon"><i class="fas fa-cheese"></i></span>
+                                        Lactose
+                                    </label>
+                                </div>
+                                
+                                <div class="preference-item">
+                                    <input type="checkbox" id="allergy_nuts" class="preference-input" name="allergies[]" value="nuts">
+                                    <label for="allergy_nuts" class="preference-label">
+                                        <span class="preference-icon"><i class="fas fa-seedling"></i></span>
+                                        Fruits à coque
+                                    </label>
+                                </div>
+                                
+                                <div class="preference-item">
+                                    <input type="checkbox" id="allergy_shellfish" class="preference-input" name="allergies[]" value="shellfish">
+                                    <label for="allergy_shellfish" class="preference-label">
+                                        <span class="preference-icon"><i class="fas fa-fish"></i></span>
+                                        Crustacés
+                                    </label>
+                                </div>
+                                
+                                <div class="preference-item">
+                                    <input type="checkbox" id="allergy_eggs" class="preference-input" name="allergies[]" value="eggs">
+                                    <label for="allergy_eggs" class="preference-label">
+                                        <span class="preference-icon"><i class="fas fa-egg"></i></span>
+                                        Œufs
+                                    </label>
+                                </div>
+                                
+                                <div class="preference-item">
+                                    <input type="checkbox" id="allergy_soy" class="preference-input" name="allergies[]" value="soy">
+                                    <label for="allergy_soy" class="preference-label">
+                                        <span class="preference-icon"><i class="fas fa-seedling"></i></span>
+                                        Soja
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            {{ form_row(registrationForm.allergies, {'attr': {'class': 'd-none'}, 'label_attr': {'class': 'd-none'}}) }}
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Régime alimentaire</label>
+                            <p class="text-muted">Choisissez votre régime alimentaire :</p>
+                            <div class="preferences-grid">
+                                <div class="preference-item">
+                                    <input type="radio" id="diet_none" class="preference-input" name="dietary_regime" value="none">
+                                    <label for="diet_none" class="preference-label">
+                                        <span class="preference-icon"><i class="fas fa-utensils"></i></span>
+                                        Aucun
+                                    </label>
+                                </div>
+                                
+                                <div class="preference-item">
+                                    <input type="radio" id="diet_vegetarian" class="preference-input" name="dietary_regime" value="vegetarian">
+                                    <label for="diet_vegetarian" class="preference-label">
+                                        <span class="preference-icon"><i class="fas fa-leaf"></i></span>
+                                        Végétarien
+                                    </label>
+                                </div>
+                                
+                                <div class="preference-item">
+                                    <input type="radio" id="diet_vegan" class="preference-input" name="dietary_regime" value="vegan">
+                                    <label for="diet_vegan" class="preference-label">
+                                        <span class="preference-icon"><i class="fas fa-seedling"></i></span>
+                                        Végétalien
+                                    </label>
+                                </div>
+                                
+                                <div class="preference-item">
+                                    <input type="radio" id="diet_pescatarian" class="preference-input" name="dietary_regime" value="pescatarian">
+                                    <label for="diet_pescatarian" class="preference-label">
+                                        <span class="preference-icon"><i class="fas fa-fish"></i></span>
+                                        Pescétarien
+                                    </label>
+                                </div>
+                                
+                                <div class="preference-item">
+                                    <input type="radio" id="diet_keto" class="preference-input" name="dietary_regime" value="keto">
+                                    <label for="diet_keto" class="preference-label">
+                                        <span class="preference-icon"><i class="fas fa-drumstick-bite"></i></span>
+                                        Cétogène
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            {{ form_row(registrationForm.dietary_regime, {'attr': {'class': 'd-none'}, 'label_attr': {'class': 'd-none'}}) }}
+                        </div>
+                        
+                        <div class="step-buttons">
+                            <button type="button" class="btn btn-secondary prev-step" data-step="2">Précédent</button>
+                            <button type="button" class="btn btn-primary next-step" data-step="2">Continuer</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Step 3: Guest count and Terms -->
+                    <div class="step" id="step3">
+                        <div class="step-title">
+                            <span class="step-number">3</span>
+                            <span>Préférences & Confirmation</span>
+                        </div>
+                        
+                        <div class="form-group">
+                            {{ form_label(registrationForm.defaultGuestCount) }}
+                            {{ form_widget(registrationForm.defaultGuestCount, {'attr': {'class': 'form-control' ~ (form_errors(registrationForm.defaultGuestCount) ? ' is-invalid' : '')}}) }}
+                            {{ form_errors(registrationForm.defaultGuestCount) }}
+                            <small class="form-text text-muted">Le nombre de convives par défaut pour vos réservations</small>
+                        </div>
+                        
+                        <div class="terms-container">
+                            <div class="terms-checkbox">
+                                {{ form_widget(registrationForm.agreeTerms) }}
+                                {{ form_label(registrationForm.agreeTerms) }}
+                            </div>
+                            {{ form_errors(registrationForm.agreeTerms) }}
+                        </div>
+                        
+                        <div class="step-buttons">
+                            <button type="button" class="btn btn-secondary prev-step" data-step="3">Précédent</button>
+                            <button type="submit" class="btn btn-primary">Créer mon compte</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {{ form_end(registrationForm) }}
+    </div>
+</div>
+
+<!-- Social Login Reminder Modal -->
+<div class="modal" id="socialLoginModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 class="modal-title">Presque terminé !</h3>
+            <button type="button" class="modal-close">&times;</button>
+        </div>
+        <div class="modal-body">
+            <p>Pour vous offrir la meilleure expérience culinaire, nous avons besoin de connaître vos allergies et préférences alimentaires.</p>
+            <p>Cela nous permettra de vous recommander des plats adaptés à vos besoins lors de vos visites au Quai Antique.</p>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary modal-close-btn">Plus tard</button>
+            <button type="button" class="btn btn-primary modal-continue-btn">Compléter mon profil</button>
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Multi-step form navigation
+        const stepContainer = document.getElementById('stepContainer');
+        const progressFill = document.getElementById('progressFill');
+        const steps = document.querySelectorAll('.step');
+        const nextButtons = document.querySelectorAll('.next-step');
+        const prevButtons = document.querySelectorAll('.prev-step');
+        
+        // Modal elements
+        const modal = document.getElementById('socialLoginModal');
+        const closeButtons = document.querySelectorAll('.modal-close, .modal-close-btn');
+        const continueBtn = document.querySelector('.modal-continue-btn');
+        const socialButtons = document.querySelectorAll('.social-button');
+        
+        // Set up social login buttons
+        socialButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                // In a real implementation, this would redirect to the social auth provider
+                // For demo purposes, we'll just show the modal
+                showModal();
+            });
+        });
+        
+        // Modal functions
+        function showModal() {
+            modal.classList.add('show');
+            setTimeout(() => {
+                document.querySelector('.modal-content').style.opacity = 1;
+                document.querySelector('.modal-content').style.transform = 'translateY(0)';
+            }, 10);
+        }
+        
+        function hideModal() {
+            document.querySelector('.modal-content').style.opacity = 0;
+            document.querySelector('.modal-content').style.transform = 'translateY(20px)';
+            setTimeout(() => {
+                modal.classList.remove('show');
+            }, 300);
+        }
+        
+        closeButtons.forEach(button => {
+            button.addEventListener('click', hideModal);
+        });
+        
+        continueBtn.addEventListener('click', function() {
+            hideModal();
+            // Move to step 2 (allergies & preferences)
+            goToStep(2);
+        });
+        
+        // Multi-step navigation
+        function goToStep(stepNumber) {
+            const translateValue = (stepNumber - 1) * -33.333;
+            stepContainer.style.transform = `translateX(${translateValue}%)`;
+            
+            // Update progress bar
+            progressFill.style.width = `${stepNumber * 33.333}%`;
+            
+            // Update active class
+            steps.forEach((step, index) => {
+                if (index === stepNumber - 1) {
+                    step.classList.add('active');
+                } else {
+                    step.classList.remove('active');
+                }
+            });
+        }
+        
+        nextButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const currentStep = parseInt(this.dataset.step);
+                
+                // Validate current step (simplified validation for demo)
+                let isValid = true;
+                
+                if (currentStep === 1) {
+                    const email = document.querySelector('#registration_form_email');
+                    const password = document.querySelector('#registration_form_plainPassword');
+                    if (!email.value || !password.value) {
+                        isValid = false;
+                    }
+                }
+                
+                if (isValid) {
+                    goToStep(currentStep + 1);
+                }
+            });
+        });
+        
+        prevButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const currentStep = parseInt(this.dataset.step);
+                goToStep(currentStep - 1);
+            });
+        });
+        
+        // Sync checkbox/radio selections with hidden form fields
+        const allergyCheckboxes = document.querySelectorAll('input[name="allergies[]"]');
+        const dietRadios = document.querySelectorAll('input[name="dietary_regime"]');
+        const allergyTextarea = document.querySelector('#registration_form_allergies');
+        const dietTextarea = document.querySelector('#registration_form_dietary_regime');
+        
+        allergyCheckboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', updateAllergies);
+        });
+        
+        dietRadios.forEach(radio => {
+            radio.addEventListener('change', updateDiet);
+        });
+        
+        function updateAllergies() {
+            const selectedAllergies = Array.from(allergyCheckboxes)
+                .filter(cb => cb.checked)
+                .map(cb => cb.value);
+            
+            allergyTextarea.value = selectedAllergies.join(', ');
+        }
+        
+        function updateDiet() {
+            const selectedDiet = Array.from(dietRadios)
+                .find(radio => radio.checked);
+            
+            if (selectedDiet) {
+                dietTextarea.value = selectedDiet.value;
+            }
+        }
+        
+        // Initialize
+        updateAllergies();
+        updateDiet();
+    });
+</script>
 {% endblock %}

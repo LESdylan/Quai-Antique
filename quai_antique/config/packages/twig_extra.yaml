@@ -1,0 +1,17 @@
+# This configuration enables the Twig String Extension for use with the "u" filter
+twig:
+    default_path: '%kernel.project_dir%/templates'
+    paths:
+        '%kernel.project_dir%/templates/admin': admin
+        '%kernel.project_dir%/templates/front': front
+    form_themes:
+        - 'bootstrap_5_layout.html.twig'
+
+# Disable automatic registration from TwigExtraBundle to prevent duplicate registration
+twig_extra:
+    string: false
+
+services:
+    # Explicitly register the Twig String Extension service
+    Twig\Extra\String\StringExtension:
+        tags: ['twig.extension']

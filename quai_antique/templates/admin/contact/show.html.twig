@@ -1,0 +1,51 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Détail du message | Administration{% endblock %}
+
+{% block body %}
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0">Détail du message</h1>
+        <div>
+            <a href="{{ path('admin_contact_index') }}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-2"></i> Retour à la liste
+            </a>
+        </div>
+    </div>
+    
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+            <div>
+                <h5 class="mb-0">{{ message.subject }}</h5>
+                <small class="text-muted">De: {{ message.firstName }} {{ message.lastName }} ({{ message.email }})</small>
+            </div>
+            <span class="text-muted">{{ message.createdAt|date('d/m/Y à H:i') }}</span>
+        </div>
+        <div class="card-body">
+            <div class="p-3 bg-light rounded mb-4">
+                {{ message.message|nl2br }}
+            </div>
+            
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <span class="badge {% if message.isRead %}bg-light text-dark{% else %}bg-primary{% endif %} me-2">
+                        {{ message.isRead ? 'Lu' : 'Non lu' }}
+                    </span>
+                </div>
+                <div class="btn-group">
+                    <a href="mailto:{{ message.email }}" class="btn btn-outline-primary">
+                        <i class="fas fa-reply me-2"></i> Répondre
+                    </a>
+                    
+                    <form action="{{ path('admin_contact_delete', {'id': message.id}) }}" method="POST" class="d-inline" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce message?');">
+                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ message.id) }}">
+                        <button type="submit" class="btn btn-outline-danger">
+                            <i class="fas fa-trash me-2"></i> Supprimer
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

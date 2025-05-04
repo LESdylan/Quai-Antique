@@ -1,0 +1,323 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Tableau de bord - Administration{% endblock %}
+
+{% block body %}
+<div class="container-fluid px-4">
+    <h1 class="mt-4 mb-2">Tableau de bord</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item active">Vue d'ensemble</li>
+    </ol>
+    
+    <!-- Stats Cards Row -->
+    <div class="row">
+        <div class="col-xl-3 col-md-6">
+            <div class="card data-card primary mb-4">
+                <div class="card-body">
+                    <div class="icon-container">
+                        <i class="fas fa-envelope"></i>
+                    </div>
+                    <div class="data-info">
+                        <h2 class="data-value">{{ unreadMessages|default(0) }}</h2>
+                        <p class="data-label">Messages non lus</p>
+                    </div>
+                </div>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <a class="small text-decoration-none stretched-link" href="{{ path('admin_message_index') }}">Voir les détails</a>
+                    <i class="fas fa-angle-right"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card data-card warning mb-4">
+                <div class="card-body">
+                    <div class="icon-container">
+                        <i class="fas fa-calendar-check"></i>
+                    </div>
+                    <div class="data-info">
+                        <h2 class="data-value">{{ todayReservations|default(0) }}</h2>
+                        <p class="data-label">Réservations aujourd'hui</p>
+                    </div>
+                </div>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <a class="small text-decoration-none stretched-link" href="#">Voir les détails</a>
+                    <i class="fas fa-angle-right"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card data-card success mb-4">
+                <div class="card-body">
+                    <div class="icon-container">
+                        <i class="fas fa-utensils"></i>
+                    </div>
+                    <div class="data-info">
+                        <h2 class="data-value">{{ totalMenuItems|default(0) }}</h2>
+                        <p class="data-label">Plats au menu</p>
+                    </div>
+                </div>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <a class="small text-decoration-none stretched-link" href="#">Voir les détails</a>
+                    <i class="fas fa-angle-right"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card data-card info mb-4">
+                <div class="card-body">
+                    <div class="icon-container">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="data-info">
+                        <h2 class="data-value">{{ totalUsers|default(0) }}</h2>
+                        <p class="data-label">Utilisateurs</p>
+                    </div>
+                </div>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <a class="small text-decoration-none stretched-link" href="#">Voir les détails</a>
+                    <i class="fas fa-angle-right"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Charts Row -->
+    <div class="row">
+        <div class="col-xl-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <i class="fas fa-chart-bar me-1"></i>
+                    Réservations par jour
+                </div>
+                <div class="card-body">
+                    <div class="chart-container">
+                        <canvas id="reservationsChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <i class="fas fa-chart-pie me-1"></i>
+                    Distribution des horaires
+                </div>
+                <div class="card-body">
+                    <div class="chart-container">
+                        <canvas id="timeDistributionChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Recent Activities Row -->
+    <div class="row">
+        <div class="col-xl-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <i class="fas fa-envelope me-1"></i>
+                    Messages récents
+                </div>
+                <div class="card-body">
+                    {% if recentMessages is defined and recentMessages|length > 0 %}
+                        <div class="table-container">
+                            <table class="table table-striped dashboard-table">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Nom</th>
+                                        <th>Sujet</th>
+                                        <th>Statut</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for message in recentMessages %}
+                                        <tr>
+                                            <td>{{ message.createdAt|date('d/m/Y H:i') }}</td>
+                                            <td>{{ message.name }}</td>
+                                            <td>{{ message.subject }}</td>
+                                            <td>
+                                                {% if message.status == 'new' %}
+                                                    <span class="badge bg-danger">Nouveau</span>
+                                                {% elseif message.status == 'read' %}
+                                                    <span class="badge bg-info">Lu</span>
+                                                {% elseif message.status == 'replied' %}
+                                                    <span class="badge bg-success">Répondu</span>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="text-end mt-3">
+                            <a href="{{ path('admin_message_index') }}" class="btn btn-sm btn-primary">Voir tous les messages</a>
+                        </div>
+                    {% else %}
+                        <div class="alert alert-info mb-0">
+                            Aucun message récent à afficher.
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <i class="fas fa-calendar me-1"></i>
+                    Prochaines réservations
+                </div>
+                <div class="card-body">
+                    {% if upcomingReservations is defined and upcomingReservations|length > 0 %}
+                        <div class="table-container">
+                            <table class="table table-striped dashboard-table">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Nom</th>
+                                        <th>Couverts</th>
+                                        <th>Statut</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for reservation in upcomingReservations %}
+                                        <tr>
+                                            <td>{{ reservation.date|date('d/m/Y H:i') }}</td>
+                                            <td>{{ reservation.name }}</td>
+                                            <td>{{ reservation.guests }}</td>
+                                            <td>
+                                                <span class="badge bg-success">Confirmée</span>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="text-end mt-3">
+                            <a href="#" class="btn btn-sm btn-primary">Voir toutes les réservations</a>
+                        </div>
+                    {% else %}
+                        <div class="alert alert-info mb-0">
+                            Aucune réservation à venir.
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Quick Links Row -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <i class="fas fa-bolt me-1"></i>
+                    Accès rapides
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-3 col-sm-6">
+                            <a href="#" class="btn btn-outline-primary w-100 d-flex align-items-center justify-content-center py-3">
+                                <i class="fas fa-plus me-2"></i> Nouvelle réservation
+                            </a>
+                        </div>
+                        <div class="col-md-3 col-sm-6">
+                            <a href="#" class="btn btn-outline-success w-100 d-flex align-items-center justify-content-center py-3">
+                                <i class="fas fa-utensils me-2"></i> Ajouter au menu
+                            </a>
+                        </div>
+                        <div class="col-md-3 col-sm-6">
+                            <a href="#" class="btn btn-outline-info w-100 d-flex align-items-center justify-content-center py-3">
+                                <i class="fas fa-image me-2"></i> Ajouter des images
+                            </a>
+                        </div>
+                        <div class="col-md-3 col-sm-6">
+                            <a href="#" class="btn btn-outline-warning w-100 d-flex align-items-center justify-content-center py-3">
+                                <i class="fas fa-cog me-2"></i> Paramètres
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Reservation Chart
+        const reservationsCtx = document.getElementById('reservationsChart').getContext('2d');
+        const reservationsChart = new Chart(reservationsCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'],
+                datasets: [{
+                    label: 'Nombre de réservations',
+                    data: [12, 19, 8, 15, 28, 35, 24],
+                    backgroundColor: [
+                        'rgba(166, 124, 82, 0.7)',
+                    ],
+                    borderColor: [
+                        'rgba(166, 124, 82, 1)',
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false,
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            precision: 0
+                        }
+                    }
+                }
+            }
+        });
+        
+        // Time Distribution Chart
+        const timeDistributionCtx = document.getElementById('timeDistributionChart').getContext('2d');
+        const timeDistributionChart = new Chart(timeDistributionCtx, {
+            type: 'pie',
+            data: {
+                labels: ['Midi (12h-14h)', 'Soir (19h-22h)'],
+                datasets: [{
+                    data: [35, 65],
+                    backgroundColor: [
+                        'rgba(255, 193, 7, 0.7)',
+                        'rgba(92, 61, 46, 0.7)'
+                    ],
+                    borderColor: [
+                        'rgba(255, 193, 7, 1)',
+                        'rgba(92, 61, 46, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}

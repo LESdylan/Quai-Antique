@@ -24,6 +24,12 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 #[IsGranted('ROLE_ADMIN')]
 class AdminSettingsController extends AbstractController
 {
+    private EntityManagerInterface $entityManager;
+
+    public function __construct(EntityManagerInterface $entityManager)
+    {
+        $this->entityManager = $entityManager;
+    }
     #[Route('', name: 'app_admin_settings')]
     public function index(
         Request $request, 

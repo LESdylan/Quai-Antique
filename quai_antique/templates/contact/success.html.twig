@@ -1,0 +1,24 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Message envoyé | {{ parent() }}{% endblock %}
+
+{% block body %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-body text-center p-5">
+                    <div class="mb-4">
+                        <i class="fas fa-check-circle text-success" style="font-size: 64px;"></i>
+                    </div>
+                    <h1 class="mb-4">Message envoyé avec succès</h1>
+                    <p class="lead mb-4">Merci pour votre message. Nous vous répondrons dans les plus brefs délais.</p>
+                    <a href="{{ path('app_home') }}" class="btn btn-primary">
+                        <i class="fas fa-home me-2"></i>Retour à l'accueil
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

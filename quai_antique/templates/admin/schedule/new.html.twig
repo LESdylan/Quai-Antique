@@ -1,0 +1,108 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Nouvel horaire{% endblock %}
+
+{% block body %}
+    <div class="container-fluid px-4">
+        <h1 class="mt-4">Ajouter un horaire</h1>
+        
+        <div class="card mb-4">
+            <div class="card-header">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <i class="fas fa-clock me-1"></i>
+                        Nouvel horaire
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                {{ form_start(form) }}
+                    <div class="row">
+                        <div class="col-md-4">
+                            {{ form_row(form.dayName) }}
+                        </div>
+                        <div class="col-md-4">
+                            {{ form_row(form.dayNumber) }}
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-check mt-4">
+                                {{ form_widget(form.isClosed) }}
+                                {{ form_label(form.isClosed) }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card mt-3 mb-4">
+                        <div class="card-header">Horaires du midi</div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    {{ form_row(form.lunchOpeningTime) }}
+                                </div>
+                                <div class="col-md-6">
+                                    {{ form_row(form.lunchClosingTime) }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card mb-4">
+                        <div class="card-header">Horaires du soir</div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    {{ form_row(form.dinnerOpeningTime) }}
+                                </div>
+                                <div class="col-md-6">
+                                    {{ form_row(form.dinnerClosingTime) }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{ form_rest(form) }}
+
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ path('admin_schedule_index') }}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-1"></i> Retour à la liste
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-1"></i> Enregistrer
+                        </button>
+                    </div>
+                {{ form_end(form) }}
+                
+                <div class="alert alert-info mt-4">
+                    <i class="fas fa-info-circle me-2"></i> Si le restaurant est fermé ce jour, cochez simplement la case "Jour fermé".
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const isClosed = document.getElementById('{{ form.isClosed.vars.id }}');
+            const timeFields = document.querySelectorAll('.time-field-container');
+            
+            function toggleTimeFields() {
+                const disabled = isClosed.checked;
+                timeFields.forEach(field => {
+                    field.style.opacity = disabled ? '0.5' : '1';
+                    const inputs = field.querySelectorAll('input, select');
+                    inputs.forEach(input => {
+                        input.disabled = disabled;
+                    });
+                });
+            }
+            
+            // Initial state
+            toggleTimeFields();
+            
+            // On change
+            isClosed.addEventListener('change', toggleTimeFields);
+        });
+    </script>
+{% endblock %}

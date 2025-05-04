@@ -1,0 +1,323 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Paramètres | Administration{% endblock %}
+
+{% block body %}
+<div class="container-fluid px-4">
+    <h1 class="mt-4">Paramètres du site</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item"><a href="{{ path('admin_dashboard') }}">Tableau de bord</a></li>
+        <li class="breadcrumb-item active">Paramètres</li>
+    </ol>
+    
+    {% for label, messages in app.flashes %}
+        {% for message in messages %}
+            <div class="alert alert-{{ label }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endfor %}
+    
+    <div class="row">
+        <div class="col-md-3">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <i class="fas fa-list me-1"></i>
+                    Catégories de paramètres
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                        <a href="#general" class="list-group-item list-group-item-action active" data-bs-toggle="list">
+                            <i class="fas fa-cog me-2"></i> Général
+                        </a>
+                        <a href="#restaurant" class="list-group-item list-group-item-action" data-bs-toggle="list">
+                            <i class="fas fa-utensils me-2"></i> Restaurant
+                        </a>
+                        <a href="#reservation" class="list-group-item list-group-item-action" data-bs-toggle="list">
+                            <i class="fas fa-calendar-alt me-2"></i> Réservations
+                        </a>
+                        <a href="#contact" class="list-group-item list-group-item-action" data-bs-toggle="list">
+                            <i class="fas fa-envelope me-2"></i> Contact
+                        </a>
+                        <a href="#social" class="list-group-item list-group-item-action" data-bs-toggle="list">
+                            <i class="fas fa-share-alt me-2"></i> Réseaux sociaux
+                        </a>
+                        <a href="#seo" class="list-group-item list-group-item-action" data-bs-toggle="list">
+                            <i class="fas fa-search me-2"></i> SEO
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-9">
+            <div class="tab-content">
+                <!-- General Settings -->
+                <div class="tab-pane fade show active" id="general">
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <i class="fas fa-cog me-1"></i>
+                            Paramètres généraux
+                        </div>
+                        <div class="card-body">
+                            <form method="post" action="{{ path('admin_setting_update', {'group': 'general'}) }}">
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label for="site_name" class="form-label">Nom du site</label>
+                                        <input type="text" class="form-control" id="site_name" name="site_name" value="{{ settings.site_name|default('Le Quai Antique') }}">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="site_tagline" class="form-label">Slogan</label>
+                                        <input type="text" class="form-control" id="site_tagline" name="site_tagline" value="{{ settings.site_tagline|default('Restaurant gastronomique à Chambéry') }}">
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="site_description" class="form-label">Description</label>
+                                    <textarea class="form-control" id="site_description" name="site_description" rows="3">{{ settings.site_description|default('') }}</textarea>
+                                </div>
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label for="logo_url" class="form-label">Logo (URL)</label>
+                                        <input type="text" class="form-control" id="logo_url" name="logo_url" value="{{ settings.logo_url|default('') }}">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="favicon_url" class="form-label">Favicon (URL)</label>
+                                        <input type="text" class="form-control" id="favicon_url" name="favicon_url" value="{{ settings.favicon_url|default('') }}">
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="homepage_message" class="form-label">Message d'accueil</label>
+                                    <textarea class="form-control" id="homepage_message" name="homepage_message" rows="3">{{ settings.homepage_message|default('') }}</textarea>
+                                </div>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save me-1"></i>
+                                    Enregistrer les changements
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Restaurant Settings -->
+                <div class="tab-pane fade" id="restaurant">
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <i class="fas fa-utensils me-1"></i>
+                            Paramètres du restaurant
+                        </div>
+                        <div class="card-body">
+                            <form method="post" action="{{ path('admin_setting_update', {'group': 'restaurant'}) }}">
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label for="restaurant_name" class="form-label">Nom du restaurant</label>
+                                        <input type="text" class="form-control" id="restaurant_name" name="restaurant_name" value="{{ settings.restaurant_name|default('Le Quai Antique') }}">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="restaurant_type" class="form-label">Type de cuisine</label>
+                                        <input type="text" class="form-control" id="restaurant_type" name="restaurant_type" value="{{ settings.restaurant_type|default('Cuisine gastronomique savoyarde') }}">
+                                    </div>
+                                </div>
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label for="restaurant_address" class="form-label">Adresse</label>
+                                        <input type="text" class="form-control" id="restaurant_address" name="restaurant_address" value="{{ settings.restaurant_address|default('24 Place Monge, 73000 Chambéry') }}">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="restaurant_phone" class="form-label">Téléphone</label>
+                                        <input type="text" class="form-control" id="restaurant_phone" name="restaurant_phone" value="{{ settings.restaurant_phone|default('+33 4 79 36 96 85') }}">
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="restaurant_email" class="form-label">Email</label>
+                                    <input type="email" class="form-control" id="restaurant_email" name="restaurant_email" value="{{ settings.restaurant_email|default('contact@quaiantique.fr') }}">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Horaires d'ouverture</label>
+                                    <p class="small text-muted">Gérez les horaires d'ouverture dans la <a href="{{ path('admin_schedule_index') }}">section dédiée</a>.</p>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="map_embed" class="form-label">Code d'intégration Google Maps</label>
+                                    <textarea class="form-control" id="map_embed" name="map_embed" rows="3">{{ settings.map_embed|default('') }}</textarea>
+                                    <div class="form-text">Collez ici le code iframe de Google Maps.</div>
+                                </div>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save me-1"></i>
+                                    Enregistrer les changements
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Reservation Settings -->
+                <div class="tab-pane fade" id="reservation">
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <i class="fas fa-calendar-alt me-1"></i>
+                            Paramètres de réservation
+                        </div>
+                        <div class="card-body">
+                            <form method="post" action="{{ path('admin_setting_update', {'group': 'reservation'}) }}">
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label for="max_guests" class="form-label">Nombre maximum de couverts</label>
+                                        <input type="number" class="form-control" id="max_guests" name="max_guests" value="{{ settings.max_guests|default(50) }}">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="reservation_interval" class="form-label">Intervalle de réservation (minutes)</label>
+                                        <input type="number" class="form-control" id="reservation_interval" name="reservation_interval" value="{{ settings.reservation_interval|default(15) }}">
+                                    </div>
+                                </div>
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label for="min_reservation_time" class="form-label">Délai minimum avant réservation (heures)</label>
+                                        <input type="number" class="form-control" id="min_reservation_time" name="min_reservation_time" value="{{ settings.min_reservation_time|default(1) }}">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="max_reservation_days" class="form-label">Délai maximum de réservation à l'avance (jours)</label>
+                                        <input type="number" class="form-control" id="max_reservation_days" name="max_reservation_days" value="{{ settings.max_reservation_days|default(30) }}">
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="reservation_confirmation_message" class="form-label">Message de confirmation de réservation</label>
+                                    <textarea class="form-control" id="reservation_confirmation_message" name="reservation_confirmation_message" rows="3">{{ settings.reservation_confirmation_message|default('Votre réservation a bien été prise en compte. Nous vous attendons le %date% à %time%.') }}</textarea>
+                                </div>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save me-1"></i>
+                                    Enregistrer les changements
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Contact Settings -->
+                <div class="tab-pane fade" id="contact">
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <i class="fas fa-envelope me-1"></i>
+                            Paramètres de contact
+                        </div>
+                        <div class="card-body">
+                            <form method="post" action="{{ path('admin_setting_update', {'group': 'contact'}) }}">
+                                <div class="mb-3">
+                                    <label for="contact_email" class="form-label">Email de réception des messages</label>
+                                    <input type="email" class="form-control" id="contact_email" name="contact_email" value="{{ settings.contact_email|default('') }}">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="contact_success_message" class="form-label">Message de succès du formulaire de contact</label>
+                                    <textarea class="form-control" id="contact_success_message" name="contact_success_message" rows="2">{{ settings.contact_success_message|default('Votre message a été envoyé avec succès. Nous vous répondrons dans les plus brefs délais.') }}</textarea>
+                                </div>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save me-1"></i>
+                                    Enregistrer les changements
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Social Media Settings -->
+                <div class="tab-pane fade" id="social">
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <i class="fas fa-share-alt me-1"></i>
+                            Réseaux sociaux
+                        </div>
+                        <div class="card-body">
+                            <form method="post" action="{{ path('admin_setting_update', {'group': 'social'}) }}">
+                                <div class="input-group mb-3">
+                                    <span class="input-group-text"><i class="fab fa-facebook"></i></span>
+                                    <input type="url" class="form-control" id="facebook_url" name="facebook_url" placeholder="URL Facebook" value="{{ settings.facebook_url|default('') }}">
+                                </div>
+                                <div class="input-group mb-3">
+                                    <span class="input-group-text"><i class="fab fa-instagram"></i></span>
+                                    <input type="url" class="form-control" id="instagram_url" name="instagram_url" placeholder="URL Instagram" value="{{ settings.instagram_url|default('') }}">
+                                </div>
+                                <div class="input-group mb-3">
+                                    <span class="input-group-text"><i class="fab fa-twitter"></i></span>
+                                    <input type="url" class="form-control" id="twitter_url" name="twitter_url" placeholder="URL Twitter" value="{{ settings.twitter_url|default('') }}">
+                                </div>
+                                <div class="input-group mb-3">
+                                    <span class="input-group-text"><i class="fab fa-tripadvisor"></i></span>
+                                    <input type="url" class="form-control" id="tripadvisor_url" name="tripadvisor_url" placeholder="URL TripAdvisor" value="{{ settings.tripadvisor_url|default('') }}">
+                                </div>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save me-1"></i>
+                                    Enregistrer les changements
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- SEO Settings -->
+                <div class="tab-pane fade" id="seo">
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <i class="fas fa-search me-1"></i>
+                            Paramètres SEO
+                        </div>
+                        <div class="card-body">
+                            <form method="post" action="{{ path('admin_setting_update', {'group': 'seo'}) }}">
+                                <div class="mb-3">
+                                    <label for="meta_title" class="form-label">Titre de la page d'accueil (meta title)</label>
+                                    <input type="text" class="form-control" id="meta_title" name="meta_title" value="{{ settings.meta_title|default('') }}">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="meta_description" class="form-label">Description de la page d'accueil (meta description)</label>
+                                    <textarea class="form-control" id="meta_description" name="meta_description" rows="3">{{ settings.meta_description|default('') }}</textarea>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="meta_keywords" class="form-label">Mots-clés (meta keywords)</label>
+                                    <input type="text" class="form-control" id="meta_keywords" name="meta_keywords" value="{{ settings.meta_keywords|default('') }}">
+                                    <div class="form-text">Séparez les mots-clés par des virgules.</div>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="google_analytics_id" class="form-label">ID Google Analytics</label>
+                                    <input type="text" class="form-control" id="google_analytics_id" name="google_analytics_id" value="{{ settings.google_analytics_id|default('') }}">
+                                    <div class="form-text">Par exemple: G-XXXXXXXXXX ou UA-XXXXXXXX-X</div>
+                                </div>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save me-1"></i>
+                                    Enregistrer les changements
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Bootstrap 5 tab activation via JavaScript
+        const triggerTabList = [].slice.call(document.querySelectorAll('.list-group-item'))
+        triggerTabList.forEach(function (triggerEl) {
+            const tabTrigger = new bootstrap.Tab(triggerEl)
+            triggerEl.addEventListener('click', function (event) {
+                event.preventDefault()
+                tabTrigger.show()
+                
+                // Update active state for list group items
+                triggerTabList.forEach(el => el.classList.remove('active'));
+                triggerEl.classList.add('active');
+            })
+        })
+        
+        // Check for hash in URL and activate correct tab
+        const hash = window.location.hash;
+        if (hash) {
+            const tab = document.querySelector(`[href="${hash}"]`);
+            if (tab) {
+                tab.click();
+            }
+        }
+    });
+</script>
+{% endblock %}

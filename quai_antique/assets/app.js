@@ -7,4 +7,7 @@ import './bootstrap.js';
  */
 import './styles/app.css';
 
+// Import the contact form script
+import './js/contact-form.js';
+
 console.log('This log comes from assets/app.js - welcome to AssetMapper! 🎉');

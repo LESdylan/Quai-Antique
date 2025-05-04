@@ -1,0 +1,189 @@
+{# This template renders a visual gallery selector for menu items #}
+<div class="media-selector-container">
+    <div class="mb-3">
+        {{ form_label(form.image) }}
+        <div class="input-group mb-3">
+            {{ form_widget(form.image, {'attr': {'class': 'form-select media-gallery-select'}}) }}
+            <button type="button" class="btn btn-outline-secondary" id="showGalleryBtn">
+                <i class="fas fa-images"></i> Parcourir
+            </button>
+        </div>
+        {{ form_errors(form.image) }}
+        <small class="form-text text-muted">Sélectionnez une image de la galerie pour ce menu</small>
+    </div>
+
+    {# Preview of selected image #}
+    <div id="selectedImagePreview" class="mb-4" {% if form.vars.value.image is null %}style="display: none;"{% endif %}>
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span>Image sélectionnée</span>
+                <button type="button" class="btn btn-sm btn-outline-danger" id="removeImageBtn">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="card-body text-center">
+                {% if form.vars.value.image is not null %}
+                <img src="{{ asset('uploads/gallery/' ~ form.vars.value.imageFilename) }}" 
+                     alt="{{ form.vars.value.image.title }}" 
+                     class="img-fluid" style="max-height: 200px;">
+                <p class="mt-2">{{ form.vars.value.image.title }}</p>
+                {% else %}
+                <img src="" alt="Selected image" class="img-fluid" style="max-height: 200px; display: none;" id="previewImage">
+                <p class="mt-2" id="previewTitle"></p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    {# Modal gallery browser #}
+    <div class="modal fade" id="galleryModal" tabindex="-1" aria-labelledby="galleryModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="galleryModalLabel">Sélectionner une image</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <input type="text" class="form-control" id="gallerySearch" placeholder="Rechercher une image...">
+                    </div>
+                    <div class="row gallery-grid" id="galleryGrid">
+                        <!-- Gallery images will be loaded here via JavaScript -->
+                        <div class="text-center w-100 py-5">
+                            <div class="spinner-border" role="status">
+                                <span class="visually-hidden">Chargement...</span>
+                            </div>
+                            <p class="mt-2">Chargement de la galerie...</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const gallerySelect = document.querySelector('.media-gallery-select');
+    const showGalleryBtn = document.getElementById('showGalleryBtn');
+    const removeImageBtn = document.getElementById('removeImageBtn');
+    const selectedImagePreview = document.getElementById('selectedImagePreview');
+    const previewImage = document.getElementById('previewImage');
+    const previewTitle = document.getElementById('previewTitle');
+    const galleryModal = new bootstrap.Modal(document.getElementById('galleryModal'));
+    const galleryGrid = document.getElementById('galleryGrid');
+    const gallerySearch = document.getElementById('gallerySearch');
+    
+    // Show gallery modal when clicking the browse button
+    showGalleryBtn.addEventListener('click', function() {
+        loadGalleryImages();
+        galleryModal.show();
+    });
+    
+    // Remove selected image
+    removeImageBtn.addEventListener('click', function() {
+        gallerySelect.value = '';
+        selectedImagePreview.style.display = 'none';
+        previewImage.src = '';
+        previewTitle.textContent = '';
+    });
+    
+    // Handle select change
+    gallerySelect.addEventListener('change', function() {
+        if (this.value) {
+            const selectedOption = this.options[this.selectedIndex];
+            const imageId = this.value;
+            
+            // Fetch image details to display preview
+            fetch(`/admin/gallery/${imageId}/json`)
+                .then(response => response.json())
+                .then(data => {
+                    previewImage.src = `/uploads/gallery/${data.filename}`;
+                    previewImage.alt = data.title;
+                    previewImage.style.display = 'block';
+                    previewTitle.textContent = data.title;
+                    selectedImagePreview.style.display = 'block';
+                });
+        } else {
+            selectedImagePreview.style.display = 'none';
+        }
+    });
+    
+    // Load gallery images
+    function loadGalleryImages() {
+        galleryGrid.innerHTML = '<div class="text-center w-100 py-5"><div class="spinner-border" role="status"><span class="visually-hidden">Chargement...</span></div><p class="mt-2">Chargement de la galerie...</p></div>';
+        
+        fetch('/admin/gallery/api/list')
+            .then(response => response.json())
+            .then(data => {
+                galleryGrid.innerHTML = '';
+                data.forEach(image => {
+                    const item = document.createElement('div');
+                    item.className = 'col-md-3 mb-4';
+                    item.innerHTML = `
+                        <div class="card gallery-item" data-id="${image.id}" data-title="${image.title}" data-filename="${image.filename}">
+                            <img src="/uploads/gallery/${image.filename}" class="card-img-top" alt="${image.title}" style="height: 150px; object-fit: cover;">
+                            <div class="card-body">
+                                <h6 class="card-title">${image.title}</h6>
+                                <button type="button" class="btn btn-sm btn-primary select-image">Sélectionner</button>
+                            </div>
+                        </div>
+                    `;
+                    galleryGrid.appendChild(item);
+                    
+                    // Add click handler for selecting an image
+                    item.querySelector('.select-image').addEventListener('click', function() {
+                        const imageId = this.closest('.gallery-item').dataset.id;
+                        const imageTitle = this.closest('.gallery-item').dataset.title;
+                        const imageFilename = this.closest('.gallery-item').dataset.filename;
+                        
+                        // Update the select element
+                        gallerySelect.value = imageId;
+                        
+                        // Update preview
+                        previewImage.src = `/uploads/gallery/${imageFilename}`;
+                        previewImage.alt = imageTitle;
+                        previewImage.style.display = 'block';
+                        previewTitle.textContent = imageTitle;
+                        selectedImagePreview.style.display = 'block';
+                        
+                        // Close modal
+                        galleryModal.hide();
+                        
+                        // Trigger change event to ensure form knows the value changed
+                        const event = new Event('change');
+                        gallerySelect.dispatchEvent(event);
+                    });
+                });
+                
+                if (data.length === 0) {
+                    galleryGrid.innerHTML = '<div class="col-12 text-center py-5"><p>Aucune image trouvée dans la galerie.</p><a href="/admin/gallery/new" class="btn btn-primary">Ajouter une image</a></div>';
+                }
+            })
+            .catch(error => {
+                galleryGrid.innerHTML = '<div class="col-12 text-center py-5"><p class="text-danger">Une erreur est survenue lors du chargement des images.</p></div>';
+                console.error('Error loading gallery images:', error);
+            });
+    }
+    
+    // Filter gallery images when searching
+    gallerySearch.addEventListener('input', function() {
+        const searchTerm = this.value.toLowerCase();
+        const items = galleryGrid.querySelectorAll('.gallery-item');
+        
+        items.forEach(item => {
+            const title = item.dataset.title.toLowerCase();
+            const parent = item.closest('.col-md-3');
+            
+            if (title.includes(searchTerm)) {
+                parent.style.display = 'block';
+            } else {
+                parent.style.display = 'none';
+            }
+        });
+    });
+});
+</script>

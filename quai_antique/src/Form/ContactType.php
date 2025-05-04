@@ -2,6 +2,7 @@
 
 namespace App\Form;
 
+use App\Entity\Contact;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
@@ -17,20 +18,31 @@ class ContactType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('name', TextType::class, [
+            ->add('firstName', TextType::class, [
+                'label' => 'Prénom',
+                'attr' => ['class' => 'form-control'],
+                'constraints' => [
+                    new NotBlank(['message' => 'Veuillez entrer votre prénom']),
+                    new Length([
+                        'max' => 255,
+                        'maxMessage' => 'Le prénom ne peut pas dépasser {{ limit }} caractères'
+                    ])
+                ],
+            ])
+            ->add('lastName', TextType::class, [
                 'label' => 'Nom',
-                'attr' => ['placeholder' => 'Votre nom complet'],
+                'attr' => ['class' => 'form-control'],
                 'constraints' => [
                     new NotBlank(['message' => 'Veuillez entrer votre nom']),
                     new Length([
-                        'max' => 100,
-                        'maxMessage' => 'Votre nom ne peut pas dépasser {{ limit }} caractères',
-                    ]),
+                        'max' => 255,
+                        'maxMessage' => 'Le nom ne peut pas dépasser {{ limit }} caractères'
+                    ])
                 ],
             ])
             ->add('email', EmailType::class, [
                 'label' => 'Email',
-                'attr' => ['placeholder' => 'votre.email@exemple.com'],
+                'attr' => ['class' => 'form-control'],
                 'constraints' => [
                     new NotBlank(['message' => 'Veuillez entrer votre adresse email']),
                     new Email(['message' => 'Veuillez entrer une adresse email valide']),
@@ -38,27 +50,23 @@ class ContactType extends AbstractType
             ])
             ->add('subject', TextType::class, [
                 'label' => 'Sujet',
-                'attr' => ['placeholder' => 'Sujet de votre message'],
+                'attr' => ['class' => 'form-control'],
                 'constraints' => [
                     new NotBlank(['message' => 'Veuillez entrer un sujet']),
                     new Length([
-                        'max' => 100,
-                        'maxMessage' => 'Le sujet ne peut pas dépasser {{ limit }} caractères',
-                    ]),
+                        'max' => 255,
+                        'maxMessage' => 'Le sujet ne peut pas dépasser {{ limit }} caractères'
+                    ])
                 ],
             ])
             ->add('message', TextareaType::class, [
                 'label' => 'Message',
                 'attr' => [
-                    'placeholder' => 'Votre message',
-                    'rows' => 7
+                    'class' => 'form-control',
+                    'rows' => 5
                 ],
                 'constraints' => [
                     new NotBlank(['message' => 'Veuillez entrer votre message']),
-                    new Length([
-                        'min' => 10,
-                        'minMessage' => 'Votre message doit contenir au moins {{ limit }} caractères',
-                    ]),
                 ],
             ])
         ;
@@ -67,7 +75,7 @@ class ContactType extends AbstractType
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
-            // Configure your form options here
+            'data_class' => Contact::class,
         ]);
     }
 }

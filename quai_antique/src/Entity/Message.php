@@ -2,46 +2,58 @@
 
 namespace App\Entity;
 
-use App\Entity\UpdateTimestampsTrait;
 use App\Repository\MessageRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: MessageRepository::class)]
 #[ORM\HasLifecycleCallbacks]
 class Message
 {
-    use UpdateTimestampsTrait;
-
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank]
+    #[Assert\Length(min: 2, max: 255)]
     private ?string $name = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank]
+    #[Assert\Email]
     private ?string $email = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank]
+    #[Assert\Length(min: 2, max: 255)]
     private ?string $subject = null;
 
     #[ORM\Column(type: Types::TEXT)]
-    private ?string $message = null;
+    #[Assert\NotBlank]
+    private ?string $content = null;
+
+    #[ORM\Column(length: 20)]
+    private ?string $status = 'new';
 
     #[ORM\Column]
     private ?bool $isRead = false;
 
-    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
-    private ?\DateTimeInterface $createdAt = null;
+    #[ORM\Column]
+    private ?\DateTimeImmutable $createdAt = null;
 
-    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
-    private ?\DateTimeInterface $readAt = null;
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $readAt = null;
+    
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $repliedAt = null;
 
-    public function __construct()
+    #[ORM\PrePersist]
+    public function setCreatedAtValue(): void
     {
-        $this->createdAt = new \DateTime();
+        $this->createdAt = new \DateTimeImmutable();
     }
 
     public function getId(): ?int
@@ -85,14 +97,26 @@ class Message
         return $this;
     }
 
-    public function getMessage(): ?string
+    public function getContent(): ?string
     {
-        return $this->message;
+        return $this->content;
     }
 
-    public function setMessage(string $message): static
+    public function setContent(string $content): static
     {
-        $this->message = $message;
+        $this->content = $content;
+
+        return $this;
+    }
+
+    public function getStatus(): ?string
+    {
+        return $this->status;
+    }
+
+    public function setStatus(string $status): static
+    {
+        $this->status = $status;
 
         return $this;
     }
@@ -105,34 +129,46 @@ class Message
     public function setIsRead(bool $isRead): static
     {
         $this->isRead = $isRead;
-
+        
         if ($isRead && $this->readAt === null) {
-            $this->readAt = new \DateTime();
+            $this->readAt = new \DateTimeImmutable();
         }
 
         return $this;
     }
 
-    public function getCreatedAt(): ?\DateTimeInterface
+    public function getCreatedAt(): ?\DateTimeImmutable
     {
         return $this->createdAt;
     }
 
-    public function setCreatedAt(\DateTimeInterface $createdAt): static
+    public function setCreatedAt(\DateTimeImmutable $createdAt): static
     {
         $this->createdAt = $createdAt;
 
         return $this;
     }
 
-    public function getReadAt(): ?\DateTimeInterface
+    public function getReadAt(): ?\DateTimeImmutable
     {
         return $this->readAt;
     }
 
-    public function setReadAt(?\DateTimeInterface $readAt): static
+    public function setReadAt(?\DateTimeImmutable $readAt): static
     {
         $this->readAt = $readAt;
+
+        return $this;
+    }
+
+    public function getRepliedAt(): ?\DateTimeImmutable
+    {
+        return $this->repliedAt;
+    }
+
+    public function setRepliedAt(?\DateTimeImmutable $repliedAt): static
+    {
+        $this->repliedAt = $repliedAt;
 
         return $this;
     }

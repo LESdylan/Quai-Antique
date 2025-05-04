@@ -8,6 +8,8 @@ parameters:
     images_directory: '%kernel.project_dir%/public/uploads/images'
     logos_directory: '%kernel.project_dir%/public/uploads/logos'
     promotions_directory: '%kernel.project_dir%/public/uploads/promotions'
+    # Add this parameter for gallery uploads
+    gallery_upload_directory: 'uploads/gallery'
 
 services:
     # default configuration for services in *this* file
@@ -74,3 +76,8 @@ services:
         arguments:
             $projectDir: '%kernel.project_dir%'
         tags: ['console.command']
+    
+    # Configure the GalleryController with the upload directory
+    App\Controller\Admin\GalleryController:
+        arguments:
+            $uploadDirectory: '%gallery_upload_directory%'

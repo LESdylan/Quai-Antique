@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Nouveau message de contact</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .header {
+            background-color: #4a3520;
+            color: #fff;
+            padding: 20px;
+            text-align: center;
+        }
+        .content {
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+        .message-box {
+            background-color: #fff;
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 4px;
+        }
+        .field {
+            margin-bottom: 10px;
+        }
+        .field strong {
+            display: inline-block;
+            min-width: 100px;
+        }
+        .footer {
+            text-align: center;
+            padding: 10px;
+            font-size: 12px;
+            color: #777;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Nouveau message de contact</h1>
+    </div>
+    
+    <div class="content">
+        <p>Un nouveau message a été envoyé via le formulaire de contact du site Quai Antique.</p>
+        
+        <div class="message-box">
+            <div class="field">
+                <strong>Date :</strong> {{ contact.createdAt|date('d/m/Y à H:i') }}
+            </div>
+            <div class="field">
+                <strong>Nom :</strong> {{ contact.firstName }} {{ contact.lastName }}
+            </div>
+            <div class="field">
+                <strong>Email :</strong> {{ contact.email }}
+            </div>
+            <div class="field">
+                <strong>Sujet :</strong> {{ contact.subject }}
+            </div>
+            <div class="field">
+                <strong>Message :</strong>
+            </div>
+            <div style="padding: 10px; background: #f5f5f5; border-left: 3px solid #4a3520;">
+                {{ contact.message|nl2br }}
+            </div>
+        </div>
+        
+        <p>Pour répondre à ce message, utilisez simplement la fonction "répondre" de votre client email.</p>
+    </div>
+    
+    <div class="footer">
+        <p>Ce message a été envoyé depuis le site Quai Antique.</p>
+    </div>
+</body>
+</html>

@@ -8,6 +8,11 @@ use Doctrine\Persistence\ManagerRegistry;
 
 /**
  * @extends ServiceEntityRepository<Schedule>
+ *
+ * @method Schedule|null find($id, $lockMode = null, $lockVersion = null)
+ * @method Schedule|null findOneBy(array $criteria, array $orderBy = null)
+ * @method Schedule[]    findAll()
+ * @method Schedule[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
 class ScheduleRepository extends ServiceEntityRepository
 {
@@ -32,5 +37,53 @@ class ScheduleRepository extends ServiceEntityRepository
         if ($flush) {
             $this->getEntityManager()->flush();
         }
+    }
+    
+    /**
+     * Find active schedules ordered by day of week and meal type
+     */
+    public function findActiveSchedules(): array
+    {
+        return $this->createQueryBuilder('s')
+            ->where('s.isActive = :active')
+            ->setParameter('active', true)
+            ->orderBy('s.dayOfWeek', 'ASC')
+            ->addOrderBy('s.mealType', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
+    
+    /**
+     * Find schedules for a specific day
+     */
+    public function findByDayOfWeek(int $dayOfWeek): array
+    {
+        return $this->createQueryBuilder('s')
+            ->where('s.dayOfWeek = :dayOfWeek')
+            ->setParameter('dayOfWeek', $dayOfWeek)
+            ->orderBy('s.mealType', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
+    
+    /**
+     * Check if restaurant is open at a specific datetime
+     */
+    public function isOpenAt(\DateTime $dateTime): bool
+    {
+        $dayOfWeek = (int) $dateTime->format('N'); // 1 (Monday) to 7 (Sunday)
+        $time = $dateTime->format('H:i:s');
+        
+        $qb = $this->createQueryBuilder('s')
+            ->where('s.dayOfWeek = :dayOfWeek')
+            ->andWhere('s.isActive = :active')
+            ->andWhere('TIME(:time) BETWEEN s.openingTime AND s.closingTime')
+            ->setParameter('dayOfWeek', $dayOfWeek)
+            ->setParameter('active', true)
+            ->setParameter('time', $time);
+        
+        $result = $qb->getQuery()->getOneOrNullResult();
+        
+        return $result !== null;
     }
 }

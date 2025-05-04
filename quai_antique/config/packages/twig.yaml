@@ -1,5 +1,17 @@
 twig:
-    file_name_pattern: '*.twig'
+    default_path: '%kernel.project_dir%/templates'
+    debug: '%kernel.debug%'
+    strict_variables: '%kernel.debug%'
+    exception_controller: null
+    form_themes: ['bootstrap_5_layout.html.twig']
+    
+    # Configure paths for your custom twig templates
+    paths:
+        '%kernel.project_dir%/templates/front': front
+        
+    globals:
+        # Add any global variables your templates need here
+        site_name: 'Le Quai Antique'
 
 when@test:
     twig:

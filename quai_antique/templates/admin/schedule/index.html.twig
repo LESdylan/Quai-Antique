@@ -1,0 +1,125 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Horaires d'ouverture | Administration{% endblock %}
+
+{% block body %}
+<div class="container-fluid px-4">
+    <h1 class="mt-4">Horaires d'ouverture</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item"><a href="{{ path('admin_dashboard') }}">Tableau de bord</a></li>
+        <li class="breadcrumb-item active">Horaires d'ouverture</li>
+    </ol>
+    
+    {% for label, messages in app.flashes %}
+        {% for message in messages %}
+            <div class="alert alert-{{ label }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endfor %}
+    
+    <div class="card mb-4">
+        <div class="card-header">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <i class="fas fa-clock me-1"></i>
+                    Horaires du restaurant
+                </div>
+                <div>
+                    <a href="{{ path('admin_schedule_new') }}" class="btn btn-primary btn-sm">
+                        <i class="fas fa-plus me-1"></i> Ajouter un horaire
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-8 mx-auto">
+                    <div class="alert alert-info mb-4">
+                        <i class="fas fa-info-circle me-2"></i> 
+                        Ces horaires seront affichés sur la page d'accueil et utilisés pour déterminer les créneaux de réservation disponibles.
+                    </div>
+                    
+                    {% set dayNames = {
+                        1: 'Lundi',
+                        2: 'Mardi',
+                        3: 'Mercredi',
+                        4: 'Jeudi',
+                        5: 'Vendredi',
+                        6: 'Samedi',
+                        7: 'Dimanche'
+                    } %}
+                    
+                    {% for dayNumber, daySchedules in weekSchedules %}
+                        <div class="card shadow-sm mb-3">
+                            <div class="card-header bg-light">
+                                <strong>{{ dayNames[dayNumber] }}</strong>
+                            </div>
+                            <div class="card-body p-0">
+                                {% if daySchedules|length > 0 %}
+                                    <table class="table mb-0">
+                                        <thead>
+                                            <tr>
+                                                <th>Service</th>
+                                                <th>Ouverture</th>
+                                                <th>Fermeture</th>
+                                                <th>Statut</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for schedule in daySchedules %}
+                                                <tr>
+                                                    <td>{{ schedule.mealType == 'lunch' ? 'Déjeuner' : 'Dîner' }}</td>
+                                                    <td>{{ schedule.openingTime|date('H:i') }}</td>
+                                                    <td>{{ schedule.closingTime|date('H:i') }}</td>
+                                                    <td>
+                                                        {% if schedule.isActive %}
+                                                            <span class="badge bg-success">Actif</span>
+                                                        {% else %}
+                                                            <span class="badge bg-danger">Inactif</span>
+                                                        {% endif %}
+                                                    </td>
+                                                    <td>
+                                                        <div class="btn-group btn-group-sm">
+                                                            <a href="{{ path('admin_schedule_edit', {'id': schedule.id}) }}" class="btn btn-primary">
+                                                                <i class="fas fa-edit"></i>
+                                                            </a>
+                                                            <form method="post" action="{{ path('admin_schedule_toggle', {'id': schedule.id}) }}" class="d-inline">
+                                                                <input type="hidden" name="_token" value="{{ csrf_token('toggle' ~ schedule.id) }}">
+                                                                <button class="btn btn-{{ schedule.isActive ? 'warning' : 'success' }}" title="{{ schedule.isActive ? 'Désactiver' : 'Activer' }}">
+                                                                    <i class="fas fa-{{ schedule.isActive ? 'times' : 'check' }}"></i>
+                                                                </button>
+                                                            </form>
+                                                            <form method="post" action="{{ path('admin_schedule_delete', {'id': schedule.id}) }}" class="d-inline" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cet horaire ?');">
+                                                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ schedule.id) }}">
+                                                                <button class="btn btn-danger" title="Supprimer">
+                                                                    <i class="fas fa-trash"></i>
+                                                                </button>
+                                                            </form>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                {% else %}
+                                    <div class="p-3 text-center">
+                                        <span class="text-muted">Fermé</span>
+                                        <div class="mt-2">
+                                            <a href="{{ path('admin_schedule_new', {'day': dayNumber}) }}" class="btn btn-sm btn-outline-primary">
+                                                <i class="fas fa-plus-circle me-1"></i> Ajouter un service
+                                            </a>
+                                        </div>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

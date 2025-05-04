@@ -1,0 +1,137 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Détail du message | Administration{% endblock %}
+
+{% block body %}
+<div class="container-fluid px-4">
+    <h1 class="mt-4">Détail du message</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item"><a href="{{ path('admin_dashboard') }}">Tableau de bord</a></li>
+        <li class="breadcrumb-item"><a href="{{ path('admin_message_index') }}">Messages</a></li>
+        <li class="breadcrumb-item active">Détail</li>
+    </ol>
+    
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <div>
+                        <i class="fas fa-envelope me-1"></i>
+                        {{ message.subject }}
+                    </div>
+                    
+                    <div>
+                        {% if message.status == 'new' %}
+                            <span class="badge bg-danger">Nouveau</span>
+                        {% elseif message.status == 'read' %}
+                            <span class="badge bg-info">Lu</span>
+                        {% elseif message.status == 'replied' %}
+                            <span class="badge bg-success">Répondu</span>
+                        {% elseif message.status == 'archived' %}
+                            <span class="badge bg-secondary">Archivé</span>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="mb-4">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <strong>De:</strong> {{ message.name }} &lt;{{ message.email }}&gt;
+                            </div>
+                            <div>
+                                <small class="text-muted">{{ message.createdAt|date('d/m/Y H:i') }}</small>
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="message-content">
+                            {{ message.content|nl2br }}
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <a href="mailto:{{ message.email }}?subject=Re: {{ message.subject }}" class="btn btn-primary">
+                            <i class="fas fa-reply"></i> Répondre par email
+                        </a>
+                        
+                        <a href="{{ path('admin_message_index') }}" class="btn btn-secondary ms-2">
+                            <i class="fas fa-arrow-left"></i> Retour à la liste
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <i class="fas fa-cogs me-1"></i>
+                    Actions
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        {% if message.status != 'replied' %}
+                            <form method="post" action="{{ path('admin_message_mark_replied', {'id': message.id}) }}">
+                                <input type="hidden" name="_token" value="{{ csrf_token('mark_as_replied' ~ message.id) }}">
+                                <button class="btn btn-success w-100 mb-2" type="submit">
+                                    <i class="fas fa-check-double"></i> Marquer comme répondu
+                                </button>
+                            </form>
+                        {% endif %}
+                        
+                        {% if message.status != 'archived' %}
+                            <form method="post" action="{{ path('admin_message_archive', {'id': message.id}) }}">
+                                <input type="hidden" name="_token" value="{{ csrf_token('archive' ~ message.id) }}">
+                                <button class="btn btn-secondary w-100 mb-2" type="submit">
+                                    <i class="fas fa-archive"></i> Archiver
+                                </button>
+                            </form>
+                        {% endif %}
+                        
+                        <form method="post" action="{{ path('admin_message_delete', {'id': message.id}) }}" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce message ?');">
+                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ message.id) }}">
+                            <button class="btn btn-danger w-100" type="submit">
+                                <i class="fas fa-trash"></i> Supprimer
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card mb-4">
+                <div class="card-header">
+                    <i class="fas fa-info-circle me-1"></i>
+                    Informations
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span>Date de réception:</span>
+                            <span>{{ message.createdAt|date('d/m/Y H:i') }}</span>
+                        </li>
+                        {% if message.readAt %}
+                            <li class="list-group-item d-flex justify-content-between">
+                                <span>Lu le:</span>
+                                <span>{{ message.readAt|date('d/m/Y H:i') }}</span>
+                            </li>
+                        {% endif %}
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span>État:</span>
+                            <span>
+                                {% if message.status == 'new' %}
+                                    <span class="badge bg-danger">Nouveau</span>
+                                {% elseif message.status == 'read' %}
+                                    <span class="badge bg-info">Lu</span>
+                                {% elseif message.status == 'replied' %}
+                                    <span class="badge bg-success">Répondu</span>
+                                {% elseif message.status == 'archived' %}
+                                    <span class="badge bg-secondary">Archivé</span>
+                                {% endif %}
+                            </span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

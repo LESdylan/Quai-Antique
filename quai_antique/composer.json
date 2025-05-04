@@ -1,4 +1,6 @@
 {
+    "name": "dlesieur/quai-antique",
+    "description": "Restaurant Quai Antique - Site web Symfony pour un restaurant gastronomique",
     "type": "project",
     "license": "proprietary",
     "minimum-stability": "stable",
@@ -10,8 +12,8 @@
         "doctrine/dbal": "^3.9.4",
         "doctrine/doctrine-bundle": "^2.14",
         "doctrine/doctrine-migrations-bundle": "^3.4.1",
-        "doctrine/orm": "^3.3.2",
-        "liip/imagine-bundle": "^2.13",
+        "doctrine/orm": "^3.3.3",
+        "liip/imagine-bundle": "^2.13.3",
         "phpdocumentor/reflection-docblock": "^5.6.2",
         "phpstan/phpdoc-parser": "^2.1",
         "symfony/asset": "7.2.*",
@@ -44,7 +46,8 @@
         "symfony/web-link": "7.2.*",
         "symfony/yaml": "7.2.*",
         "twig/extra-bundle": "^2.12|^3.21",
-        "twig/twig": "^2.12|^3.21"
+        "twig/string-extra": "^3.21",
+        "twig/twig": "^2.12|^3.21.1"
     },
     "config": {
         "allow-plugins": {

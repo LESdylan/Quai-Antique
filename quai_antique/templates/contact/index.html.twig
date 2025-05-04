@@ -1,102 +1,521 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Contact - Le Quai Antique{% endblock %}
+{% block title %}Contact | {{ parent() }}{% endblock %}
 
 {% block stylesheets %}
 <style>
-    .contact-header {
-        background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('{{ asset('images/contact-header.jpg') }}') center/cover no-repeat;
-        height: 30vh;
-        color: white;
+    /* Split layout design */
+    .contact-container {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        min-height: 100vh;
+    }
+    
+    /* Left side - Map and contact info */
+    .contact-info-section {
+        position: relative;
+        background-color: #f8f5f2;
+        padding: 3rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+    
+    /* Right side - Form section */
+    .contact-form-section {
+        padding: 3rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        background: linear-gradient(to right, #f8f5f2, #ffffff);
+    }
+    
+    .form-header {
+        margin-bottom: 2.5rem;
+    }
+    
+    .form-title {
+        font-family: 'Playfair Display', serif;
+        font-weight: 700;
+        font-size: 2.5rem;
+        color: var(--primary);
+        margin-bottom: 0.5rem;
+        position: relative;
+    }
+    
+    .form-title::after {
+        content: '';
+        position: absolute;
+        left: 0;
+        bottom: -10px;
+        width: 60px;
+        height: 3px;
+        background-color: var(--primary);
+    }
+    
+    .form-subtitle {
+        font-size: 1.1rem;
+        color: #666;
+        margin-top: 1.5rem;
+        opacity: 0;
+        animation: fadeIn 1s forwards 0.5s;
+    }
+    
+    /* Contact cards */
+    .contact-cards {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    .contact-card {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 8px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+        transition: all 0.3s ease;
+        opacity: 0;
+        transform: translateY(20px);
+        animation: fadeUp 0.8s forwards;
         display: flex;
         align-items: center;
-        justify-content: center;
-        text-align: center;
-        margin-bottom: 3rem;
     }
     
-    .contact-header h1 {
-        font-size: 3rem;
-        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    .contact-card:nth-child(1) { animation-delay: 0.2s; }
+    .contact-card:nth-child(2) { animation-delay: 0.4s; }
+    .contact-card:nth-child(3) { animation-delay: 0.6s; }
+    .contact-card:nth-child(4) { animation-delay: 0.8s; }
+    
+    .contact-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
     }
     
-    .contact-form {
-        background-color: white;
-        padding: 2rem;
-        border-radius: 8px;
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-    }
-    
-    .contact-info {
-        margin-bottom: 3rem;
-    }
-    
-    .contact-item {
-        display: flex;
-        align-items: flex-start;
-        margin-bottom: 1.5rem;
-    }
-    
-    .contact-icon {
+    .contact-card-icon {
         width: 50px;
         height: 50px;
-        background-color: var(--primary);
-        color: white;
+        background-color: rgba(166, 124, 82, 0.1);
         border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
         margin-right: 1rem;
-        flex-shrink: 0;
+        color: var(--primary);
+        font-size: 1.2rem;
     }
     
-    .contact-text h4 {
-        margin-bottom: 0.25rem;
+    .contact-card-content h3 {
+        font-size: 1rem;
+        margin: 0 0 0.3rem 0;
+        color: #444;
     }
     
+    .contact-card-content p {
+        font-size: 0.95rem;
+        margin: 0;
+        color: #666;
+    }
+    
+    /* Map section */
     .map-container {
-        height: 400px;
-        overflow: hidden;
+        height: 300px;
         border-radius: 8px;
-        margin-bottom: 2rem;
+        overflow: hidden;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        position: relative;
+        opacity: 0;
+        transform: translateY(20px);
+        animation: fadeUp 1s forwards 1s;
     }
     
     .map-container iframe {
         width: 100%;
         height: 100%;
+        border: none;
+    }
+    
+    /* Social media section */
+    .social-media-section {
+        margin-top: 2rem;
+        display: flex;
+        gap: 1rem;
+        opacity: 0;
+        animation: fadeIn 1s forwards 1.2s;
+    }
+    
+    .social-link {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background-color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--primary);
+        font-size: 1.2rem;
+        transition: all 0.3s ease;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+    }
+    
+    .social-link:hover {
+        transform: translateY(-3px) scale(1.1);
+        background-color: var(--primary);
+        color: white;
+    }
+    
+    /* Form styling */
+    .form-group {
+        margin-bottom: 1.5rem;
+        position: relative;
+    }
+    
+    .form-label {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        color: #333;
+        transition: all 0.3s ease;
+    }
+    
+    .form-control {
+        width: 100%;
+        padding: 12px 15px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        background-color: white;
+    }
+    
+    .form-control:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(166, 124, 82, 0.15);
+        outline: none;
+    }
+    
+    .form-control:focus + .focus-border {
+        transform: scaleX(1);
+        opacity: 1;
+    }
+    
+    .focus-border {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 2px;
+        background-color: var(--primary);
+        transform: scaleX(0);
+        opacity: 0;
+        transition: all 0.3s ease;
+        transform-origin: left;
+    }
+    
+    .submit-btn {
+        background-color: var(--primary);
+        color: white;
+        border: none;
+        border-radius: 6px;
+        padding: 15px 30px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin-top: 1rem;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .submit-btn:hover {
+        background-color: var(--accent);
+        transform: translateY(-3px);
+    }
+    
+    .submit-btn::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 0;
+        height: 0;
+        background-color: rgba(255,255,255,0.2);
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+        transition: width 0.5s, height 0.5s;
+    }
+    
+    .submit-btn:active::after {
+        width: 300px;
+        height: 300px;
+    }
+    
+    .submit-btn .icon {
+        margin-left: 8px;
+        transition: transform 0.3s ease;
+    }
+    
+    .submit-btn:hover .icon {
+        transform: translateX(4px);
+    }
+    
+    /* Form feedback */
+    .form-feedback {
+        padding: 1rem;
+        margin: 1rem 0;
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+    }
+    
+    .form-feedback.success {
+        background-color: rgba(64, 192, 87, 0.1);
+        border-left: 4px solid #40c057;
+        color: #2b7a3a;
+    }
+    
+    .form-feedback.error {
+        background-color: rgba(225, 83, 97, 0.1);
+        border-left: 4px solid #e15361;
+        color: #c92a3a;
+    }
+    
+    .feedback-icon {
+        font-size: 1.2rem;
+        margin-right: 0.8rem;
+    }
+    
+    /* Opening hours section */
+    .hours-section {
+        background-color: white;
+        padding: 1.5rem;
+        border-radius: 8px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+        margin-top: 2rem;
+        opacity: 0;
+        animation: fadeIn 1s forwards 0.8s;
+    }
+    
+    .hours-title {
+        font-family: 'Playfair Display', serif;
+        font-size: 1.3rem;
+        color: var(--primary);
+        margin-bottom: 1rem;
+        position: relative;
+        padding-bottom: 0.5rem;
+    }
+    
+    .hours-title::after {
+        content: '';
+        position: absolute;
+        left: 0;
+        bottom: 0;
+        width: 40px;
+        height: 2px;
+        background-color: var(--primary);
+    }
+    
+    .hours-grid {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        gap: 0.5rem 1rem;
+    }
+    
+    .hours-day {
+        font-weight: 600;
+        color: #444;
+    }
+    
+    .hours-time {
+        color: #666;
+    }
+    
+    .current-day {
+        color: var(--primary);
+        font-weight: 700;
+    }
+    
+    /* Animations */
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+    
+    @keyframes fadeUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    @keyframes pulse {
+        0% { box-shadow: 0 0 0 0 rgba(166, 124, 82, 0.4); }
+        70% { box-shadow: 0 0 0 10px rgba(166, 124, 82, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(166, 124, 82, 0); }
+    }
+    
+    /* Responsive styles */
+    @media (max-width: 991px) {
+        .contact-container {
+            grid-template-columns: 1fr;
+        }
+        
+        .contact-info-section {
+            order: 2;
+        }
+        
+        .contact-form-section {
+            order: 1;
+        }
+    }
+    
+    @media (max-width: 767px) {
+        .contact-cards {
+            grid-template-columns: 1fr;
+        }
+    }
+    
+    /* Accessibility improvements */
+    .visually-hidden {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
         border: 0;
+    }
+    
+    /* Focus indicator for accessibility */
+    a:focus, button:focus, input:focus, textarea:focus {
+        outline: 2px solid var(--primary);
+        outline-offset: 2px;
+    }
+
+    /* Form floating labels */
+    .form-floating {
+        position: relative;
+    }
+
+    .form-floating .form-control {
+        height: 60px;
+        padding: 20px 16px 10px;
+    }
+
+    .form-floating textarea.form-control {
+        height: auto;
+        min-height: 120px;
+        padding-top: 24px;
+    }
+
+    .form-floating label {
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 100%;
+        padding: 16px;
+        pointer-events: none;
+        border: 1px solid transparent;
+        transform-origin: 0 0;
+        transition: opacity .2s ease-in-out, transform .2s ease-in-out;
+        color: #777;
+    }
+
+    .form-floating .form-control:focus ~ label,
+    .form-floating .form-control:not(:placeholder-shown) ~ label {
+        opacity: .8;
+        transform: scale(.85) translateY(-0.5rem) translateX(0.15rem);
+        color: var(--primary);
+    }
+
+    /* Success animation */
+    .checkmark {
+        width: 70px;
+        height: 70px;
+        border-radius: 50%;
+        display: block;
+        stroke-width: 3;
+        stroke: #fff;
+        stroke-miterlimit: 10;
+        box-shadow: inset 0px 0px 0px #40c057;
+        animation: fill .4s ease-in-out .4s forwards, scale .3s ease-in-out .9s both;
+        position: relative;
+        margin: 0 auto;
+        visibility: hidden;
+        opacity: 0;
+        transition: all 0.3s ease;
+    }
+
+    .checkmark.show {
+        visibility: visible;
+        opacity: 1;
+    }
+
+    .checkmark__circle {
+        stroke-dasharray: 166;
+        stroke-dashoffset: 166;
+        stroke-width: 2;
+        stroke-miterlimit: 10;
+        stroke: #40c057;
+        fill: none;
+        animation: stroke .6s cubic-bezier(0.650, 0.000, 0.450, 1.000) forwards;
+    }
+
+    .checkmark__check {
+        transform-origin: 50% 50%;
+        stroke-dasharray: 48;
+        stroke-dashoffset: 48;
+        animation: stroke .3s cubic-bezier(0.650, 0.000, 0.450, 1.000) .8s forwards;
+    }
+
+    @keyframes stroke {
+        100% { stroke-dashoffset: 0; }
+    }
+
+    @keyframes scale {
+        0%, 100% { transform: none; }
+        50% { transform: scale3d(1.1, 1.1, 1); }
+    }
+
+    @keyframes fill {
+        100% { box-shadow: inset 0px 0px 0px 30px #40c057; }
     }
 </style>
 {% endblock %}
 
 {% block body %}
-<!-- Contact Header -->
-<header class="contact-header">
-    <div class="container">
-        <h1>Contact</h1>
-        <p class="lead">Nous sommes à votre écoute</p>
-    </div>
-</header>
-
-<div class="container mb-5">
-    <div class="row">
-        <div class="col-lg-7">
-            <h2 class="mb-4">Nous Contacter</h2>
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <h1 class="text-center mb-4">Contactez-nous</h1>
             
-            {% for label, messages in app.flashes %}
-                {% for message in messages %}
-                    <div class="alert alert-{{ label }} alert-dismissible fade show" role="alert">
-                        {{ message }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                {% endfor %}
+            {# Display flash messages #}
+            {% for message in app.flashes('success') %}
+                <div class="alert alert-success">
+                    <i class="fas fa-check-circle me-2"></i> {{ message }}
+                </div>
             {% endfor %}
             
-            <div class="contact-form mb-4">
-                {{ form_start(form) }}
-                
-                <div class="mb-3">
-                    {{ form_row(form.name) }}
+            {% for message in app.flashes('error') %}
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-triangle me-2"></i> {{ message }}
+                </div>
+            {% endfor %}
+            
+            {# Display AJAX form status #}
+            <div id="form-status"></div>
+            
+            {{ form_start(form, {'attr': {'id': 'contact-form', 'action': path('app_contact')}}) }}
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        {{ form_row(form.firstName) }}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        {{ form_row(form.lastName) }}
+                    </div>
                 </div>
                 
                 <div class="mb-3">
@@ -111,82 +530,16 @@
                     {{ form_row(form.message) }}
                 </div>
                 
-                <div class="text-center">
-                    <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-paper-plane me-2"></i> Envoyer le message
-                    </button>
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-primary" id="contact-submit">Envoyer</button>
                 </div>
-                
-                {{ form_end(form) }}
-            </div>
-        </div>
-        
-        <div class="col-lg-5">
-            <h2 class="mb-4">Informations</h2>
-            
-            <div class="contact-info">
-                <div class="contact-item">
-                    <div class="contact-icon">
-                        <i class="fas fa-map-marker-alt"></i>
-                    </div>
-                    <div class="contact-text">
-                        <h4>Adresse</h4>
-                        <p>12 Quai des Allobroges<br>73000 Chambéry</p>
-                    </div>
-                </div>
-                
-                <div class="contact-item">
-                    <div class="contact-icon">
-                        <i class="fas fa-phone"></i>
-                    </div>
-                    <div class="contact-text">
-                        <h4>Téléphone</h4>
-                        <p>04 79 85 XX XX</p>
-                    </div>
-                </div>
-                
-                <div class="contact-item">
-                    <div class="contact-icon">
-                        <i class="fas fa-envelope"></i>
-                    </div>
-                    <div class="contact-text">
-                        <h4>Email</h4>
-                        <p>contact@quaiantique.fr</p>
-                    </div>
-                </div>
-                
-                <div class="contact-item">
-                    <div class="contact-icon">
-                        <i class="fas fa-clock"></i>
-                    </div>
-                    <div class="contact-text">
-                        <h4>Horaires</h4>
-                        <p>Mardi au Dimanche<br>
-                           Déjeuner: 12h00 - 14h00<br>
-                           Dîner: 19h00 - 22h00<br>
-                           <span class="text-danger">Fermé le lundi</span>
-                        </p>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="map-container">
-                <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2794.3218692058825!2d5.91582!3d45.563212!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x478ba85bcc2e9913%3A0x829560f48149b7fc!2sQuai%20des%20Allobroges%2C%2073000%20Chamb%C3%A9ry!5e0!3m2!1sfr!2sfr!4v1665404142330!5m2!1sfr!2sfr" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
-            </div>
-            
-            <div class="social-links text-center">
-                <h4 class="mb-3">Suivez-nous</h4>
-                <a href="#" class="btn btn-outline-dark mx-1">
-                    <i class="fab fa-facebook-f"></i>
-                </a>
-                <a href="#" class="btn btn-outline-dark mx-1">
-                    <i class="fab fa-instagram"></i>
-                </a>
-                <a href="#" class="btn btn-outline-dark mx-1">
-                    <i class="fab fa-tripadvisor"></i>
-                </a>
-            </div>
+            {{ form_end(form) }}
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('js/contact-form.js') }}"></script>
 {% endblock %}
